@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Icon Fix Test</title>
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    
+    <!-- Material Symbols Light -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: var(--color-background, #faf9f5);
+            font-family: 'Quicksand', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .test-section {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .test-description {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 24px 0;
+        }
+        
+        .comparison-box {
+            border: 1px solid #d1d5db;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        
+        .comparison-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #374151;
+        }
+        
+        .before {
+            background-color: #fee2e2;
+        }
+        
+        .after {
+            background-color: #d1fae5;
+        }
+        
+        .test-header {
+            margin: 16px 0;
+        }
+        
+        /* Mock button styles for comparison */
+        .mock-button-home {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            cursor: pointer;
+        }
+        
+        .mock-button-home:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .standalone-home {
+            display: inline-block;
+            cursor: pointer;
+            color: var(--color-gray-600);
+            font-size: 24px;
+        }
+        
+        .standalone-home:hover {
+            color: var(--color-gray-700);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-section">
+        <h1>Home Icon Fix Verification</h1>
+        
+        <div class="test-description">
+            <h2>Test: Remove square border outline from home button</h2>
+            <p><strong>Issue:</strong> Home button was showing icon with square border outline (button styling)</p>
+            <p><strong>Solution:</strong> Convert button wrapper to standalone icon per Design_system.md guidelines</p>
+            <p><strong>Requirements:</strong> Material Symbols home icon, gray color, no border/outline, maintains functionality and accessibility</p>
+        </div>
+        
+        <div class="before-after">
+            <div class="comparison-box before">
+                <div class="comparison-title">❌ BEFORE (Problem)</div>
+                <p>Button wrapper with border/background:</p>
+                <div class="mock-button-home">
+                    <span class="material-symbols-outlined">home</span>
+                </div>
+                <p><small>Square button appearance with hover background</small></p>
+            </div>
+            
+            <div class="comparison-box after">
+                <div class="comparison-title">✅ AFTER (Fixed)</div>
+                <p>Standalone icon (per Design System):</p>
+                <span class="material-symbols-outlined standalone-home">home</span>
+                <p><small>Clean standalone icon, no button appearance</small></p>
+            </div>
+        </div>
+        
+        <h3>Live Test - Updated Navigation Component:</h3>
+        <div class="test-header" id="test-header">
+            <!-- Header will be rendered here -->
+        </div>
+        
+        <div class="test-results">
+            <h3>Test Results:</h3>
+            <ul id="test-results-list">
+                <li>⏳ Loading navigation component...</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createHeader } from './src/components/navigation.js';
+        
+        // Test the updated navigation component
+        function runTests() {
+            const testResults = document.getElementById('test-results-list');
+            const results = [];
+            
+            try {
+                // Create header with home icon
+                const header = createHeader({
+                    showHome: true,
+                    user: {
+                        name: 'Test User',
+                        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test'
+                    },
+                    onHome: () => alert('Home icon clicked! ✅ Functionality preserved'),
+                    title: 'Test Page'
+                });
+                
+                document.getElementById('test-header').appendChild(header);
+                
+                // Check for button wrapper (should not exist)
+                const buttonWrapper = header.querySelector('button');
+                if (!buttonWrapper) {
+                    results.push('✅ No button wrapper found - button element successfully removed');
+                } else {
+                    results.push('❌ Button wrapper still exists');
+                }
+                
+                // Check for standalone home icon
+                const homeIcon = header.querySelector('.material-symbols-outlined');
+                if (homeIcon && homeIcon.textContent === 'home') {
+                    results.push('✅ Home icon element found with correct content');
+                    
+                    // Check styling
+                    const styles = window.getComputedStyle(homeIcon);
+                    if (styles.cursor === 'pointer') {
+                        results.push('✅ Cursor pointer applied - icon is clickable');
+                    } else {
+                        results.push('❌ Missing cursor pointer');
+                    }
+                    
+                    // Check accessibility attributes
+                    if (homeIcon.getAttribute('role') === 'button') {
+                        results.push('✅ Role="button" attribute present');
+                    } else {
+                        results.push('❌ Missing role="button" attribute');
+                    }
+                    
+                    if (homeIcon.getAttribute('aria-label')) {
+                        results.push('✅ ARIA label present for accessibility');
+                    } else {
+                        results.push('❌ Missing ARIA label');
+                    }
+                    
+                    if (homeIcon.getAttribute('tabindex') === '0') {
+                        results.push('✅ Tabindex="0" present for keyboard navigation');
+                    } else {
+                        results.push('❌ Missing tabindex for keyboard navigation');
+                    }
+                    
+                } else {
+                    results.push('❌ Home icon not found or incorrect');
+                }
+                
+                // Test click functionality
+                if (homeIcon) {
+                    const clickEvent = new Event('click');
+                    try {
+                        homeIcon.dispatchEvent(clickEvent);
+                        results.push('✅ Click event dispatched successfully');
+                    } catch (e) {
+                        results.push('❌ Click event failed: ' + e.message);
+                    }
+                }
+                
+                // Test keyboard functionality
+                if (homeIcon) {
+                    const keyEvent = new KeyboardEvent('keydown', { key: 'Enter' });
+                    try {
+                        homeIcon.dispatchEvent(keyEvent);
+                        results.push('✅ Keyboard event (Enter) dispatched successfully');
+                    } catch (e) {
+                        results.push('❌ Keyboard event failed: ' + e.message);
+                    }
+                }
+                
+            } catch (error) {
+                results.push('❌ Test failed with error: ' + error.message);
+            }
+            
+            // Update results display
+            testResults.innerHTML = results.map(result => `<li>${result}</li>`).join('');
+            
+            // Add summary
+            const passCount = results.filter(r => r.startsWith('✅')).length;
+            const failCount = results.filter(r => r.startsWith('❌')).length;
+            const summary = document.createElement('div');
+            summary.innerHTML = `<hr><strong>Summary: ${passCount} passed, ${failCount} failed</strong>`;
+            testResults.appendChild(summary);
+        }
+        
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(runTests, 500);
+        });
+    </script>
+</body>
+</html>

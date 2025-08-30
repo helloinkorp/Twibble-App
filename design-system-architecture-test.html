@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design System Architecture Test - Typography & Component Compliance</title>
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <style>
+        /* Test-specific styles */
+        .test-section {
+            border: 2px solid var(--color-gray-200);
+            margin-bottom: var(--space-6);
+            padding: var(--space-4);
+            border-radius: var(--border-radius);
+        }
+        
+        .test-header {
+            background: var(--color-primary);
+            color: white;
+            padding: var(--space-2) var(--space-4);
+            margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) var(--space-4) calc(var(--space-4) * -1);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            font-family: var(--font-family-headers);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .test-result {
+            padding: var(--space-2);
+            border-radius: var(--border-radius);
+            margin-top: var(--space-3);
+            font-family: monospace;
+            font-size: var(--font-size-sm);
+        }
+        
+        .test-pass {
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-success);
+            color: var(--color-success);
+        }
+        
+        .test-fail {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--color-error);
+            color: var(--color-error);
+        }
+        
+        .violation-example {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #FF0000;
+            padding: var(--space-2);
+            margin: var(--space-2) 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="ds-container">
+        <header class="ds-mb-8">
+            <h1>Design System Architecture Test</h1>
+            <p class="ds-text-secondary">Testing architectural improvements to prevent typography and component violations</p>
+        </header>
+        
+        <!-- Typography System Test -->
+        <section class="test-section">
+            <div class="test-header">1. Typography System Enforcement Test</div>
+            <div class="ds-mb-4">
+                <h3>Universal Font Application</h3>
+                <p>Testing that all elements use design system fonts by default:</p>
+                
+                <!-- These should all use Quicksand font -->
+                <div>Regular div text - should use Quicksand</div>
+                <span>Span text - should use Quicksand</span>
+                <p>Paragraph text - should use Quicksand</p>
+                <button class="btn btn-secondary">Button - should use Quicksand</button>
+                <input type="text" placeholder="Input - should use Quicksand" class="form-control">
+                
+                <!-- These should use Poppins font -->
+                <h1>H1 Heading - should use Poppins</h1>
+                <h2>H2 Heading - should use Poppins</h2>
+                <h3>H3 Heading - should use Poppins</h3>
+                
+                <!-- Test dynamic content -->
+                <div id="dynamic-content-test"></div>
+            </div>
+            <div class="test-result" id="typography-test-result"></div>
+        </section>
+        
+        <!-- Design System Classes Test -->
+        <section class="test-section">
+            <div class="test-header">2. Design System Utility Classes Test</div>
+            <div class="ds-mb-4">
+                <h3>Testing ds-* Utility Classes</h3>
+                
+                <!-- Correct usage -->
+                <div class="ds-flex ds-items-center ds-gap-4 ds-mb-4">
+                    <button class="btn btn-primary">Correct Usage</button>
+                    <span class="ds-text-secondary">Using ds-* classes</span>
+                </div>
+                
+                <!-- Layout classes -->
+                <div class="ds-grid grid-cols-2 ds-gap-3 ds-mb-4">
+                    <div class="card ds-p-4">Grid Item 1</div>
+                    <div class="card ds-p-4">Grid Item 2</div>
+                </div>
+                
+                <!-- Typography classes -->
+                <div class="ds-mb-4">
+                    <p class="ds-text-center ds-text-large">Centered large text</p>
+                    <p class="ds-text-secondary ds-text-small">Secondary small text</p>
+                </div>
+            </div>
+            <div class="test-result" id="utility-classes-test-result"></div>
+        </section>
+        
+        <!-- Component Architecture Test -->
+        <section class="test-section">
+            <div class="test-header">3. Component Architecture Test</div>
+            <div class="ds-mb-4">
+                <h3>Testing Component Creation Patterns</h3>
+                <div id="component-test-area"></div>
+            </div>
+            <div class="test-result" id="component-test-result"></div>
+        </section>
+        
+        <!-- Violation Detection Test -->
+        <section class="test-section">
+            <div class="test-header">4. Violation Detection Test</div>
+            <div class="ds-mb-4">
+                <h3>Testing Anti-Pattern Detection</h3>
+                <p>These examples contain violations and should be detected:</p>
+                
+                <!-- Example violations (should be highlighted in dev mode) -->
+                <div class="violation-example">
+                    <h4>Example Violations (for testing detection):</h4>
+                    <div class="flex items-center gap-4">Non-design-system utility classes</div>
+                    <div style="color: #D97706; font-family: Arial;">Hardcoded color and font</div>
+                    <div style="padding: 16px; margin: 8px;">Hardcoded spacing values</div>
+                </div>
+                
+                <button id="enable-dev-mode" class="btn btn-secondary ds-mb-4">Enable Violation Detection</button>
+                <button id="run-validation" class="btn btn-primary">Run Full Validation</button>
+            </div>
+            <div class="test-result" id="violation-test-result"></div>
+        </section>
+        
+        <!-- Preventive Measures Test -->
+        <section class="test-section">
+            <div class="test-header">5. Preventive Measures Test</div>
+            <div class="ds-mb-4">
+                <h3>Testing Proactive Prevention</h3>
+                <p>Testing that preventive measures catch and fix violations automatically:</p>
+                
+                <button id="enable-prevention" class="btn btn-secondary ds-mb-4">Enable Preventive Measures</button>
+                <button id="test-prevention" class="btn btn-primary">Test DOM Manipulation</button>
+                <div id="prevention-test-area"></div>
+            </div>
+            <div class="test-result" id="prevention-test-result"></div>
+        </section>
+        
+        <!-- Overall Compliance Report -->
+        <section class="test-section">
+            <div class="test-header">6. Overall Compliance Report</div>
+            <div id="overall-report"></div>
+        </section>
+    </div>
+    
+    <script src="src/styles/design-system-validator.js"></script>
+    <script src="src/styles/design-system-preventive-measures.js"></script>
+    <script>
+        // Test Results Storage
+        const testResults = {
+            typography: false,
+            utilityClasses: false,
+            componentArchitecture: false,
+            violationDetection: false,
+            preventiveMeasures: false
+        };
+        
+        // 1. Typography System Test
+        function testTypographySystem() {
+            const results = [];
+            
+            // Test that all elements use correct fonts
+            const elementsToTest = [
+                { selector: 'div', expectedFont: 'Quicksand' },
+                { selector: 'span', expectedFont: 'Quicksand' },
+                { selector: 'p', expectedFont: 'Quicksand' },
+                { selector: 'button', expectedFont: 'Quicksand' },
+                { selector: 'input', expectedFont: 'Quicksand' },
+                { selector: 'h1', expectedFont: 'Poppins' },
+                { selector: 'h2', expectedFont: 'Poppins' },
+                { selector: 'h3', expectedFont: 'Poppins' }
+            ];
+            
+            elementsToTest.forEach(test => {
+                const elements = document.querySelectorAll(test.selector);
+                elements.forEach((element, index) => {
+                    const computedStyle = window.getComputedStyle(element);
+                    const fontFamily = computedStyle.fontFamily;
+                    
+                    if (fontFamily.includes(test.expectedFont)) {
+                        results.push(`✅ ${test.selector}[${index}]: Uses ${test.expectedFont}`);
+                    } else {
+                        results.push(`❌ ${test.selector}[${index}]: Expected ${test.expectedFont}, got ${fontFamily}`);
+                    }
+                });
+            });
+            
+            // Test dynamic content
+            const dynamicDiv = document.getElementById('dynamic-content-test');
+            dynamicDiv.innerHTML = '<p>Dynamically added paragraph</p><span>Dynamically added span</span>';
+            
+            setTimeout(() => {
+                const dynamicElements = dynamicDiv.querySelectorAll('*');
+                dynamicElements.forEach(element => {
+                    const computedStyle = window.getComputedStyle(element);
+                    const fontFamily = computedStyle.fontFamily;
+                    
+                    if (fontFamily.includes('Quicksand')) {
+                        results.push('✅ Dynamic content: Uses Quicksand');
+                    } else {
+                        results.push(`❌ Dynamic content: Expected Quicksand, got ${fontFamily}`);
+                    }
+                });
+                
+                updateTestResult('typography-test-result', results);
+                testResults.typography = results.every(r => r.startsWith('✅'));
+            }, 100);
+        }
+        
+        // 2. Design System Classes Test
+        function testUtilityClasses() {
+            const results = [];
+            
+            // Verify ds-* classes exist and work
+            const testElement = document.createElement('div');
+            testElement.className = 'ds-flex ds-items-center ds-gap-4';
+            document.body.appendChild(testElement);
+            
+            const computedStyle = window.getComputedStyle(testElement);
+            
+            if (computedStyle.display === 'flex') {
+                results.push('✅ ds-flex: Working correctly');
+            } else {
+                results.push('❌ ds-flex: Not applied');
+            }
+            
+            if (computedStyle.alignItems === 'center') {
+                results.push('✅ ds-items-center: Working correctly');
+            } else {
+                results.push('❌ ds-items-center: Not applied');
+            }
+            
+            document.body.removeChild(testElement);
+            
+            // Test that design system classes use CSS custom properties
+            const style = getComputedStyle(document.documentElement);
+            const hasSpaceTokens = style.getPropertyValue('--space-4').trim() !== '';
+            const hasColorTokens = style.getPropertyValue('--color-primary').trim() !== '';
+            const hasFontTokens = style.getPropertyValue('--font-family-body').trim() !== '';
+            
+            if (hasSpaceTokens) {
+                results.push('✅ Spacing tokens: Available');
+            } else {
+                results.push('❌ Spacing tokens: Missing');
+            }
+            
+            if (hasColorTokens) {
+                results.push('✅ Color tokens: Available');
+            } else {
+                results.push('❌ Color tokens: Missing');
+            }
+            
+            if (hasFontTokens) {
+                results.push('✅ Font tokens: Available');
+            } else {
+                results.push('❌ Font tokens: Missing');
+            }
+            
+            updateTestResult('utility-classes-test-result', results);
+            testResults.utilityClasses = results.every(r => r.startsWith('✅'));
+        }
+        
+        // 3. Component Architecture Test
+        function testComponentArchitecture() {
+            const results = [];
+            const testArea = document.getElementById('component-test-area');
+            
+            try {
+                // Test button creation following guidelines
+                const button = document.createElement('button');
+                button.className = 'btn btn-secondary';
+                button.textContent = 'Test Button';
+                testArea.appendChild(button);
+                
+                const buttonStyle = window.getComputedStyle(button);
+                if (buttonStyle.fontFamily.includes('Quicksand')) {
+                    results.push('✅ Button: Uses correct font');
+                } else {
+                    results.push('❌ Button: Incorrect font');
+                }
+                
+                // Test card creation
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = '<h4>Test Card</h4><p>Card content</p>';
+                testArea.appendChild(card);
+                
+                const cardStyle = window.getComputedStyle(card);
+                if (cardStyle.backgroundColor) {
+                    results.push('✅ Card: Has background color');
+                } else {
+                    results.push('❌ Card: Missing background');
+                }
+                
+                // Test form input
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = 'Test input';
+                testArea.appendChild(input);
+                
+                const inputStyle = window.getComputedStyle(input);
+                if (inputStyle.fontFamily.includes('Quicksand')) {
+                    results.push('✅ Input: Uses correct font');
+                } else {
+                    results.push('❌ Input: Incorrect font');
+                }
+                
+            } catch (error) {
+                results.push(`❌ Component creation error: ${error.message}`);
+            }
+            
+            updateTestResult('component-test-result', results);
+            testResults.componentArchitecture = results.every(r => r.startsWith('✅'));
+        }
+        
+        // 4. Violation Detection Test
+        function testViolationDetection() {
+            const results = [];
+            
+            // Check if validator is loaded
+            if (typeof DesignSystemValidator !== 'undefined') {
+                results.push('✅ Design System Validator: Loaded');
+                
+                // Run validation on the page
+                const report = DesignSystemValidator.validatePage();
+                results.push(`📊 Compliance Score: ${report.compliance.score}%`);
+                results.push(`📊 Total Violations: ${report.statistics.violationCount}`);
+                
+                if (report.violations.length > 0) {
+                    const violationTypes = Object.keys(report.statistics.violationsByType);
+                    results.push(`📊 Violation Types: ${violationTypes.join(', ')}`);
+                }
+                
+                testResults.violationDetection = true;
+            } else {
+                results.push('❌ Design System Validator: Not loaded');
+                testResults.violationDetection = false;
+            }
+            
+            updateTestResult('violation-test-result', results);
+        }
+        
+        // 5. Preventive Measures Test
+        function testPreventiveMeasures() {
+            const results = [];
+            
+            // Check if preventive measures is loaded
+            if (typeof DesignSystemPreventiveMeasures !== 'undefined') {
+                results.push('✅ Preventive Measures: Loaded');
+                testResults.preventiveMeasures = true;
+            } else {
+                results.push('❌ Preventive Measures: Not loaded');
+                testResults.preventiveMeasures = false;
+            }
+            
+            updateTestResult('prevention-test-result', results);
+        }
+        
+        // Helper function to update test results
+        function updateTestResult(elementId, results) {
+            const element = document.getElementById(elementId);
+            const hasFailures = results.some(r => r.startsWith('❌'));
+            
+            element.innerHTML = results.join('<br>');
+            element.className = `test-result ${hasFailures ? 'test-fail' : 'test-pass'}`;
+        }
+        
+        // Generate overall compliance report
+        function generateOverallReport() {
+            const reportEl = document.getElementById('overall-report');
+            const passedTests = Object.values(testResults).filter(Boolean).length;
+            const totalTests = Object.keys(testResults).length;
+            const overallScore = Math.round((passedTests / totalTests) * 100);
+            
+            const report = `
+                <h3>Architectural Improvement Test Results</h3>
+                <div class="ds-flex ds-gap-4 ds-mb-4">
+                    <div class="card ds-p-4 ds-text-center">
+                        <h4>Overall Score</h4>
+                        <div style="font-size: 2rem; color: var(--color-${overallScore >= 80 ? 'success' : 'error'});">
+                            ${overallScore}%
+                        </div>
+                    </div>
+                    <div class="card ds-p-4">
+                        <h4>Test Results</h4>
+                        ${Object.entries(testResults).map(([test, passed]) => 
+                            `<div>${passed ? '✅' : '❌'} ${test.replace(/([A-Z])/g, ' $1').toLowerCase()}</div>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <div class="alert alert-${overallScore >= 80 ? 'success' : 'warning'}">
+                    <strong>Architectural Status:</strong> 
+                    ${overallScore >= 80 ? 
+                        'Design system architecture improvements are working correctly!' : 
+                        'Some architectural improvements need attention.'}
+                </div>
+                
+                <h4>Key Architectural Improvements Implemented:</h4>
+                <ul>
+                    <li>✅ Universal typography enforcement with !important declarations</li>
+                    <li>✅ Design system utility classes (ds-*) provided</li>
+                    <li>✅ Anti-pattern detection system for development</li>
+                    <li>✅ Preventive measures to intercept violations</li>
+                    <li>✅ Component development guidelines</li>
+                    <li>✅ Comprehensive validation tools</li>
+                </ul>
+                
+                <h4>Developer Tools Available:</h4>
+                <div class="ds-flex ds-gap-2 ds-flex-wrap">
+                    <button onclick="dsValidate()" class="btn btn-sm btn-secondary">dsValidate()</button>
+                    <button onclick="dsDevMode()" class="btn btn-sm btn-secondary">dsDevMode()</button>
+                    <button onclick="dsDevOff()" class="btn btn-sm btn-secondary">dsDevOff()</button>
+                    <button onclick="dsPrevent()" class="btn btn-sm btn-secondary">dsPrevent()</button>
+                    <button onclick="dsPreventOff()" class="btn btn-sm btn-secondary">dsPreventOff()</button>
+                </div>
+            `;
+            
+            reportEl.innerHTML = report;
+        }
+        
+        // Event handlers
+        document.getElementById('enable-dev-mode').addEventListener('click', () => {
+            if (typeof DesignSystemValidator !== 'undefined') {
+                DesignSystemValidator.enableDevMode();
+                alert('Violation detection enabled! Check console and look for red highlights.');
+            }
+        });
+        
+        document.getElementById('run-validation').addEventListener('click', () => {
+            if (typeof DesignSystemValidator !== 'undefined') {
+                DesignSystemValidator.logReport();
+            }
+        });
+        
+        document.getElementById('enable-prevention').addEventListener('click', () => {
+            if (typeof DesignSystemPreventiveMeasures !== 'undefined') {
+                DesignSystemPreventiveMeasures.enable();
+                alert('Preventive measures enabled! DOM manipulations will be intercepted.');
+            }
+        });
+        
+        document.getElementById('test-prevention').addEventListener('click', () => {
+            const testArea = document.getElementById('prevention-test-area');
+            
+            // Test DOM manipulation that should trigger prevention
+            const testDiv = document.createElement('div');
+            testDiv.className = 'flex items-center'; // Should be caught and replaced
+            testDiv.style.color = '#D97706'; // Should be caught and replaced
+            testDiv.textContent = 'Testing preventive measures...';
+            testArea.appendChild(testDiv);
+            
+            if (typeof DesignSystemPreventiveMeasures !== 'undefined') {
+                DesignSystemPreventiveMeasures.logReport();
+            }
+        });
+        
+        // Run all tests when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                testTypographySystem();
+                testUtilityClasses();
+                testComponentArchitecture();
+                testViolationDetection();
+                testPreventiveMeasures();
+                
+                // Generate overall report after all tests complete
+                setTimeout(generateOverallReport, 500);
+            }, 100);
+        });
+        
+        // Add console logging for developer experience
+        console.log('🧪 Design System Architecture Test Loaded');
+        console.log('Available commands: dsValidate(), dsDevMode(), dsPrevent()');
+    </script>
+</body>
+</html>

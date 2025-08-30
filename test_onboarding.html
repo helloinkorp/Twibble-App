@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Onboarding Test</title>
+    <style>
+        .section { display: none; }
+        .section.active { display: block; }
+        .btn-disabled { opacity: 0.6; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="hero-section" class="section active">
+        <h1>Hero Section</h1>
+        <button id="get-started-btn">Get Started</button>
+    </div>
+    
+    <div id="name-section" class="section">
+        <h1>Name Section</h1>
+        <input type="text" id="user-name" placeholder="Enter name">
+        <button id="name-next-btn" class="btn-disabled" disabled>Next</button>
+    </div>
+    
+    <div id="avatar-section" class="section">
+        <h1>Avatar Section</h1>
+        <button id="avatar-continue-btn" class="btn-disabled" disabled>Continue</button>
+    </div>
+
+    <script>
+        // Test the core OnboardingManager functionality
+        class OnboardingManager {
+            constructor() {
+                this.currentSection = 0;
+                this.sections = ['hero-section', 'name-section', 'avatar-section'];
+                this.userData = { name: '', avatar: '' };
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                // Hero section - Get Started button
+                const getStartedBtn = document.getElementById('get-started-btn');
+                if (getStartedBtn) {
+                    getStartedBtn.addEventListener('click', () => {
+                        console.log('Get Started button clicked!');
+                        this.nextSection();
+                    });
+                }
+
+                // Name section - Input validation and Next button
+                const nameInput = document.getElementById('user-name');
+                const nameNextBtn = document.getElementById('name-next-btn');
+
+                if (nameInput) {
+                    nameInput.addEventListener('input', (e) => {
+                        this.validateName(e.target.value);
+                    });
+                }
+
+                if (nameNextBtn) {
+                    nameNextBtn.addEventListener('click', () => {
+                        if (!nameNextBtn.disabled) {
+                            this.userData.name = nameInput.value.trim();
+                            this.nextSection();
+                        }
+                    });
+                }
+            }
+
+            validateName(value) {
+                const nameNextBtn = document.getElementById('name-next-btn');
+                const trimmedValue = value.trim();
+
+                if (trimmedValue.length >= 2) {
+                    nameNextBtn.disabled = false;
+                    nameNextBtn.classList.remove('btn-disabled');
+                } else {
+                    nameNextBtn.disabled = true;
+                    nameNextBtn.classList.add('btn-disabled');
+                }
+            }
+
+            nextSection() {
+                console.log('Moving to next section from:', this.currentSection);
+                
+                if (this.currentSection < this.sections.length - 1) {
+                    // Hide current section
+                    const currentEl = document.getElementById(this.sections[this.currentSection]);
+                    currentEl.classList.remove('active');
+                    
+                    // Show next section
+                    this.currentSection++;
+                    const nextEl = document.getElementById(this.sections[this.currentSection]);
+                    nextEl.classList.add('active');
+                    
+                    console.log('Moved to section:', this.currentSection, this.sections[this.currentSection]);
+                }
+            }
+        }
+
+        // Initialize when DOM loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing OnboardingManager');
+            new OnboardingManager();
+        });
+    </script>
+</body>
+</html>

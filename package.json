@@ -1,0 +1,22 @@
+{
+  "name": "twibble-app",
+  "version": "1.0.0",
+  "description": "**Educational vocabulary learning web app for K-5 students**",
+  "main": "temp_js_check.js",
+  "scripts": {
+    "start": "live-server --host=127.0.0.1 --port=8080 --open=/src/pages/onboarding.html --ignore=node_modules,claudedocs,orchestrator",
+    "dev": "live-server --host=127.0.0.1 --port=8080 --open=/src/pages/onboarding.html --ignore=node_modules,claudedocs,orchestrator",
+    "serve": "npx live-server --host=127.0.0.1 --port=8080 --open=/src/pages/onboarding.html",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:settings": "playwright test tests/settings-menu-font-validation.spec.js --headed",
+    "test:typography": "playwright test tests/typography-validation.spec.js",
+    "test:avatar": "playwright test tests/avatar-display-validation.spec.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}

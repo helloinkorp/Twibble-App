@@ -1,0 +1,6 @@
+{
+  "load-context": {
+    "description": "Load Orchestrator Context",
+    "file": "commands/load-context.md"
+  }
+}

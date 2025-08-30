@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accordion Debug Test</title>
+    <link rel="stylesheet" href="./src/styles/design-system.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
+</head>
+<body style="padding: 20px;">
+    <h1>Accordion Debug Test</h1>
+    
+    <!-- Simple accordion test -->
+    <div class="accordion">
+        <div class="accordion-item" id="testAccordion">
+            <button class="accordion-header" type="button" aria-expanded="false">
+                <span>Test Accordion</span>
+                <span class="material-symbols-outlined accordion-icon">keyboard_arrow_down</span>
+            </button>
+            <div class="accordion-content" id="testContent">
+                <p>This content should show/hide when clicking the header.</p>
+                <p>If you can see this, the accordion is working!</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <button onclick="testAccordion()" class="btn btn-secondary">Debug Accordion</button>
+        <button onclick="checkCreateLesson()" class="btn btn-tertiary">Check Create Lesson Page</button>
+    </div>
+
+    <div id="debug-output" style="margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px;"></div>
+
+    <script>
+        // Test the accordion functionality
+        function testAccordion() {
+            const debugOutput = document.getElementById('debug-output');
+            let log = ['=== Accordion Debug Test ==='];
+            
+            const accordionHeader = document.querySelector('.accordion-header');
+            const accordionItem = document.querySelector('.accordion-item');
+            const accordionContent = document.querySelector('.accordion-content');
+            
+            log.push('Elements found:');
+            log.push(`- Header: ${accordionHeader ? 'YES' : 'NO'}`);
+            log.push(`- Item: ${accordionItem ? 'YES' : 'NO'}`);
+            log.push(`- Content: ${accordionContent ? 'YES' : 'NO'}`);
+            log.push('');
+            
+            if (accordionItem) {
+                log.push(`Current classes: ${accordionItem.className}`);
+                log.push(`Is active: ${accordionItem.classList.contains('active')}`);
+                log.push('');
+                
+                // Toggle the accordion
+                if (accordionItem.classList.contains('active')) {
+                    accordionItem.classList.remove('active');
+                    accordionHeader.setAttribute('aria-expanded', 'false');
+                    log.push('Action: CLOSED accordion');
+                } else {
+                    accordionItem.classList.add('active');
+                    accordionHeader.setAttribute('aria-expanded', 'true');
+                    log.push('Action: OPENED accordion');
+                }
+            }
+            
+            debugOutput.innerHTML = '<pre>' + log.join('\\n') + '</pre>';
+        }
+        
+        function checkCreateLesson() {
+            const debugOutput = document.getElementById('debug-output');
+            let log = ['=== Create Lesson Page Analysis ==='];
+            
+            // Try to access create-lesson elements (won't work from this page but shows intent)
+            log.push('This test checks if create-lesson accordion is working...');
+            log.push('Please open browser console and navigate to create-lesson page');
+            log.push('Then run this in console:');
+            log.push('');
+            log.push('// Check if accordion elements exist');
+            log.push('document.querySelectorAll(".accordion-header").length');
+            log.push('document.querySelectorAll(".accordion-item").length');
+            log.push('');
+            log.push('// Check if click handlers are attached');
+            log.push('document.querySelector(".accordion-header").onclick');
+            log.push('');
+            log.push('// Manual accordion toggle test');
+            log.push('const item = document.querySelector(".accordion-item");');
+            log.push('item.classList.add("active");');
+            
+            debugOutput.innerHTML = '<pre>' + log.join('\\n') + '</pre>';
+        }
+        
+        // Add click handler manually for this test
+        document.addEventListener('DOMContentLoaded', function() {
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const accordionItem = header.parentElement;
+                    const isActive = accordionItem.classList.contains('active');
+                    
+                    // Close all accordion items
+                    document.querySelectorAll('.accordion-item').forEach(item => {
+                        item.classList.remove('active');
+                        item.querySelector('.accordion-header').setAttribute('aria-expanded', 'false');
+                    });
+                    
+                    // Open clicked item if it wasn't already active
+                    if (!isActive) {
+                        accordionItem.classList.add('active');
+                        header.setAttribute('aria-expanded', 'true');
+                    }
+                });
+            });
+            
+            console.log('Accordion handlers attached:', document.querySelectorAll('.accordion-header').length);
+        });
+    </script>
+</body>
+</html>

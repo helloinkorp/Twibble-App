@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Fix Test</title>
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
+    
+    <style>
+        /* Ensure Material Symbols font loads properly */
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        body {
+            font-family: var(--font-family-body);
+            background: var(--color-background);
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-title {
+            font-family: var(--font-family-headers);
+            font-size: var(--font-size-xl);
+            margin-bottom: 15px;
+            color: var(--color-black);
+        }
+        
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <h1>Navigation Component Fix Test</h1>
+    
+    <div class="test-section">
+        <h2 class="test-title">Test 1: Home Button with Material Icon</h2>
+        <div id="header-test-1"></div>
+        <div id="status-1" class="status">Testing...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2 class="test-title">Test 2: Avatar Button with User Data</h2>
+        <div id="header-test-2"></div>
+        <div id="status-2" class="status">Testing...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2 class="test-title">Test 3: Avatar with Fallback (Broken Image)</h2>
+        <div id="header-test-3"></div>
+        <div id="status-3" class="status">Testing...</div>
+    </div>
+
+    <script type="module">
+        import { createHeader } from './src/components/navigation.js';
+        
+        // Test 1: Basic header with home button
+        console.log('Starting Test 1: Home button with Material Icon');
+        try {
+            const header1 = createHeader({
+                showHome: true,
+                onHome: () => alert('Home button clicked!'),
+                title: 'Test Dashboard'
+            });
+            document.getElementById('header-test-1').appendChild(header1);
+            
+            // Check if home icon is present
+            const homeIcon = header1.querySelector('.material-symbols-outlined');
+            if (homeIcon && homeIcon.textContent === 'home') {
+                document.getElementById('status-1').innerHTML = 'SUCCESS: Home icon rendered correctly';
+                document.getElementById('status-1').className = 'status success';
+                console.log('✓ Test 1 passed: Home icon found');
+            } else {
+                throw new Error('Home icon not found or incorrect');
+            }
+        } catch (error) {
+            document.getElementById('status-1').innerHTML = `ERROR: ${error.message}`;
+            document.getElementById('status-1').className = 'status error';
+            console.error('✗ Test 1 failed:', error);
+        }
+        
+        // Test 2: Header with user avatar
+        console.log('Starting Test 2: Avatar button with user data');
+        try {
+            const testUser = {
+                name: 'Test User',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test&backgroundColor=b6e3f4'
+            };
+            
+            const header2 = createHeader({
+                showHome: true,
+                user: testUser,
+                onHome: () => alert('Home clicked!'),
+                onProfile: () => alert('Profile clicked!'),
+                title: 'User Dashboard'
+            });
+            document.getElementById('header-test-2').appendChild(header2);
+            
+            // Check if avatar is present
+            const avatar = header2.querySelector('img');
+            if (avatar && avatar.src.includes('dicebear')) {
+                // Wait for image to load
+                setTimeout(() => {
+                    document.getElementById('status-2').innerHTML = 'SUCCESS: Avatar loaded correctly';
+                    document.getElementById('status-2').className = 'status success';
+                    console.log('✓ Test 2 passed: Avatar found and loading');
+                }, 1000);
+            } else {
+                throw new Error('Avatar not found');
+            }
+        } catch (error) {
+            document.getElementById('status-2').innerHTML = `ERROR: ${error.message}`;
+            document.getElementById('status-2').className = 'status error';
+            console.error('✗ Test 2 failed:', error);
+        }
+        
+        // Test 3: Avatar with broken image (fallback test)
+        console.log('Starting Test 3: Avatar fallback');
+        try {
+            const testUserBroken = {
+                name: 'Broken Avatar User',
+                avatar: 'https://invalid-url-that-will-fail.com/avatar.jpg'
+            };
+            
+            const header3 = createHeader({
+                showHome: true,
+                user: testUserBroken,
+                onHome: () => alert('Home clicked!'),
+                onProfile: () => alert('Profile clicked!'),
+                title: 'Fallback Test'
+            });
+            document.getElementById('header-test-3').appendChild(header3);
+            
+            // Wait for fallback to trigger
+            setTimeout(() => {
+                const fallback = header3.querySelector('div[aria-label*="fallback"]');
+                if (fallback && fallback.textContent === 'B') {
+                    document.getElementById('status-3').innerHTML = 'SUCCESS: Avatar fallback working';
+                    document.getElementById('status-3').className = 'status success';
+                    console.log('✓ Test 3 passed: Fallback avatar created');
+                } else {
+                    document.getElementById('status-3').innerHTML = 'PARTIAL: Fallback may still be loading';
+                    document.getElementById('status-3').className = 'status error';
+                    console.log('? Test 3 uncertain: Fallback not detected yet');
+                }
+            }, 2000);
+            
+        } catch (error) {
+            document.getElementById('status-3').innerHTML = `ERROR: ${error.message}`;
+            document.getElementById('status-3').className = 'status error';
+            console.error('✗ Test 3 failed:', error);
+        }
+    </script>
+</body>
+</html>

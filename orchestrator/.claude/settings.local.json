@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(C:\\Users\\USER\\Desktop\\Twibble App/**)",
+      "Read(C:\\Users\\USER\\Desktop\\Twibble App/**)",
+      "Read(C:\\Users\\USER\\Desktop\\Twibble App/**)",
+      "Read(C:\\Users\\USER\\Desktop\\Twibble App/**)",
+      "Read(C:\\Users\\USER\\Desktop\\Twibble App/**)",
+      "Read(C:\\Users\\USER\\Desktop\\Twibble App\\src/**)",
+      "Read(C:\\Users\\USER\\Desktop\\Twibble App\\src/**)",
+      "Read(C:\\Users\\USER\\Desktop\\Twibble App\\src/**)",
+      "Read(C:\\Users\\USER\\Desktop\\Twibble App\\src/**)",
+      "Read(C:\\Users\\USER\\Desktop\\Twibble App\\artifacts/**)",
+      "Read(C:\\Users\\USER\\Desktop\\Twibble App\\artifacts/**)",
+      "Read(C:\\Users\\USER\\Desktop\\Twibble App/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

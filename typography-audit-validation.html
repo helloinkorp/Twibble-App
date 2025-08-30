@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typography System Validation - Twibble</title>
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
+    
+    <style>
+        /* Test styles to simulate potential font conflicts */
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .font-test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .test-case {
+            padding: 1rem;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius);
+        }
+        
+        .expected-font {
+            color: var(--color-success);
+            font-weight: 500;
+        }
+        
+        .font-display {
+            font-style: italic;
+            color: var(--color-gray-600);
+            font-size: var(--font-size-sm);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Typography System Validation</h1>
+        <p class="text-secondary">Testing universal font enforcement across all elements and scenarios</p>
+        
+        <div class="font-test-grid">
+            <!-- Basic Elements Test -->
+            <div class="test-case card">
+                <h3>Basic Elements</h3>
+                <p>This paragraph should use <span class="expected-font">Quicksand</span></p>
+                <div>This div should use <span class="expected-font">Quicksand</span></div>
+                <span>This span should use <span class="expected-font">Quicksand</span></span>
+                <ul>
+                    <li>List items should use <span class="expected-font">Quicksand</span></li>
+                </ul>
+            </div>
+            
+            <!-- Form Elements Test -->
+            <div class="test-case card">
+                <h3>Form Elements</h3>
+                <label>Label should use <span class="expected-font">Quicksand</span></label>
+                <input type="text" placeholder="Input should use Quicksand" class="mb-3">
+                <textarea placeholder="Textarea should use Quicksand" rows="2"></textarea>
+                <select class="mt-3">
+                    <option>Select should use Quicksand</option>
+                </select>
+            </div>
+            
+            <!-- Button Test -->
+            <div class="test-case card">
+                <h3>Buttons</h3>
+                <button class="btn btn-primary">Primary Button (Quicksand)</button>
+                <button class="btn btn-secondary">Secondary Button (Quicksand)</button>
+                <button class="btn btn-tertiary">Tertiary Button (Quicksand)</button>
+            </div>
+            
+            <!-- Dynamic Content Test -->
+            <div class="test-case card">
+                <h3>Dynamic Content</h3>
+                <div class="modal-test" style="background: var(--color-gray-100); padding: 1rem; border-radius: var(--border-radius);">
+                    <div class="settings-menu">Settings Menu Item (should be Quicksand)</div>
+                    <div class="dropdown-item">Dropdown Item (should be Quicksand)</div>
+                    <div class="menu-item">Menu Item (should be Quicksand)</div>
+                </div>
+            </div>
+            
+            <!-- Inline Style Override Test -->
+            <div class="test-case card">
+                <h3>Override Prevention</h3>
+                <div style="font-family: Arial, sans-serif;">
+                    This has inline Arial style but should still show <span class="expected-font">Quicksand</span>
+                </div>
+                <div style="font-family: 'Times New Roman', serif;">
+                    This has inline Times style but should still show <span class="expected-font">Quicksand</span>
+                </div>
+            </div>
+            
+            <!-- JavaScript Generated Content -->
+            <div class="test-case card">
+                <h3>JavaScript Generated</h3>
+                <div id="js-content">JavaScript will add content here...</div>
+                <div class="dynamic-content">Dynamic content should use <span class="expected-font">Quicksand</span></div>
+            </div>
+        </div>
+        
+        <!-- Font Detection Display -->
+        <div class="card mt-8">
+            <h3>Font Detection</h3>
+            <p class="text-secondary">The actual font family being used by elements:</p>
+            <div id="font-detection" class="text-small"></div>
+        </div>
+        
+        <!-- Test Controls -->
+        <div class="card mt-6">
+            <h3>Test Actions</h3>
+            <button class="btn btn-primary" onclick="createTestModal()">Test Modal Font</button>
+            <button class="btn btn-secondary" onclick="addDynamicContent()">Add Dynamic Content</button>
+            <button class="btn btn-tertiary" onclick="runFontDetection()">Detect All Fonts</button>
+        </div>
+        
+        <!-- Test Results -->
+        <div class="card mt-6" id="test-results" style="display: none;">
+            <h3>Test Results</h3>
+            <div id="results-content"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Test modal creation
+        function createTestModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-backdrop fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="modal bg-white rounded-lg p-6 max-w-md">
+                    <h3>Test Modal</h3>
+                    <p>This modal text should use Quicksand font family.</p>
+                    <div class="settings-menu">Settings menu item in modal</div>
+                    <button class="btn btn-primary mt-4" onclick="closeModal(this)">Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function closeModal(btn) {
+            const modal = btn.closest('.modal-backdrop');
+            if (modal) modal.remove();
+        }
+        
+        // Add dynamic content
+        function addDynamicContent() {
+            const container = document.getElementById('js-content');
+            const content = document.createElement('div');
+            content.innerHTML = `
+                <p>This paragraph was added by JavaScript and should use Quicksand.</p>
+                <div class="settings-menu">JavaScript-generated settings menu</div>
+                <span style="font-family: Georgia, serif;">This span has inline Georgia but should still use Quicksand.</span>
+            `;
+            container.appendChild(content);
+        }
+        
+        // Font detection utility
+        function getFontFamily(element) {
+            return window.getComputedStyle(element).fontFamily;
+        }
+        
+        function runFontDetection() {
+            const results = document.getElementById('font-detection');
+            const testElements = [
+                { selector: 'p', name: 'Paragraphs' },
+                { selector: 'h1', name: 'H1 Headings' },
+                { selector: 'h3', name: 'H3 Headings' },
+                { selector: 'button', name: 'Buttons' },
+                { selector: 'input', name: 'Input Fields' },
+                { selector: '.settings-menu', name: 'Settings Menu' },
+                { selector: '.dropdown-item', name: 'Dropdown Items' }
+            ];
+            
+            let html = '<div class="grid md:grid-cols-2 gap-4">';
+            testElements.forEach(test => {
+                const elements = document.querySelectorAll(test.selector);
+                if (elements.length > 0) {
+                    const fontFamily = getFontFamily(elements[0]);
+                    const isCorrect = fontFamily.includes('Quicksand') || (test.name.includes('Heading') && fontFamily.includes('Poppins'));
+                    html += `
+                        <div class="p-3 rounded border ${isCorrect ? 'border-success bg-success bg-opacity-10' : 'border-error bg-error bg-opacity-10'}">
+                            <div class="font-medium">${test.name}</div>
+                            <div class="font-display text-xs">${fontFamily}</div>
+                            <div class="text-xs ${isCorrect ? 'text-success' : 'text-error'}">${isCorrect ? '✓ Correct' : '✗ Incorrect'}</div>
+                        </div>
+                    `;
+                }
+            });
+            html += '</div>';
+            results.innerHTML = html;
+            
+            document.getElementById('test-results').style.display = 'block';
+        }
+        
+        // Run initial font detection
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(runFontDetection, 500);
+        });
+    </script>
+</body>
+</html>

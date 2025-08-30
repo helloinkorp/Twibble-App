@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Index Loading Fix</title>
+</head>
+<body>
+    <h1>Testing Index.html Loading Fix</h1>
+    <p>This page will simulate the onboarding completion and test the index.html loading.</p>
+    
+    <button id="simulate-onboarding" onclick="simulateOnboarding()">1. Simulate Completed Onboarding</button>
+    <br><br>
+    <button id="test-index" onclick="testIndex()">2. Test Index.html Loading</button>
+    <br><br>
+    <button id="clear-data" onclick="clearData()">Clear Test Data</button>
+    
+    <div id="output" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; background: #f5f5f5;">
+        <p>Output will appear here...</p>
+    </div>
+
+    <script>
+        function log(message) {
+            const output = document.getElementById('output');
+            output.innerHTML += '<p>' + new Date().toLocaleTimeString() + ': ' + message + '</p>';
+        }
+
+        function simulateOnboarding() {
+            // Create user settings like onboarding.html would
+            const userSettings = {
+                name: 'Test User',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test&backgroundColor=b6e3f4,c0aede,d1d4f9',
+                createdAt: new Date().toISOString(),
+                onboardingCompleted: true
+            };
+            
+            try {
+                localStorage.setItem('userSettings', JSON.stringify(userSettings));
+                log('✅ User settings saved to localStorage');
+                log('Data: ' + JSON.stringify(userSettings, null, 2));
+            } catch (error) {
+                log('❌ Error saving user settings: ' + error.message);
+            }
+        }
+
+        function testIndex() {
+            log('🔍 Testing index.html loading...');
+            
+            // Check if user settings exist
+            const userSettings = localStorage.getItem('userSettings');
+            if (!userSettings) {
+                log('❌ No user settings found. Run step 1 first.');
+                return;
+            }
+            
+            log('✅ User settings found in localStorage');
+            
+            // Open index.html in a new tab
+            const indexWindow = window.open('src/pages/index.html', '_blank');
+            
+            if (indexWindow) {
+                log('✅ Index.html opened in new tab');
+                log('👀 Check the new tab - it should show role selection instead of loading');
+            } else {
+                log('❌ Failed to open index.html (popup blocked?)');
+            }
+        }
+
+        function clearData() {
+            localStorage.removeItem('userSettings');
+            localStorage.removeItem('currentRole');
+            log('🗑️ Test data cleared');
+        }
+
+        // Initial check
+        window.onload = function() {
+            const userSettings = localStorage.getItem('userSettings');
+            if (userSettings) {
+                log('📋 Existing user settings found: ' + userSettings);
+            } else {
+                log('📋 No existing user settings found');
+            }
+        };
+    </script>
+</body>
+</html>

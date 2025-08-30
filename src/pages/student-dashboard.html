@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Twibble</title>
+    <meta name="description" content="Access your lessons, track progress, and continue your learning journey">
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="../styles/design-system.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
+    
+    <style>
+        /* Ensure Material Symbols font loads properly */
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+    
+    <style>
+        /* Student Dashboard specific styles using design tokens - Mobile-First */
+        .page-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: var(--space-4);
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: var(--space-8);
+        }
+        
+        .welcome-greeting {
+            font-family: var(--font-family-headers);
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-black);
+            margin: 0 0 var(--space-2) 0;
+        }
+        
+        .dashboard-subtitle {
+            color: var(--color-gray-600);
+            font-size: var(--font-size-base);
+            margin: 0;
+        }
+        
+        /* Mobile-first lesson grid */
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+        
+        /* Lesson card styles */
+        .lesson-card {
+            background: var(--color-card-bg);
+            border: var(--border-width) solid var(--color-gray-200);
+            border-radius: var(--border-radius-md);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
+        }
+        
+        .lesson-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-4);
+        }
+        
+        .lesson-title {
+            font-family: var(--font-family-headers);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-black);
+            margin: 0 var(--space-3) 0 0;
+            flex: 1;
+        }
+        
+        .lesson-creator {
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-600);
+            margin-bottom: var(--space-1);
+        }
+        
+        .lesson-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-600);
+        }
+        
+        /* Progress bar */
+        .progress-section {
+            margin-bottom: var(--space-5);
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2);
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-700);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--color-gray-200);
+            border-radius: var(--border-radius-sm);
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--color-primary);
+            border-radius: var(--border-radius-sm);
+            transition: width var(--transition-base);
+        }
+        
+        /* Day selector grid - Mobile-first with touch targets */
+        .days-section {
+            margin-bottom: var(--space-5);
+        }
+        
+        .days-label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-black);
+            margin-bottom: var(--space-3);
+        }
+        
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+        }
+        
+        /* Day buttons with 44px+ touch targets */
+        .day-button {
+            min-height: 44px;
+            min-width: 44px;
+            padding: var(--space-2);
+            border: var(--border-width) solid transparent;
+            border-radius: var(--border-radius);
+            background: transparent;
+            color: var(--color-gray-600);
+            font-family: var(--font-family-buttons);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Day button states */
+        .day-button.available {
+            background: var(--color-gray-100);
+            border-color: var(--color-gray-300);
+            color: var(--color-gray-700);
+        }
+        
+        .day-button.available:hover:not(:disabled) {
+            background: var(--color-gray-200);
+            border-color: var(--color-gray-400);
+        }
+        
+        .day-button.current {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: var(--color-white);
+            font-weight: var(--font-weight-semibold);
+        }
+        
+        .day-button.current:hover:not(:disabled) {
+            background: var(--color-primary-hover);
+            border-color: var(--color-primary-hover);
+        }
+        
+        .day-button.completed {
+            background: var(--color-success);
+            border-color: var(--color-success);
+            color: var(--color-white);
+        }
+        
+        .day-button.completed:hover:not(:disabled) {
+            background: #059669;
+            border-color: #059669;
+        }
+        
+        .day-button.locked {
+            background: var(--color-gray-100);
+            border-color: var(--color-gray-200);
+            color: var(--color-gray-400);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .day-button:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+        
+        /* Action buttons */
+        .lesson-actions {
+            display: flex;
+            gap: var(--space-3);
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .action-button {
+            flex: 1;
+            min-height: 44px;
+            padding: var(--space-3) var(--space-4);
+            font-family: var(--font-family-buttons);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            border-radius: var(--border-radius);
+            transition: all var(--transition-base);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+        
+        .btn-continue {
+            background: var(--color-primary);
+            border: var(--border-width) solid var(--color-primary);
+            color: var(--color-white);
+        }
+        
+        .btn-continue:hover:not(:disabled) {
+            background: var(--color-primary-hover);
+            border-color: var(--color-primary-hover);
+        }
+        
+        .btn-start {
+            background: transparent;
+            border: var(--border-width) solid var(--color-black);
+            color: var(--color-black);
+        }
+        
+        .btn-start:hover:not(:disabled) {
+            background: var(--color-black);
+            color: var(--color-white);
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-12) var(--space-4);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            color: var(--color-gray-300);
+            margin-bottom: var(--space-4);
+        }
+        
+        .empty-state-title {
+            font-family: var(--font-family-headers);
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-black);
+            margin-bottom: var(--space-2);
+        }
+        
+        .empty-state-text {
+            color: var(--color-gray-600);
+            font-size: var(--font-size-base);
+            margin-bottom: var(--space-6);
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Error message */
+        .error-message {
+            background: #fef2f2;
+            border: var(--border-width) solid #fecaca;
+            border-radius: var(--border-radius);
+            padding: var(--space-4);
+            margin-bottom: var(--space-4);
+            color: var(--color-error);
+            font-size: var(--font-size-sm);
+            text-align: center;
+        }
+        
+        /* Responsive adjustments */
+        @media (min-width: 480px) {
+            .days-grid {
+                grid-template-columns: repeat(10, 1fr);
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .lessons-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .welcome-greeting {
+                font-size: var(--font-size-3xl);
+            }
+            
+            .dashboard-subtitle {
+                font-size: var(--font-size-lg);
+            }
+            
+            .main-content {
+                padding: var(--space-8) var(--space-6);
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .lessons-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        /* Hidden utility class */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <div class="page-container">
+        <!-- Header with Home Button and Avatar -->
+        <header id="page-header" role="banner">
+            <!-- Header will be populated by JavaScript -->
+        </header>
+        
+        <!-- Main Content -->
+        <main id="main-content" class="main-content">
+            <!-- Loading State -->
+            <div id="loading-state" class="text-center">
+                <p class="text-secondary">Loading your lessons...</p>
+            </div>
+            
+            <!-- Error State -->
+            <div id="error-state" class="error-message hidden" role="alert" aria-live="polite">
+                <p>Unable to access student dashboard. Please check your permissions.</p>
+            </div>
+            
+            <!-- Dashboard Content -->
+            <div id="dashboard-content" class="hidden">
+                <div class="dashboard-header">
+                    <h1 id="welcome-greeting" class="welcome-greeting">
+                        Welcome to Learning!
+                    </h1>
+                    <p class="dashboard-subtitle">Continue your lessons and track your progress</p>
+                </div>
+                
+                <!-- Lessons Grid -->
+                <div id="lessons-grid" class="lessons-grid">
+                    <!-- Lesson cards will be populated by JavaScript -->
+                </div>
+                
+                <!-- Empty State -->
+                <div id="empty-state" class="empty-state hidden">
+                    <div class="empty-state-icon">school</div>
+                    <h2 class="empty-state-title">No Lessons Yet</h2>
+                    <p class="empty-state-text">
+                        Your teacher will share lessons with you. When they do, they'll appear here for you to start learning!
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Component Dependencies (ES6 Modules) -->
+    
+    <!-- JavaScript Module -->
+    <script type="module">
+        import { createHeader } from '../components/navigation.js';
+        import { createDayCard } from '../components/cards.js';
+        
+        // Student Dashboard Manager
+        class StudentDashboardManager {
+            constructor() {
+                this.userSettings = null;
+                this.studentLessons = [];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.validateStudentRole();
+                    await this.handleUrlParameters();
+                    await this.loadStudentData();
+                    this.setupHeader();
+                    this.renderLessons();
+                    this.showContent();
+                } catch (error) {
+                    console.error('Failed to initialize student dashboard:', error);
+                    this.showError(error.message);
+                }
+            }
+
+            async validateStudentRole() {
+                // Check if user has completed onboarding
+                const userSettingsStr = localStorage.getItem('userSettings');
+                if (!userSettingsStr) {
+                    window.location.href = 'onboarding.html';
+                    return;
+                }
+
+                try {
+                    this.userSettings = JSON.parse(userSettingsStr);
+                    
+                    // Validate required data
+                    if (!this.userSettings.name || !this.userSettings.avatar) {
+                        throw new Error('Incomplete user profile');
+                    }
+
+                    // Check current role
+                    const currentRole = localStorage.getItem('currentRole');
+                    if (currentRole !== 'student') {
+                        // Redirect to role selection
+                        window.location.href = 'index.html';
+                        return;
+                    }
+
+                } catch (error) {
+                    console.error('Invalid user settings or role:', error);
+                    window.location.href = 'index.html';
+                    return;
+                }
+            }
+
+            async handleUrlParameters() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const addLessonId = urlParams.get('addLesson');
+                
+                if (addLessonId) {
+                    try {
+                        await this.addSharedLesson(addLessonId);
+                        // Clean URL after adding lesson
+                        const cleanUrl = window.location.pathname;
+                        window.history.replaceState({}, document.title, cleanUrl);
+                    } catch (error) {
+                        console.error('Failed to add shared lesson:', error);
+                    }
+                }
+            }
+
+            async addSharedLesson(lessonId) {
+                // For prototype, simulate adding a shared lesson
+                // In real implementation, this would fetch from teacher's published lessons
+                const sharedLesson = this.createSampleLesson(lessonId);
+                
+                // Check if lesson already exists
+                const existingLessons = JSON.parse(localStorage.getItem('studentLessons') || '[]');
+                const lessonExists = existingLessons.some(lesson => lesson.id === lessonId);
+                
+                if (!lessonExists) {
+                    existingLessons.push(sharedLesson);
+                    localStorage.setItem('studentLessons', JSON.stringify(existingLessons));
+                    console.log(`Added shared lesson: ${lessonId}`);
+                }
+            }
+
+            createSampleLesson(lessonId) {
+                const sampleTitles = ['Animal Words', 'Space Adventure', 'Garden Friends'];
+                const sampleCreators = ['Ms. Anderson', 'Mr. Johnson', 'Mrs. Chen'];
+                
+                return {
+                    id: lessonId || `lesson-${Date.now()}`,
+                    title: sampleTitles[Math.floor(Math.random() * sampleTitles.length)],
+                    creator: sampleCreators[Math.floor(Math.random() * sampleCreators.length)],
+                    wordCount: Math.floor(Math.random() * 20) + 10,
+                    duration: Math.floor(Math.random() * 30) + 15,
+                    totalWords: Math.floor(Math.random() * 20) + 10,
+                    completedWords: Math.floor(Math.random() * 10),
+                    totalDays: Math.floor(Math.random() * 5) + 3,
+                    currentDay: Math.floor(Math.random() * 3) + 1,
+                    completedDays: Math.floor(Math.random() * 2),
+                    dayProgress: this.generateDayProgress()
+                };
+            }
+
+            generateDayProgress() {
+                const totalDays = Math.floor(Math.random() * 5) + 3;
+                const currentDay = Math.floor(Math.random() * totalDays) + 1;
+                const progress = [];
+                
+                for (let i = 1; i <= totalDays; i++) {
+                    if (i < currentDay) {
+                        progress.push({ day: i, status: 'completed' });
+                    } else if (i === currentDay) {
+                        progress.push({ day: i, status: 'current' });
+                    } else {
+                        progress.push({ day: i, status: 'locked' });
+                    }
+                }
+                
+                return progress;
+            }
+
+            async loadStudentData() {
+                // Load student lessons from localStorage
+                const lessonsStr = localStorage.getItem('studentLessons');
+                this.studentLessons = lessonsStr ? JSON.parse(lessonsStr) : [];
+                
+                // If no lessons exist, create some sample data for prototype
+                if (this.studentLessons.length === 0) {
+                    this.studentLessons = [
+                        {
+                            id: 'sample-1',
+                            title: 'Animal Adventures',
+                            creator: 'Ms. Anderson',
+                            wordCount: 15,
+                            duration: 25,
+                            totalWords: 15,
+                            completedWords: 8,
+                            totalDays: 5,
+                            currentDay: 3,
+                            completedDays: 2,
+                            dayProgress: [
+                                { day: 1, status: 'completed' },
+                                { day: 2, status: 'completed' },
+                                { day: 3, status: 'current' },
+                                { day: 4, status: 'locked' },
+                                { day: 5, status: 'locked' }
+                            ]
+                        },
+                        {
+                            id: 'sample-2',
+                            title: 'Space Explorers',
+                            creator: 'Mr. Johnson',
+                            wordCount: 12,
+                            duration: 20,
+                            totalWords: 12,
+                            completedWords: 0,
+                            totalDays: 4,
+                            currentDay: 1,
+                            completedDays: 0,
+                            dayProgress: [
+                                { day: 1, status: 'current' },
+                                { day: 2, status: 'locked' },
+                                { day: 3, status: 'locked' },
+                                { day: 4, status: 'locked' }
+                            ]
+                        }
+                    ];
+                    
+                    localStorage.setItem('studentLessons', JSON.stringify(this.studentLessons));
+                }
+            }
+
+            setupHeader() {
+                const headerContainer = document.getElementById('page-header');
+                
+                const header = createHeader({
+                    showHome: true,
+                    user: this.userSettings,
+                    onHome: () => {
+                        if (window.navigationManager) {
+                            window.navigationManager.goHome();
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    },
+                    onProfile: () => {
+                        // Navigate to profile or show profile modal
+                        if (window.navigationManager) {
+                            window.navigationManager.goHome();
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    },
+                    title: ''
+                });
+
+                headerContainer.appendChild(header);
+            }
+
+            renderLessons() {
+                const lessonsGrid = document.getElementById('lessons-grid');
+                const emptyState = document.getElementById('empty-state');
+                
+                if (this.studentLessons.length === 0) {
+                    lessonsGrid.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+                
+                lessonsGrid.innerHTML = '';
+                emptyState.classList.add('hidden');
+                
+                this.studentLessons.forEach(lesson => {
+                    const lessonCard = this.createLessonCard(lesson);
+                    lessonsGrid.appendChild(lessonCard);
+                });
+            }
+
+            createLessonCard(lesson) {
+                const card = document.createElement('div');
+                card.className = 'lesson-card';
+                
+                const progressPercentage = Math.round((lesson.completedWords / lesson.totalWords) * 100) || 0;
+                
+                card.innerHTML = `
+                    <div class="lesson-card-header">
+                        <div>
+                            <div class="lesson-creator">Created by ${lesson.creator}</div>
+                            <h3 class="lesson-title">${lesson.title}</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="lesson-meta">
+                        <span>${lesson.wordCount} words</span>
+                        <span>~${lesson.duration} min</span>
+                    </div>
+                    
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span>Progress</span>
+                            <span>${lesson.completedWords}/${lesson.totalWords} words (${progressPercentage}%)</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progressPercentage}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="days-section">
+                        <div class="days-label">Select Day</div>
+                        <div class="days-grid" id="days-grid-${lesson.id}">
+                            ${this.renderDayButtons(lesson)}
+                        </div>
+                    </div>
+                    
+                    <div class="lesson-actions">
+                        ${this.renderActionButtons(lesson)}
+                    </div>
+                `;
+                
+                // Bind day button events
+                this.bindDayButtonEvents(card, lesson);
+                
+                return card;
+            }
+
+            renderDayButtons(lesson) {
+                return lesson.dayProgress.map(day => {
+                    const statusClass = day.status;
+                    const isClickable = day.status === 'current' || day.status === 'completed';
+                    const ariaLabel = `Day ${day.day} - ${day.status === 'completed' ? 'Completed' : day.status === 'current' ? 'Current day' : 'Locked'}`;
+                    
+                    return `
+                        <button 
+                            class="day-button ${statusClass}" 
+                            data-lesson-id="${lesson.id}" 
+                            data-day="${day.day}"
+                            ${!isClickable ? 'disabled' : ''}
+                            aria-label="${ariaLabel}"
+                        >
+                            ${day.status === 'completed' ? '✓' : day.day}
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            renderActionButtons(lesson) {
+                const hasProgress = lesson.completedWords > 0;
+                const buttonClass = hasProgress ? 'btn-continue' : 'btn-start';
+                const buttonText = hasProgress ? 'Continue Learning' : 'Start Learning';
+                
+                return `
+                    <button 
+                        class="action-button ${buttonClass}"
+                        data-lesson-id="${lesson.id}"
+                        data-action="start"
+                        aria-label="${buttonText} - ${lesson.title}"
+                    >
+                        ${buttonText}
+                    </button>
+                `;
+            }
+
+            bindDayButtonEvents(card, lesson) {
+                // Day button clicks
+                const dayButtons = card.querySelectorAll('.day-button:not([disabled])');
+                dayButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const day = parseInt(button.dataset.day);
+                        this.navigateToDay(lesson.id, day);
+                    });
+                });
+                
+                // Action button clicks
+                const actionButtons = card.querySelectorAll('.action-button');
+                actionButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        if (button.dataset.action === 'start') {
+                            this.startLesson(lesson.id);
+                        }
+                    });
+                });
+            }
+
+            navigateToDay(lessonId, day) {
+                // Navigate to activities page for specific lesson and day
+                if (window.navigationManager) {
+                    window.navigationManager.navigateToActivities(lessonId, day);
+                } else {
+                    const url = `activities.html?lesson=${lessonId}&day=${day}`;
+                    window.location.href = url;
+                }
+            }
+
+            startLesson(lessonId) {
+                const lesson = this.studentLessons.find(l => l.id === lessonId);
+                if (lesson) {
+                    // Navigate to current day
+                    this.navigateToDay(lessonId, lesson.currentDay);
+                }
+            }
+
+            showContent() {
+                // Update greeting with user's name
+                const greetingEl = document.getElementById('welcome-greeting');
+                greetingEl.textContent = `Welcome, ${this.userSettings.name}!`;
+
+                // Hide loading state and show content
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('dashboard-content').classList.remove('hidden');
+            }
+
+            showError(message) {
+                const errorEl = document.getElementById('error-state');
+                errorEl.querySelector('p').textContent = message;
+                
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('dashboard-content').classList.add('hidden');
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        // Initialize the student dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            new StudentDashboardManager();
+        });
+
+        // Browser navigation is handled by navigation manager
+    </script>
+    
+    <!-- Navigation System -->
+    <script src="../js/navigation.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skip Link Test - Twibble</title>
+    <link rel="stylesheet" href="src/styles/design-system.css">
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <div style="padding: 20px; background: #f0f0f0; margin-bottom: 20px;">
+        <h1>Skip Link Test</h1>
+        <p><strong>Instructions for Testing:</strong></p>
+        <ul>
+            <li><strong>Visual Test:</strong> The skip link should be completely invisible on page load</li>
+            <li><strong>Keyboard Test:</strong> Press Tab key - the skip link should appear temporarily</li>
+            <li><strong>Function Test:</strong> When focused, press Enter to jump to main content</li>
+            <li><strong>Hide Test:</strong> Tab away from skip link - it should disappear again</li>
+        </ul>
+        
+        <h2>Expected Behavior:</h2>
+        <ul>
+            <li>✅ Skip link is completely hidden visually (no black button showing)</li>
+            <li>✅ Skip link appears only when focused with Tab key</li>
+            <li>✅ Skip link disappears when focus moves away</li>
+            <li>✅ Skip link correctly jumps to main content when activated</li>
+        </ul>
+    </div>
+    
+    <main id="main-content" style="padding: 20px; background: #e8f5e8; border: 2px solid #4ade80;">
+        <h2>Main Content Area</h2>
+        <p>This is the main content area. The skip link should jump directly here when activated.</p>
+        
+        <p>If the skip link was working correctly, this area should receive focus when you activate it.</p>
+        
+        <button style="margin-top: 20px; padding: 10px;">Test Button</button>
+    </main>
+    
+    <div style="padding: 20px; background: #f9f9f9; margin-top: 20px;">
+        <h3>Test Results:</h3>
+        <p id="test-results">Press Tab to start testing...</p>
+    </div>
+    
+    <script>
+        // Add focus indicator to show when main content receives focus
+        const mainContent = document.getElementById('main-content');
+        const testResults = document.getElementById('test-results');
+        
+        mainContent.addEventListener('focus', () => {
+            testResults.textContent = '✅ SUCCESS: Skip link correctly jumped to main content!';
+            testResults.style.color = 'green';
+            testResults.style.fontWeight = 'bold';
+        });
+        
+        // Make main content focusable for the test
+        mainContent.setAttribute('tabindex', '-1');
+        
+        // Add keyboard event listener to document for testing
+        let tabCount = 0;
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                tabCount++;
+                if (tabCount === 1) {
+                    testResults.textContent = '👀 Check if skip link is visible and properly styled...';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

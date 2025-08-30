@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Twibble - Role Selection</title>
+    <meta name="description" content="Choose your role: Teacher or Student - Start your learning journey">
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="../styles/design-system.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols Light -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
+    
+    <style>
+        /* Ensure Material Symbols font loads properly */
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+    
+    <style>
+        /* Role selection page specific styles using design tokens */
+        .page-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+        }
+        
+        .role-selection-card {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        
+        .greeting-section {
+            margin-bottom: var(--space-10);
+        }
+        
+        .user-greeting {
+            font-family: var(--font-family-headers);
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--space-3);
+            color: var(--color-black);
+        }
+        
+        .role-question {
+            font-size: var(--font-size-lg);
+            color: var(--color-gray-600);
+            margin-bottom: var(--space-2);
+        }
+        
+        .role-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .role-button {
+            min-height: 64px;
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-base);
+            position: relative;
+        }
+        
+        .role-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        
+        /* Profile Settings Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-base);
+        }
+        
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: var(--color-white);
+            border-radius: var(--border-radius);
+            padding: var(--space-8);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform var(--transition-base);
+        }
+        
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-6);
+        }
+        
+        .modal-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-medium);
+            margin: 0;
+        }
+        
+        .close-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--space-2);
+            color: var(--color-gray-500);
+            border-radius: var(--border-radius);
+            transition: all var(--transition-fast);
+        }
+        
+        .close-button:hover {
+            color: var(--color-gray-700);
+            background: var(--color-gray-100);
+        }
+        
+        .profile-section {
+            margin-bottom: var(--space-6);
+            text-align: center;
+        }
+        
+        .current-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--color-gray-200);
+            margin: 0 auto var(--space-4);
+            display: block;
+        }
+        
+        .profile-name {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--space-2);
+        }
+        
+        .profile-info {
+            color: var(--color-gray-600);
+            font-size: var(--font-size-sm);
+        }
+        
+        .settings-actions {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+        
+        .settings-button {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            background: var(--color-white);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: left;
+        }
+        
+        .settings-button:hover {
+            background: var(--color-gray-50);
+            border-color: var(--color-gray-300);
+        }
+        
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            .role-buttons {
+                flex-direction: row;
+                max-width: none;
+            }
+            
+            .role-button {
+                flex: 1;
+                max-width: none;
+            }
+            
+            .user-greeting {
+                font-size: var(--font-size-4xl);
+            }
+        }
+        
+        /* Error state for missing user data */
+        .error-message {
+            color: var(--color-error);
+            font-size: var(--font-size-sm);
+            margin-top: var(--space-4);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <div class="page-container">
+        <!-- Header with Home Button and Avatar -->
+        <header id="page-header" role="banner">
+            <!-- Header will be populated by JavaScript -->
+        </header>
+        
+        <!-- Main Content -->
+        <main id="main-content" class="main-content">
+            <div class="role-selection-card">
+                <!-- Loading State -->
+                <div id="loading-state" class="text-center">
+                    <p class="text-secondary">Loading your profile...</p>
+                </div>
+                
+                <!-- Role Selection Content -->
+                <div id="role-selection-content" class="hidden">
+                    <div class="greeting-section">
+                        <h1 id="user-greeting" class="user-greeting">
+                            Welcome!
+                        </h1>
+                        <p class="role-question">Who are you today?</p>
+                    </div>
+                    
+                    <div class="role-buttons">
+                        <button 
+                            id="teacher-role-btn" 
+                            class="btn btn-secondary role-button"
+                            aria-label="Continue as Teacher - Access lesson creation and student management"
+                            type="button"
+                        >
+                            Teacher
+                        </button>
+                        
+                        <button 
+                            id="student-role-btn" 
+                            class="btn btn-secondary role-button"
+                            aria-label="Continue as Student - Access learning activities and games"
+                            type="button"
+                        >
+                            Student
+                        </button>
+                    </div>
+                    
+                    <div id="error-message" class="error-message hidden" role="alert" aria-live="polite">
+                        Unable to save your role selection. Please try again.
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Profile Settings Modal -->
+        <div id="profile-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-title" class="modal-title">Profile & Settings</h2>
+                    <button 
+                        id="close-modal-btn" 
+                        class="close-button"
+                        aria-label="Close profile settings"
+                        type="button"
+                    >
+                        Close
+                    </button>
+                </div>
+                
+                <div class="profile-section">
+                    <img id="modal-avatar" class="current-avatar" src="" alt="Your avatar">
+                    <h3 id="modal-name" class="profile-name"></h3>
+                    <p class="profile-info">Twibble Profile</p>
+                </div>
+                
+                <div class="settings-actions">
+                    <button class="settings-button" type="button" onclick="alert('Edit Profile - Coming Soon!')">
+                        <div>
+                            <div class="font-medium">Edit Profile</div>
+                            <div class="text-small text-secondary">Change name and avatar</div>
+                        </div>
+                    </button>
+                    
+                    <button class="settings-button" type="button" onclick="alert('Preferences - Coming Soon!')">
+                        <div>
+                            <div class="font-medium">Preferences</div>
+                            <div class="text-small text-secondary">App settings and preferences</div>
+                        </div>
+                    </button>
+                    
+                    <button class="settings-button" type="button" onclick="alert('Help - Coming Soon!')">
+                        <div>
+                            <div class="font-medium">Help & Support</div>
+                            <div class="text-small text-secondary">Get help and contact support</div>
+                        </div>
+                    </button>
+                    
+                    <button 
+                        id="clear-data-btn" 
+                        class="settings-button" 
+                        type="button"
+                        style="color: var(--color-error); border-color: var(--color-error);"
+                    >
+                        <div>
+                            <div class="font-medium">Reset Onboarding</div>
+                            <div class="text-small text-secondary">Clear profile and start over</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Component Dependencies (ES6 Modules) -->
+    
+    <!-- JavaScript Module -->
+    <script type="module">
+        import { createHeader } from '../components/navigation.js';
+        
+        // Role Selection Page Manager
+        class RoleSelectionManager {
+            constructor() {
+                this.userSettings = null;
+                this.currentRole = null;
+                this.loadingTimeout = null;
+                this.init();
+            }
+
+            init() {
+                // Set up safety timeout to prevent permanent loading state
+                this.loadingTimeout = setTimeout(() => {
+                    console.warn('Loading timeout reached, forcing content display');
+                    this.forceShowContent();
+                }, 3000); // Reduced timeout to 3 seconds
+
+                try {
+                    // Load user data synchronously
+                    this.loadUserData();
+                    
+                    // Clear timeout since loading succeeded
+                    if (this.loadingTimeout) {
+                        clearTimeout(this.loadingTimeout);
+                        this.loadingTimeout = null;
+                    }
+                    
+                    // Setup components and show content
+                    this.setupHeader();
+                    this.bindEvents();
+                    
+                    // Ensure content is shown immediately
+                    setTimeout(() => {
+                        this.showContent();
+                    }, 100);
+                    
+                } catch (error) {
+                    // Clear timeout
+                    if (this.loadingTimeout) {
+                        clearTimeout(this.loadingTimeout);
+                        this.loadingTimeout = null;
+                    }
+                    
+                    console.error('Failed to initialize role selection:', error);
+                    
+                    // If error indicates a redirect is happening, don't show error UI
+                    if (error.message && (error.message.includes('redirecting') || error.message.includes('No user data'))) {
+                        console.log('Redirect in progress, not showing error UI');
+                        return;
+                    }
+                    
+                    // For other errors, show error message and hide loading
+                    this.handleError('Failed to load your profile. Please try refreshing the page.');
+                }
+            }
+
+            loadUserData() {
+                // Check if user has completed onboarding
+                const userSettingsStr = localStorage.getItem('userSettings');
+                if (!userSettingsStr) {
+                    // No user data - redirect to onboarding
+                    console.log('No userSettings found, redirecting to onboarding');
+                    window.location.href = 'onboarding.html';
+                    throw new Error('No user data - redirecting to onboarding');
+                }
+
+                try {
+                    this.userSettings = JSON.parse(userSettingsStr);
+                    console.log('Loaded userSettings:', this.userSettings);
+                    
+                    // Validate required data
+                    if (!this.userSettings.name || !this.userSettings.avatar) {
+                        throw new Error('Incomplete user profile');
+                    }
+
+                    // Validate onboardingCompleted flag
+                    if (!this.userSettings.onboardingCompleted) {
+                        throw new Error('Onboarding not completed');
+                    }
+
+                    // Load current role if exists
+                    const currentRoleStr = localStorage.getItem('currentRole');
+                    if (currentRoleStr) {
+                        this.currentRole = currentRoleStr;
+                    }
+
+                    console.log('User data validation successful');
+                    return true;
+
+                } catch (error) {
+                    console.error('Invalid user settings data:', error);
+                    // Clear invalid data and redirect to onboarding
+                    localStorage.removeItem('userSettings');
+                    localStorage.removeItem('currentRole');
+                    window.location.href = 'onboarding.html';
+                    throw new Error('Invalid user data - redirecting to onboarding');
+                }
+            }
+
+            setupHeader() {
+                const headerContainer = document.getElementById('page-header');
+                
+                const header = createHeader({
+                    showHome: true, // Show home button with icon only
+                    user: this.userSettings,
+                    onHome: () => {
+                        // Home button goes to home (refresh this page since this is home)
+                        window.location.reload();
+                    },
+                    onProfile: () => {
+                        // Avatar button opens profile/settings modal
+                        this.showProfileModal();
+                    },
+                    title: ''
+                });
+
+                // Home button will show home icon as configured in navigation.js
+
+                headerContainer.appendChild(header);
+            }
+
+            bindEvents() {
+                // Role selection buttons
+                const teacherBtn = document.getElementById('teacher-role-btn');
+                const studentBtn = document.getElementById('student-role-btn');
+                
+                if (teacherBtn) {
+                    teacherBtn.addEventListener('click', () => {
+                        this.selectRole('teacher');
+                    });
+                }
+                
+                if (studentBtn) {
+                    studentBtn.addEventListener('click', () => {
+                        this.selectRole('student');
+                    });
+                }
+
+                // Modal events
+                const closeModalBtn = document.getElementById('close-modal-btn');
+                if (closeModalBtn) {
+                    closeModalBtn.addEventListener('click', () => {
+                        this.hideProfileModal();
+                    });
+                }
+
+                const clearDataBtn = document.getElementById('clear-data-btn');
+                if (clearDataBtn) {
+                    clearDataBtn.addEventListener('click', () => {
+                        this.clearUserData();
+                    });
+                }
+
+                // Modal overlay click to close
+                const profileModal = document.getElementById('profile-modal');
+                if (profileModal) {
+                    profileModal.addEventListener('click', (e) => {
+                        if (e.target.id === 'profile-modal') {
+                            this.hideProfileModal();
+                        }
+                    });
+                }
+
+                // Keyboard events for modal
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.hideProfileModal();
+                    }
+                });
+                
+                console.log('Event binding completed');
+            }
+
+            showContent() {
+                console.log('Showing role selection content');
+                
+                try {
+                    // Update greeting with user's name
+                    const greetingEl = document.getElementById('user-greeting');
+                    if (greetingEl && this.userSettings && this.userSettings.name) {
+                        greetingEl.textContent = `Welcome, ${this.userSettings.name}`;
+                        console.log('Updated greeting for user:', this.userSettings.name);
+                    } else {
+                        console.warn('Could not update greeting - missing elements or user data');
+                        // Try to show generic greeting if userSettings missing
+                        if (greetingEl) {
+                            greetingEl.textContent = 'Welcome!';
+                        }
+                    }
+
+                    // Hide loading state and show content
+                    this.toggleContentVisibility(true);
+                    
+                } catch (error) {
+                    console.error('Error showing content:', error);
+                    this.handleError('Failed to display the interface. Please refresh the page.');
+                }
+            }
+
+            toggleContentVisibility(showContent) {
+                const loadingState = document.getElementById('loading-state');
+                const roleContent = document.getElementById('role-selection-content');
+                
+                console.log('Toggle content visibility:', showContent, 'Elements found:', !!loadingState, !!roleContent);
+                
+                if (loadingState && roleContent) {
+                    if (showContent) {
+                        loadingState.style.display = 'none';
+                        roleContent.style.display = 'block';
+                        loadingState.classList.add('hidden');
+                        roleContent.classList.remove('hidden');
+                        console.log('Successfully showed role selection interface');
+                    } else {
+                        loadingState.style.display = 'block';
+                        roleContent.style.display = 'none';
+                        loadingState.classList.remove('hidden');
+                        roleContent.classList.add('hidden');
+                    }
+                } else {
+                    console.error('Could not find loading state or role content elements');
+                    console.log('loadingState:', loadingState);
+                    console.log('roleContent:', roleContent);
+                    throw new Error('Missing UI elements');
+                }
+            }
+
+            forceShowContent() {
+                console.log('Force showing content due to timeout');
+                try {
+                    // Try to load user data one more time
+                    const userSettingsStr = localStorage.getItem('userSettings');
+                    if (userSettingsStr) {
+                        try {
+                            this.userSettings = JSON.parse(userSettingsStr);
+                        } catch (e) {
+                            console.warn('Could not parse user settings in force show');
+                        }
+                    }
+                    
+                    // Show content regardless
+                    this.toggleContentVisibility(true);
+                    
+                    // Update greeting if we have user data
+                    const greetingEl = document.getElementById('user-greeting');
+                    if (greetingEl && this.userSettings && this.userSettings.name) {
+                        greetingEl.textContent = `Welcome, ${this.userSettings.name}`;
+                    }
+                    
+                } catch (error) {
+                    console.error('Error in forceShowContent:', error);
+                    // Last resort - just hide loading and show content
+                    const loadingState = document.getElementById('loading-state');
+                    const roleContent = document.getElementById('role-selection-content');
+                    if (loadingState) loadingState.style.display = 'none';
+                    if (roleContent) roleContent.style.display = 'block';
+                }
+            }
+
+            selectRole(role) {
+                try {
+                    // Use navigation manager if available
+                    if (window.navigationManager) {
+                        window.navigationManager.setRoleAndNavigate(role);
+                    } else {
+                        // Fallback to direct navigation
+                        localStorage.setItem('currentRole', role);
+                        this.currentRole = role;
+
+                        if (role === 'teacher') {
+                            window.location.href = 'teacher-dashboard.html';
+                        } else if (role === 'student') {
+                            window.location.href = 'student-dashboard.html';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to save role selection:', error);
+                    this.showError('Unable to save your role selection. Please try again.');
+                }
+            }
+
+            showProfileModal() {
+                const modal = document.getElementById('profile-modal');
+                const modalAvatar = document.getElementById('modal-avatar');
+                const modalName = document.getElementById('modal-name');
+
+                // Populate modal with user data
+                modalAvatar.src = this.userSettings.avatar;
+                modalAvatar.alt = `${this.userSettings.name}'s avatar`;
+                modalName.textContent = this.userSettings.name;
+
+                // Show modal with animation
+                modal.classList.add('show');
+                
+                // Focus management - focus on close button
+                document.getElementById('close-modal-btn').focus();
+                
+                // Prevent body scroll
+                document.body.style.overflow = 'hidden';
+            }
+
+            hideProfileModal() {
+                const modal = document.getElementById('profile-modal');
+                modal.classList.remove('show');
+                
+                // Restore body scroll
+                document.body.style.overflow = '';
+                
+                // Return focus to profile button in header
+                const profileButton = document.querySelector('header button[aria-label*="profile"]');
+                if (profileButton) {
+                    profileButton.focus();
+                }
+            }
+
+            clearUserData() {
+                const confirmed = confirm('Are you sure you want to reset your profile? This will clear all your data and return you to the setup process.');
+                
+                if (confirmed) {
+                    try {
+                        // Use navigation manager if available
+                        if (window.navigationManager) {
+                            window.navigationManager.resetOnboarding();
+                        } else {
+                            // Fallback to direct navigation
+                            localStorage.removeItem('userSettings');
+                            localStorage.removeItem('currentRole');
+                            window.location.href = 'onboarding.html';
+                        }
+                    } catch (error) {
+                        console.error('Failed to clear user data:', error);
+                        alert('Unable to reset your profile. Please try again or contact support.');
+                    }
+                }
+            }
+
+            showError(message) {
+                const errorEl = document.getElementById('error-message');
+                errorEl.textContent = message;
+                errorEl.classList.remove('hidden');
+                
+                // Hide error after 5 seconds
+                setTimeout(() => {
+                    errorEl.classList.add('hidden');
+                }, 5000);
+            }
+
+            handleError(message) {
+                document.getElementById('loading-state').innerHTML = 
+                    `<p class="error-message">${message}</p>`;
+            }
+        }
+
+        // Initialize the role selection page
+        document.addEventListener('DOMContentLoaded', () => {
+            new RoleSelectionManager();
+        });
+
+        // Browser navigation is handled by navigation manager
+    </script>
+    
+    <!-- Navigation System -->
+    <script src="../js/navigation.js"></script>
+</body>
+</html>

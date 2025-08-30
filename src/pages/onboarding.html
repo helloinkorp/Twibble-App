@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Twibble - Get Started</title>
+    <meta name="description" content="Create your Twibble profile and start your learning journey">
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="../styles/design-system.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
+    
+    <style>
+        /* Ensure Material Symbols font loads properly */
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+    
+    <style>
+        /* Onboarding-specific styles using design tokens */
+        .onboarding-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+        }
+        
+        .onboarding-card {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        
+        .logo-container {
+            margin-bottom: var(--space-8);
+        }
+        
+        .logo {
+            max-width: 200px;
+            height: auto;
+            margin: 0 auto var(--space-4);
+            display: block;
+        }
+        
+        .logo-container h4 {
+            margin-bottom: var(--space-8);
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .section-transition {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity var(--transition-base), transform var(--transition-base);
+        }
+        
+        .section-transition.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: var(--space-4);
+            margin: var(--space-6) 0;
+            justify-items: center;
+        }
+        
+        .avatar-option {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--color-gray-200);
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            background: var(--color-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .avatar-option:hover {
+            border-color: var(--color-gray-400);
+            transform: scale(1.05);
+        }
+        
+        .avatar-option.selected {
+            border-color: var(--color-primary);
+            border-width: 3px;
+            box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
+        
+        .avatar-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-upload {
+            border-style: dashed;
+            color: var(--color-gray-500);
+            flex-direction: column;
+            gap: var(--space-1);
+        }
+        
+        .avatar-upload:hover {
+            color: var(--color-gray-600);
+            background: var(--color-gray-50);
+        }
+        
+        .upload-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            .avatar-grid {
+                grid-template-columns: repeat(5, 1fr);
+                max-width: 500px;
+                margin: var(--space-8) auto;
+            }
+            
+            .avatar-option {
+                width: 90px;
+                height: 90px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <div class="onboarding-container">
+        <main id="main-content" class="onboarding-card">
+            <!-- Section 1: Hero -->
+            <section id="hero-section" class="section active">
+                <div class="section-transition show">
+                    <div class="logo-container">
+                        <img src="../../logo.png" alt="Twibble Logo" class="logo">
+                        <h4>Lesson. Made Simple.</h4>
+                    </div>
+                    
+                    <button 
+                        id="get-started-btn" 
+                        class="btn btn-primary btn-lg"
+                        aria-label="Get started with profile creation"
+                    >
+                        Get Started
+                    </button>
+                </div>
+            </section>
+            
+            <!-- Section 2: Name Input -->
+            <section id="name-section" class="section">
+                <div class="section-transition">
+                    <h2 class="text-3xl mb-6">What is your name?</h2>
+                    
+                    <div class="form-group max-w-md mx-auto">
+                        <label for="user-name" class="sr-only">Your name</label>
+                        <input 
+                            type="text" 
+                            id="user-name" 
+                            placeholder="Enter your name"
+                            aria-label="Enter your name"
+                            aria-required="true"
+                            class="text-center text-lg"
+                            autocomplete="given-name"
+                            minlength="2"
+                            required
+                        >
+                        <div class="help-text error" id="name-error" aria-live="polite" style="display: none;"></div>
+                    </div>
+                    
+                    <button 
+                        id="name-next-btn" 
+                        class="btn btn-primary btn-lg btn-disabled mt-6"
+                        aria-label="Continue to avatar selection"
+                        disabled
+                    >
+                        Next
+                    </button>
+                </div>
+            </section>
+            
+            <!-- Section 3: Avatar Selection -->
+            <section id="avatar-section" class="section">
+                <div class="section-transition">
+                    <h2 class="text-3xl mb-6">Who are you?</h2>
+                    
+                    <p class="text-secondary mb-4">Choose an avatar that represents you</p>
+                    
+                    <div 
+                        class="avatar-grid" 
+                        role="radiogroup" 
+                        aria-label="Select your avatar"
+                        id="avatar-grid"
+                    >
+                        <!-- Default Avatars -->
+                        <div 
+                            class="avatar-option" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="0"
+                            data-avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=1&backgroundColor=b6e3f4,c0aede,d1d4f9"
+                            aria-label="Avatar option 1"
+                        >
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1&backgroundColor=b6e3f4,c0aede,d1d4f9" alt="Avatar 1">
+                        </div>
+                        
+                        <div 
+                            class="avatar-option" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="-1"
+                            data-avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=2&backgroundColor=ffd93d,ffb3ba,ffdfba"
+                            aria-label="Avatar option 2"
+                        >
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=2&backgroundColor=ffd93d,ffb3ba,ffdfba" alt="Avatar 2">
+                        </div>
+                        
+                        <div 
+                            class="avatar-option" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="-1"
+                            data-avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=3&backgroundColor=bae1ff,bdb2ff,ffd93d"
+                            aria-label="Avatar option 3"
+                        >
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=3&backgroundColor=bae1ff,bdb2ff,ffd93d" alt="Avatar 3">
+                        </div>
+                        
+                        <div 
+                            class="avatar-option" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="-1"
+                            data-avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=4&backgroundColor=a8e6cf,ffd93d,ff8b94"
+                            aria-label="Avatar option 4"
+                        >
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=4&backgroundColor=a8e6cf,ffd93d,ff8b94" alt="Avatar 4">
+                        </div>
+                        
+                        <div 
+                            class="avatar-option" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="-1"
+                            data-avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=5&backgroundColor=c7ceea,ffd93d,ffb3d9"
+                            aria-label="Avatar option 5"
+                        >
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=5&backgroundColor=c7ceea,ffd93d,ffb3d9" alt="Avatar 5">
+                        </div>
+                        
+                        <div 
+                            class="avatar-option" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="-1"
+                            data-avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=6&backgroundColor=ffc9de,c0aede,b6e3f4"
+                            aria-label="Avatar option 6"
+                        >
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=6&backgroundColor=ffc9de,c0aede,b6e3f4" alt="Avatar 6">
+                        </div>
+                        
+                        <div 
+                            class="avatar-option" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="-1"
+                            data-avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=7&backgroundColor=a8e6cf,c0aede,ffdfba"
+                            aria-label="Avatar option 7"
+                        >
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=7&backgroundColor=a8e6cf,c0aede,ffdfba" alt="Avatar 7">
+                        </div>
+                        
+                        <div 
+                            class="avatar-option" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="-1"
+                            data-avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=8&backgroundColor=ff8b94,ffd93d,bdb2ff"
+                            aria-label="Avatar option 8"
+                        >
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=8&backgroundColor=ff8b94,ffd93d,bdb2ff" alt="Avatar 8">
+                        </div>
+                        
+                        <div 
+                            class="avatar-option" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="-1"
+                            data-avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=9&backgroundColor=d1d4f9,ffb3ba,a8e6cf"
+                            aria-label="Avatar option 9"
+                        >
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=9&backgroundColor=d1d4f9,ffb3ba,a8e6cf" alt="Avatar 9">
+                        </div>
+                        
+                        <div 
+                            class="avatar-option" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="-1"
+                            data-avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=10&backgroundColor=ffdfba,c7ceea,ffc9de"
+                            aria-label="Avatar option 10"
+                        >
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=10&backgroundColor=ffdfba,c7ceea,ffc9de" alt="Avatar 10">
+                        </div>
+                        
+                        <div 
+                            class="avatar-option" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="-1"
+                            data-avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=11&backgroundColor=bae1ff,ff8b94,c0aede"
+                            aria-label="Avatar option 11"
+                        >
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=11&backgroundColor=bae1ff,ff8b94,c0aede" alt="Avatar 11">
+                        </div>
+                        
+                        <div 
+                            class="avatar-option" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="-1"
+                            data-avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=12&backgroundColor=ffb3d9,bdb2ff,a8e6cf"
+                            aria-label="Avatar option 12"
+                        >
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=12&backgroundColor=ffb3d9,bdb2ff,a8e6cf" alt="Avatar 12">
+                        </div>
+                        
+                        <!-- Upload Option -->
+                        <div 
+                            class="avatar-option avatar-upload" 
+                            role="radio" 
+                            aria-checked="false"
+                            tabindex="-1"
+                            aria-label="Upload custom avatar"
+                        >
+                            <span class="text-xs">Upload Photo</span>
+                            <input 
+                                type="file" 
+                                id="avatar-upload" 
+                                class="upload-input"
+                                accept="image/*"
+                                aria-label="Upload custom avatar image"
+                            >
+                        </div>
+                    </div>
+                    
+                    <button 
+                        id="avatar-continue-btn" 
+                        class="btn btn-primary btn-lg btn-disabled"
+                        aria-label="Continue to start using Twibble"
+                        disabled
+                    >
+                        <span id="continue-btn-text">Continue</span>
+                        <span id="loading-text" style="display: none;">Loading your profile...</span>
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- JavaScript for Progressive Navigation -->
+    <script>
+        /*
+         * DEBUG MODE: To enable detailed console logging for debugging onboarding issues,
+         * run in browser console: localStorage.setItem('debug_onboarding', 'true')
+         * To disable: localStorage.removeItem('debug_onboarding')
+         */
+        
+        // Onboarding state management
+        class OnboardingManager {
+            constructor() {
+                this.currentSection = 0;
+                this.sections = ['hero-section', 'name-section', 'avatar-section'];
+                this.userData = {
+                    name: '',
+                    avatar: ''
+                };
+                this.selectedAvatar = null; // Track selected avatar element
+                this.avatarReady = false; // Flag to track avatar loading state
+                this.debugMode = localStorage.getItem('debug_onboarding') === 'true';
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.loadExistingData();
+            }
+
+            bindEvents() {
+                // Hero section - Get Started button
+                document.getElementById('get-started-btn').addEventListener('click', () => {
+                    this.nextSection();
+                });
+
+                // Name section - Input validation and Next button
+                const nameInput = document.getElementById('user-name');
+                const nameNextBtn = document.getElementById('name-next-btn');
+
+                nameInput.addEventListener('input', (e) => {
+                    this.validateName(e.target.value);
+                });
+
+                nameInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !nameNextBtn.disabled) {
+                        this.nextSection();
+                    }
+                });
+
+                nameNextBtn.addEventListener('click', () => {
+                    if (!nameNextBtn.disabled) {
+                        this.userData.name = nameInput.value.trim();
+                        this.log('Name saved to userData', { name: this.userData.name });
+                        this.nextSection();
+                    }
+                });
+
+                // Avatar section - Avatar selection
+                this.bindAvatarEvents();
+
+                // Avatar section - Continue button
+                document.getElementById('avatar-continue-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const continueBtn = document.getElementById('avatar-continue-btn');
+                    
+                    this.log('Continue button clicked', { 
+                        disabled: continueBtn.disabled, 
+                        userData: this.userData,
+                        avatarReady: this.avatarReady 
+                    });
+                    
+                    if (!continueBtn.disabled) {
+                        this.completeOnboarding();
+                    } else {
+                        this.log('Continue button click ignored - button is disabled');
+                        // Show user what's missing if they try to continue when validation fails
+                        const validation = this.validateUserData();
+                        if (!validation.isValid) {
+                            const errorMessage = validation.errors.length === 1 ? 
+                                validation.errors[0] : 
+                                'Please complete all required fields:\n• ' + validation.errors.join('\n• ');
+                            alert(errorMessage);
+                        }
+                    }
+                });
+            }
+
+            bindAvatarEvents() {
+                const avatarGrid = document.getElementById('avatar-grid');
+                const avatarOptions = avatarGrid.querySelectorAll('.avatar-option');
+                const uploadInput = document.getElementById('avatar-upload');
+
+                // Avatar selection
+                avatarOptions.forEach((option, index) => {
+                    if (!option.classList.contains('avatar-upload')) {
+                        option.addEventListener('click', () => {
+                            this.log('Dicebear avatar clicked', { index, dataAvatar: option.dataset.avatar });
+                            this.selectAvatar(option);
+                        });
+
+                        option.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                this.log('Dicebear avatar selected via keyboard', { index, dataAvatar: option.dataset.avatar });
+                                this.selectAvatar(option);
+                            }
+                        });
+                    }
+                });
+
+                // Upload handling
+                uploadInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        this.handleAvatarUpload(file);
+                    }
+                });
+
+                // Keyboard navigation for avatar grid
+                this.setupAvatarKeyboardNavigation();
+            }
+
+            setupAvatarKeyboardNavigation() {
+                const avatarOptions = Array.from(document.querySelectorAll('.avatar-option'));
+                
+                avatarOptions.forEach((option, index) => {
+                    option.addEventListener('keydown', (e) => {
+                        let newIndex = index;
+                        
+                        switch (e.key) {
+                            case 'ArrowRight':
+                                e.preventDefault();
+                                newIndex = (index + 1) % avatarOptions.length;
+                                break;
+                            case 'ArrowLeft':
+                                e.preventDefault();
+                                newIndex = index === 0 ? avatarOptions.length - 1 : index - 1;
+                                break;
+                            case 'ArrowDown':
+                                e.preventDefault();
+                                newIndex = Math.min(index + 5, avatarOptions.length - 1);
+                                break;
+                            case 'ArrowUp':
+                                e.preventDefault();
+                                newIndex = Math.max(index - 5, 0);
+                                break;
+                        }
+                        
+                        if (newIndex !== index) {
+                            avatarOptions[newIndex].focus();
+                            // Update tabindex
+                            avatarOptions.forEach((opt, i) => {
+                                opt.tabIndex = i === newIndex ? 0 : -1;
+                            });
+                        }
+                    });
+                });
+            }
+
+            validateName(value) {
+                const nameNextBtn = document.getElementById('name-next-btn');
+                const nameError = document.getElementById('name-error');
+                const trimmedValue = value.trim();
+
+                if (trimmedValue.length >= 2) {
+                    nameNextBtn.disabled = false;
+                    nameNextBtn.classList.remove('btn-disabled');
+                    nameNextBtn.setAttribute('aria-disabled', 'false');
+                    nameError.style.display = 'none';
+                    return true;
+                } else {
+                    nameNextBtn.disabled = true;
+                    nameNextBtn.classList.add('btn-disabled');
+                    nameNextBtn.setAttribute('aria-disabled', 'true');
+                    if (trimmedValue.length > 0) {
+                        nameError.textContent = 'Name must be at least 2 characters long';
+                        nameError.style.display = 'block';
+                    } else {
+                        nameError.style.display = 'none';
+                    }
+                    return false;
+                }
+            }
+
+            selectAvatar(option, skipValidation = false) {
+                this.log('selectAvatar called', { option, skipValidation, currentAvatarData: this.userData.avatar });
+                
+                // Clear previous selections
+                document.querySelectorAll('.avatar-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                    opt.setAttribute('aria-checked', 'false');
+                    opt.tabIndex = -1;
+                });
+
+                // Set new selection
+                option.classList.add('selected');
+                option.setAttribute('aria-checked', 'true');
+                option.tabIndex = 0;
+                option.focus();
+
+                // Store selected avatar element reference
+                this.selectedAvatar = option;
+
+                // Get avatar source - with better error handling
+                let avatarSrc = null;
+                try {
+                    avatarSrc = option.dataset.avatar || (option.querySelector('img') && option.querySelector('img').src);
+                } catch (error) {
+                    this.log('Error getting avatar source:', error);
+                }
+
+                if (avatarSrc) {
+                    this.userData.avatar = avatarSrc;
+                    this.avatarReady = true;
+                    this.log('Avatar selected successfully', { avatarSrc, avatarReady: this.avatarReady });
+                } else {
+                    this.log('Warning: Avatar source not available yet');
+                    this.avatarReady = false;
+                }
+
+                // Only enable continue button if avatar data is ready (prevents race condition)
+                if (!skipValidation) {
+                    this.updateContinueButton();
+                }
+            }
+
+            handleAvatarUpload(file) {
+                this.log('handleAvatarUpload called', { fileName: file.name, fileSize: file.size });
+                
+                const reader = new FileReader();
+                const uploadOption = document.querySelector('.avatar-upload');
+
+                // Set loading state for upload option
+                this.avatarReady = false;
+                uploadOption.classList.add('selected');
+                uploadOption.setAttribute('aria-checked', 'true');
+                
+                // Disable continue button during upload processing
+                this.updateContinueButton();
+
+                reader.onload = (e) => {
+                    try {
+                        const result = e.target.result;
+                        this.log('FileReader completed successfully', { resultLength: result.length });
+                        
+                        // Create image element for uploaded avatar
+                        const img = document.createElement('img');
+                        img.src = result;
+                        img.alt = 'Custom uploaded avatar';
+                        
+                        // Clear upload content and add image
+                        uploadOption.innerHTML = '';
+                        uploadOption.appendChild(img);
+                        uploadOption.dataset.avatar = result;
+                        
+                        // Now that the data is ready, select this avatar
+                        // Use skipValidation=true to avoid double-validation
+                        this.selectAvatar(uploadOption, true);
+                        
+                        // Force update continue button after avatar is fully ready
+                        setTimeout(() => {
+                            this.updateContinueButton();
+                        }, 100);
+                        
+                    } catch (error) {
+                        this.log('Error in FileReader onload:', error);
+                        this.avatarReady = false;
+                        this.updateContinueButton();
+                        alert('Error processing uploaded image. Please try again.');
+                    }
+                };
+
+                reader.onerror = () => {
+                    this.log('FileReader error occurred');
+                    this.avatarReady = false;
+                    this.updateContinueButton();
+                    alert('Error reading file. Please try again.');
+                };
+
+                reader.readAsDataURL(file);
+            }
+
+            // New method: Comprehensive validation with detailed logging
+            validateUserData() {
+                const validation = {
+                    isValid: false,
+                    errors: [],
+                    data: {
+                        name: this.userData.name?.trim() || '',
+                        avatar: this.userData.avatar || '',
+                        avatarReady: this.avatarReady,
+                        selectedAvatar: !!this.selectedAvatar
+                    }
+                };
+
+                this.log('validateUserData called', validation.data);
+
+                // Validate name
+                if (!validation.data.name || validation.data.name.length < 2) {
+                    validation.errors.push('Name is missing or too short (must be at least 2 characters)');
+                }
+
+                // Validate avatar
+                if (!validation.data.avatar) {
+                    validation.errors.push('Avatar is not selected or data is missing');
+                } else if (!this.avatarReady) {
+                    validation.errors.push('Avatar is still being processed, please wait');
+                } else if (!this.selectedAvatar) {
+                    validation.errors.push('Avatar selection state is inconsistent');
+                }
+
+                validation.isValid = validation.errors.length === 0;
+
+                this.log('Validation result', {
+                    isValid: validation.isValid,
+                    errors: validation.errors,
+                    userData: this.userData
+                });
+
+                return validation;
+            }
+
+            // New method: Update continue button state based on validation
+            updateContinueButton() {
+                const continueBtn = document.getElementById('avatar-continue-btn');
+                if (!continueBtn) return;
+
+                const validation = this.validateUserData();
+                
+                if (validation.isValid) {
+                    continueBtn.disabled = false;
+                    continueBtn.classList.remove('btn-disabled');
+                    continueBtn.setAttribute('aria-disabled', 'false');
+                    this.log('Continue button enabled - validation passed');
+                } else {
+                    continueBtn.disabled = true;
+                    continueBtn.classList.add('btn-disabled');
+                    continueBtn.setAttribute('aria-disabled', 'true');
+                    this.log('Continue button disabled - validation failed', validation.errors);
+                }
+            }
+
+            // New method: Debug logging with conditional output
+            log(message, data = null) {
+                if (this.debugMode) {
+                    const timestamp = new Date().toISOString().split('T')[1].slice(0, -1);
+                    if (data) {
+                        console.log(`[${timestamp}] OnboardingManager: ${message}`, data);
+                    } else {
+                        console.log(`[${timestamp}] OnboardingManager: ${message}`);
+                    }
+                }
+            }
+
+            nextSection() {
+                if (this.currentSection < this.sections.length - 1) {
+                    // Hide current section
+                    const currentEl = document.getElementById(this.sections[this.currentSection]);
+                    const currentTransition = currentEl.querySelector('.section-transition');
+                    
+                    currentTransition.classList.remove('show');
+                    
+                    setTimeout(() => {
+                        currentEl.classList.remove('active');
+                        
+                        // Show next section
+                        this.currentSection++;
+                        const nextEl = document.getElementById(this.sections[this.currentSection]);
+                        const nextTransition = nextEl.querySelector('.section-transition');
+                        
+                        nextEl.classList.add('active');
+                        
+                        // Focus management
+                        this.manageFocus();
+                        
+                        setTimeout(() => {
+                            nextTransition.classList.add('show');
+                        }, 50);
+                    }, 200);
+                }
+            }
+
+            manageFocus() {
+                // Set focus to appropriate element in new section
+                switch (this.currentSection) {
+                    case 1: // Name section
+                        document.getElementById('user-name').focus();
+                        break;
+                    case 2: // Avatar section
+                        // Initialize avatar section with proper validation state
+                        this.initializeAvatarSection();
+                        document.querySelector('.avatar-option[tabindex="0"]').focus();
+                        break;
+                }
+            }
+
+            // New method: Initialize avatar section properly
+            initializeAvatarSection() {
+                this.log('Initializing avatar section');
+                
+                // Ensure name is captured from previous section
+                const nameInput = document.getElementById('user-name');
+                if (nameInput && nameInput.value.trim()) {
+                    this.userData.name = nameInput.value.trim();
+                    this.log('Name captured from input', { name: this.userData.name });
+                }
+                
+                // Initialize avatar validation state
+                this.avatarReady = false;
+                this.selectedAvatar = null;
+                
+                // Update continue button state
+                this.updateContinueButton();
+            }
+
+            loadExistingData() {
+                // Check if user has already completed onboarding
+                try {
+                    const existingData = localStorage.getItem('userSettings');
+                    if (existingData) {
+                        const userData = JSON.parse(existingData);
+                        // If complete profile exists, redirect to role selection
+                        if (userData.name && userData.avatar) {
+                            if (window.navigationManager) {
+                                window.navigationManager.navigate('index.html', true);
+                            } else {
+                                window.location.href = 'index.html';
+                            }
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Could not load existing user data:', error);
+                }
+            }
+
+            completeOnboarding() {
+                this.log('completeOnboarding called');
+                
+                // Comprehensive validation using new validation system
+                const validation = this.validateUserData();
+                
+                if (!validation.isValid) {
+                    this.log('Validation failed during completion', validation);
+                    const errorMessage = validation.errors.length === 1 ? 
+                        validation.errors[0] : 
+                        'Please complete all required fields before continuing:\n• ' + validation.errors.join('\n• ');
+                    
+                    alert(errorMessage);
+                    return;
+                }
+
+                this.log('Validation passed, proceeding with onboarding completion');
+                
+                // Show loading state
+                this.showLoadingState();
+                
+                // Set up safety timeout in case navigation fails
+                const safetyTimeout = setTimeout(() => {
+                    console.warn('Navigation timeout reached, forcing direct redirect');
+                    window.location.href = 'index.html';
+                }, 5000);
+                
+                // Save user data to localStorage
+                try {
+                    const userSettings = {
+                        name: this.userData.name.trim(),
+                        avatar: this.userData.avatar,
+                        createdAt: new Date().toISOString(),
+                        onboardingCompleted: true
+                    };
+
+                    // Validate userSettings structure
+                    if (!userSettings.name || !userSettings.avatar) {
+                        throw new Error('Invalid user data structure');
+                    }
+
+                    // Save to localStorage first (critical step)
+                    localStorage.setItem('userSettings', JSON.stringify(userSettings));
+                    
+                    // Verify the data was saved correctly
+                    const savedData = localStorage.getItem('userSettings');
+                    if (!savedData) {
+                        throw new Error('Failed to save user settings to localStorage');
+                    }
+                    
+                    const parsedData = JSON.parse(savedData);
+                    if (!parsedData.name || !parsedData.avatar || !parsedData.onboardingCompleted) {
+                        throw new Error('Saved user settings are incomplete');
+                    }
+                    
+                    console.log('User settings saved successfully:', userSettings);
+                    
+                    // Brief delay to show loading state, then redirect
+                    setTimeout(() => {
+                        clearTimeout(safetyTimeout);
+                        
+                        // Use navigation manager if available for better UX
+                        if (window.navigationManager && typeof window.navigationManager.navigate === 'function') {
+                            console.log('Using navigation manager for redirect');
+                            try {
+                                window.navigationManager.navigate('index.html', true);
+                            } catch (navError) {
+                                console.warn('Navigation manager failed, using direct navigation:', navError);
+                                window.location.href = 'index.html';
+                            }
+                        } else {
+                            // Direct navigation as fallback
+                            console.log('Using direct navigation');
+                            window.location.href = 'index.html';
+                        }
+                    }, 800);
+                    
+                } catch (error) {
+                    clearTimeout(safetyTimeout);
+                    console.error('Failed to save user settings:', error);
+                    this.hideLoadingState();
+                    
+                    // Provide specific error messages based on the error type
+                    if (!this.isLocalStorageAvailable()) {
+                        alert('Your browser\'s storage is disabled or full. Please enable cookies and local storage, or try clearing your browser data.');
+                    } else if (error.name === 'QuotaExceededError') {
+                        alert('Your browser\'s storage is full. Please clear some data and try again.');
+                    } else if (error.message.includes('Invalid user data')) {
+                        alert('There was an issue with your profile data. Please refresh and try again.');
+                    } else {
+                        alert('There was an error saving your profile. Please try again.');
+                    }
+                }
+            }
+
+            showLoadingState() {
+                const continueBtn = document.getElementById('avatar-continue-btn');
+                const continueText = document.getElementById('continue-btn-text');
+                const loadingText = document.getElementById('loading-text');
+                
+                if (continueBtn && continueText && loadingText) {
+                    continueBtn.disabled = true;
+                    continueBtn.classList.add('btn-disabled');
+                    continueText.style.display = 'none';
+                    loadingText.style.display = 'inline';
+                }
+            }
+
+            hideLoadingState() {
+                const continueBtn = document.getElementById('avatar-continue-btn');
+                const continueText = document.getElementById('continue-btn-text');
+                const loadingText = document.getElementById('loading-text');
+                
+                if (continueBtn && continueText && loadingText) {
+                    continueBtn.disabled = false;
+                    continueBtn.classList.remove('btn-disabled');
+                    continueText.style.display = 'inline';
+                    loadingText.style.display = 'none';
+                }
+            }
+
+            isLocalStorageAvailable() {
+                try {
+                    const test = '__localStorage_test__';
+                    localStorage.setItem(test, test);
+                    localStorage.removeItem(test);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+        }
+
+        // Initialize onboarding when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new OnboardingManager();
+        });
+    </script>
+    
+    <!-- Navigation System -->
+    <script src="../js/navigation.js"></script>
+</body>
+</html>

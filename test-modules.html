@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Module Conversion</title>
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 40px; }
+        .test-section { margin-bottom: 20px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        h1, h2 { margin-top: 0; }
+        ul { padding-left: 20px; }
+        .test-log { background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 10px; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>Module Conversion Test</h1>
+    <p>Testing if ES6 modules have been successfully converted to global scripts for file:// protocol compatibility.</p>
+    
+    <!-- Component Dependencies -->
+    <script src="src/components/navigation.js"></script>
+    <script src="src/components/buttons.js"></script>
+    <script src="src/components/cards.js"></script>
+    <script src="src/components/interactive.js"></script>
+    <script src="src/components/forms.js"></script>
+    
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        const testLog = [];
+        
+        function log(message) {
+            testLog.push(message);
+            console.log(message);
+        }
+        
+        function createTestSection(title, success, details = []) {
+            const section = document.createElement('div');
+            section.className = `test-section ${success ? 'success' : 'error'}`;
+            
+            const heading = document.createElement('h2');
+            heading.textContent = title;
+            section.appendChild(heading);
+            
+            const status = document.createElement('p');
+            status.textContent = success ? '✅ PASS' : '❌ FAIL';
+            section.appendChild(status);
+            
+            if (details.length > 0) {
+                const list = document.createElement('ul');
+                details.forEach(detail => {
+                    const item = document.createElement('li');
+                    item.textContent = detail;
+                    list.appendChild(item);
+                });
+                section.appendChild(list);
+            }
+            
+            return section;
+        }
+        
+        function runTests() {
+            log('Starting module conversion tests...');
+            
+            // Test 1: Navigation Components
+            const navTests = [];
+            const navSuccess = typeof createHeader === 'function' &&
+                              typeof createProgressIndicator === 'function' &&
+                              typeof createAccordion === 'function' &&
+                              typeof createBreadcrumb === 'function' &&
+                              typeof createTabs === 'function';
+            
+            if (typeof createHeader === 'function') navTests.push('✓ createHeader function available');
+            else navTests.push('✗ createHeader function missing');
+            
+            if (typeof createProgressIndicator === 'function') navTests.push('✓ createProgressIndicator function available');
+            else navTests.push('✗ createProgressIndicator function missing');
+            
+            if (typeof createAccordion === 'function') navTests.push('✓ createAccordion function available');
+            else navTests.push('✗ createAccordion function missing');
+            
+            if (typeof createBreadcrumb === 'function') navTests.push('✓ createBreadcrumb function available');
+            else navTests.push('✗ createBreadcrumb function missing');
+            
+            if (typeof createTabs === 'function') navTests.push('✓ createTabs function available');
+            else navTests.push('✗ createTabs function missing');
+            
+            results.appendChild(createTestSection('Navigation Components', navSuccess, navTests));
+            log(`Navigation components test: ${navSuccess ? 'PASS' : 'FAIL'}`);
+            
+            // Test 2: Button Components
+            const buttonTests = [];
+            const buttonSuccess = typeof createButton === 'function' &&
+                                 typeof createCtaButton === 'function' &&
+                                 typeof createSecondaryButton === 'function' &&
+                                 typeof createTertiaryButton === 'function';
+            
+            if (typeof createButton === 'function') buttonTests.push('✓ createButton function available');
+            else buttonTests.push('✗ createButton function missing');
+            
+            if (typeof createCtaButton === 'function') buttonTests.push('✓ createCtaButton function available');
+            else buttonTests.push('✗ createCtaButton function missing');
+            
+            if (typeof createSecondaryButton === 'function') buttonTests.push('✓ createSecondaryButton function available');
+            else buttonTests.push('✗ createSecondaryButton function missing');
+            
+            if (typeof createTertiaryButton === 'function') buttonTests.push('✓ createTertiaryButton function available');
+            else buttonTests.push('✗ createTertiaryButton function missing');
+            
+            results.appendChild(createTestSection('Button Components', buttonSuccess, buttonTests));
+            log(`Button components test: ${buttonSuccess ? 'PASS' : 'FAIL'}`);
+            
+            // Test 3: Card Components
+            const cardTests = [];
+            const cardSuccess = typeof createCard === 'function' &&
+                               typeof createDefaultCard === 'function' &&
+                               typeof createSoftCard === 'function' &&
+                               typeof createHoverCard === 'function';
+            
+            if (typeof createCard === 'function') cardTests.push('✓ createCard function available');
+            else cardTests.push('✗ createCard function missing');
+            
+            if (typeof createDefaultCard === 'function') cardTests.push('✓ createDefaultCard function available');
+            else cardTests.push('✗ createDefaultCard function missing');
+            
+            if (typeof createSoftCard === 'function') cardTests.push('✓ createSoftCard function available');
+            else cardTests.push('✗ createSoftCard function missing');
+            
+            if (typeof createHoverCard === 'function') cardTests.push('✓ createHoverCard function available');
+            else cardTests.push('✗ createHoverCard function missing');
+            
+            results.appendChild(createTestSection('Card Components', cardSuccess, cardTests));
+            log(`Card components test: ${cardSuccess ? 'PASS' : 'FAIL'}`);
+            
+            // Test 4: Interactive Components
+            const interactiveTests = [];
+            const interactiveSuccess = typeof createWordChip === 'function' &&
+                                      typeof createModal === 'function' &&
+                                      typeof createFlippableCard === 'function';
+            
+            if (typeof createWordChip === 'function') interactiveTests.push('✓ createWordChip function available');
+            else interactiveTests.push('✗ createWordChip function missing');
+            
+            if (typeof createModal === 'function') interactiveTests.push('✓ createModal function available');
+            else interactiveTests.push('✗ createModal function missing');
+            
+            if (typeof createFlippableCard === 'function') interactiveTests.push('✓ createFlippableCard function available');
+            else interactiveTests.push('✗ createFlippableCard function missing');
+            
+            results.appendChild(createTestSection('Interactive Components', interactiveSuccess, interactiveTests));
+            log(`Interactive components test: ${interactiveSuccess ? 'PASS' : 'FAIL'}`);
+            
+            // Test 5: Form Components
+            const formTests = [];
+            const formSuccess = typeof createInput === 'function' &&
+                               typeof createTextInput === 'function' &&
+                               typeof createNameInput === 'function' &&
+                               typeof createAvatarSelector === 'function';
+            
+            if (typeof createInput === 'function') formTests.push('✓ createInput function available');
+            else formTests.push('✗ createInput function missing');
+            
+            if (typeof createTextInput === 'function') formTests.push('✓ createTextInput function available');
+            else formTests.push('✗ createTextInput function missing');
+            
+            if (typeof createNameInput === 'function') formTests.push('✓ createNameInput function available');
+            else formTests.push('✗ createNameInput function missing');
+            
+            if (typeof createAvatarSelector === 'function') formTests.push('✓ createAvatarSelector function available');
+            else formTests.push('✗ createAvatarSelector function missing');
+            
+            results.appendChild(createTestSection('Form Components', formSuccess, formTests));
+            log(`Form components test: ${formSuccess ? 'PASS' : 'FAIL'}`);
+            
+            // Test 6: Functional Test - Create actual components
+            try {
+                const testContainer = document.createElement('div');
+                testContainer.style.display = 'none';
+                document.body.appendChild(testContainer);
+                
+                // Test creating actual components
+                const header = createHeader({
+                    title: 'Test Header',
+                    user: { name: 'Test User', avatar: '' },
+                    showHome: true
+                });
+                
+                const button = createCtaButton({
+                    text: 'Test Button'
+                });
+                
+                const card = createDefaultCard({
+                    content: '<p>Test card content</p>'
+                });
+                
+                testContainer.appendChild(header);
+                testContainer.appendChild(button);
+                testContainer.appendChild(card);
+                
+                const functionalSuccess = header instanceof HTMLElement && 
+                                        button instanceof HTMLElement && 
+                                        card instanceof HTMLElement;
+                
+                const functionalTests = [
+                    `✓ Created header: ${header.tagName}`,
+                    `✓ Created button: ${button.tagName}`,
+                    `✓ Created card: ${card.tagName}`,
+                    '✓ All components are proper DOM elements'
+                ];
+                
+                results.appendChild(createTestSection('Functional Test', functionalSuccess, functionalTests));
+                log(`Functional test: ${functionalSuccess ? 'PASS' : 'FAIL'}`);
+                
+                // Clean up test container
+                document.body.removeChild(testContainer);
+                
+            } catch (error) {
+                const functionalTests = [`✗ Error creating components: ${error.message}`];
+                results.appendChild(createTestSection('Functional Test', false, functionalTests));
+                log(`Functional test: FAIL - ${error.message}`);
+            }
+            
+            // Overall Summary
+            const overallTests = navSuccess && buttonSuccess && cardSuccess && interactiveSuccess && formSuccess;
+            const summary = document.createElement('div');
+            summary.className = `test-section ${overallTests ? 'success' : 'error'}`;
+            summary.innerHTML = `
+                <h2>Overall Summary</h2>
+                <p><strong>${overallTests ? '✅ ALL TESTS PASSED' : '❌ SOME TESTS FAILED'}</strong></p>
+                <p>The ES6 modules have been ${overallTests ? 'successfully' : 'incompletely'} converted to global scripts.</p>
+                <p>File:// protocol compatibility: ${overallTests ? 'READY' : 'NOT READY'}</p>
+            `;
+            
+            results.appendChild(summary);
+            
+            // Add log section
+            const logSection = document.createElement('div');
+            logSection.className = 'test-section';
+            logSection.innerHTML = `
+                <h2>Test Log</h2>
+                <div class="test-log">${testLog.join('\n')}</div>
+            `;
+            results.appendChild(logSection);
+            
+            log('Test execution completed');
+        }
+        
+        // Run tests when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', runTests);
+        } else {
+            runTests();
+        }
+    </script>
+</body>
+</html>

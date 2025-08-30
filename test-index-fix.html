@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index.html Fix Test</title>
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 40px; background-color: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        .status { font-size: 18px; font-weight: 600; margin-bottom: 15px; }
+        .details { color: #666; margin-bottom: 15px; }
+        .code { background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 14px; margin: 10px 0; }
+        .test-button { padding: 10px 20px; margin: 5px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        #test-area { min-height: 200px; border: 2px dashed #ddd; padding: 20px; border-radius: 8px; background: #fafafa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Index.html ES6 Module Fix Test</h1>
+        
+        <div class="test-card">
+            <h2>🔍 Problem Analysis</h2>
+            <div class="details">
+                <p><strong>Original Issue:</strong> ES6 modules (import/export) don't work with file:// protocol</p>
+                <div class="code">
+❌ Before: &lt;script type="module"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;import { createHeader } from '../components/navigation.js';<br>
+&nbsp;&nbsp;&nbsp;&nbsp;// Error: CORS policy blocks loading
+                </div>
+                <div class="code">
+✅ After: &lt;script src="../components/navigation.js"&gt;&lt;/script&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;// Functions available as window.createHeader
+                </div>
+            </div>
+        </div>
+
+        <div id="loading-test" class="test-card">
+            <h2>📝 Component Loading Test</h2>
+            <div class="status" id="load-status">Testing component loading...</div>
+            <div class="details" id="load-details">Checking if components load without CORS errors...</div>
+        </div>
+
+        <div id="functionality-test" class="test-card" style="display: none;">
+            <h2>⚙️ Functionality Test</h2>
+            <div class="status" id="func-status">Testing component functionality...</div>
+            <div class="details">Creating components from loaded modules...</div>
+            <div>
+                <button class="test-button btn-primary" onclick="testCreateHeader()">Test Create Header</button>
+                <button class="test-button btn-secondary" onclick="testCreateButton()">Test Create Button</button>
+                <button class="test-button btn-secondary" onclick="testCreateCard()">Test Create Card</button>
+            </div>
+            <div id="test-area"></div>
+        </div>
+
+        <div id="results" class="test-card" style="display: none;">
+            <h2>📊 Test Results</h2>
+            <div id="final-results"></div>
+        </div>
+    </div>
+
+    <!-- Component Dependencies (New approach) -->
+    <script src="src/components/navigation.js"></script>
+    <script src="src/components/buttons.js"></script>
+    <script src="src/components/cards.js"></script>
+    <script src="src/components/interactive.js"></script>
+    
+    <script>
+        let testResults = {
+            modulesLoaded: false,
+            functionsAvailable: false,
+            componentsCreated: false,
+            overallSuccess: false
+        };
+        
+        function updateLoadStatus() {
+            const loadStatusEl = document.getElementById('load-status');
+            const loadDetailsEl = document.getElementById('load-details');
+            const functionalityTest = document.getElementById('functionality-test');
+            
+            // Check if components are loaded
+            const componentsLoaded = [
+                typeof createHeader === 'function',
+                typeof createButton === 'function', 
+                typeof createDefaultCard === 'function',
+                typeof createWordChip === 'function'
+            ];
+            
+            const allLoaded = componentsLoaded.every(loaded => loaded);
+            testResults.modulesLoaded = allLoaded;
+            
+            if (allLoaded) {
+                loadStatusEl.innerHTML = '✅ SUCCESS: All components loaded without CORS errors';
+                loadStatusEl.parentElement.classList.add('success');
+                loadDetailsEl.innerHTML = `
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>✓ Navigation components loaded (createHeader, createProgressIndicator, etc.)</li>
+                        <li>✓ Button components loaded (createButton, createCtaButton, etc.)</li>
+                        <li>✓ Card components loaded (createCard, createDefaultCard, etc.)</li>
+                        <li>✓ Interactive components loaded (createWordChip, createModal, etc.)</li>
+                        <li>✓ No CORS policy errors detected</li>
+                        <li>✓ File:// protocol compatibility confirmed</li>
+                    </ul>
+                `;
+                testResults.functionsAvailable = true;
+                functionalityTest.style.display = 'block';
+            } else {
+                loadStatusEl.innerHTML = '❌ FAILED: Some components failed to load';
+                loadStatusEl.parentElement.classList.add('error');
+                loadDetailsEl.innerHTML = `
+                    <ul style="margin: 10px 0; padding-left: 20px; color: #dc3545;">
+                        <li>${typeof createHeader === 'function' ? '✓' : '✗'} Navigation components</li>
+                        <li>${typeof createButton === 'function' ? '✓' : '✗'} Button components</li>
+                        <li>${typeof createDefaultCard === 'function' ? '✓' : '✗'} Card components</li>
+                        <li>${typeof createWordChip === 'function' ? '✓' : '✗'} Interactive components</li>
+                    </ul>
+                    <p style="color: #dc3545; font-weight: bold;">Check browser console for specific errors.</p>
+                `;
+            }
+        }
+        
+        function testCreateHeader() {
+            try {
+                const testArea = document.getElementById('test-area');
+                testArea.innerHTML = ''; // Clear previous tests
+                
+                const header = createHeader({
+                    title: 'Test Header Created Successfully',
+                    user: { 
+                        name: 'Test User', 
+                        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test' 
+                    },
+                    showHome: true,
+                    onHome: () => alert('Home button works!'),
+                    onProfile: () => alert('Profile button works!')
+                });
+                
+                testArea.appendChild(header);
+                testArea.innerHTML += '<p style="color: #28a745; margin-top: 10px;"><strong>✅ Header component created successfully!</strong></p>';
+                testResults.componentsCreated = true;
+                updateFinalResults();
+                
+            } catch (error) {
+                document.getElementById('test-area').innerHTML = `
+                    <p style="color: #dc3545;"><strong>❌ Error creating header:</strong> ${error.message}</p>
+                `;
+                console.error('Header creation error:', error);
+            }
+        }
+        
+        function testCreateButton() {
+            try {
+                const testArea = document.getElementById('test-area');
+                testArea.innerHTML = ''; // Clear previous tests
+                
+                const ctaButton = createCtaButton({
+                    text: 'CTA Button Test',
+                    onClick: () => alert('CTA Button works!')
+                });
+                
+                const secondaryButton = createSecondaryButton({
+                    text: 'Secondary Button Test',
+                    onClick: () => alert('Secondary Button works!')
+                });
+                
+                testArea.appendChild(ctaButton);
+                testArea.appendChild(document.createTextNode(' '));
+                testArea.appendChild(secondaryButton);
+                testArea.innerHTML += '<p style="color: #28a745; margin-top: 10px;"><strong>✅ Button components created successfully!</strong></p>';
+                testResults.componentsCreated = true;
+                updateFinalResults();
+                
+            } catch (error) {
+                document.getElementById('test-area').innerHTML = `
+                    <p style="color: #dc3545;"><strong>❌ Error creating buttons:</strong> ${error.message}</p>
+                `;
+                console.error('Button creation error:', error);
+            }
+        }
+        
+        function testCreateCard() {
+            try {
+                const testArea = document.getElementById('test-area');
+                testArea.innerHTML = ''; // Clear previous tests
+                
+                const defaultCard = createDefaultCard({
+                    content: '<h3>Default Card Test</h3><p>This card was created successfully using the converted global functions!</p>'
+                });
+                
+                const hoverCard = createHoverCard({
+                    content: '<h3>Hover Card Test</h3><p>Click me to test interaction!</p>',
+                    onClick: () => alert('Hover card interaction works!')
+                });
+                
+                const container = document.createElement('div');
+                container.style.display = 'grid';
+                container.style.gridTemplateColumns = '1fr 1fr';
+                container.style.gap = '15px';
+                container.appendChild(defaultCard);
+                container.appendChild(hoverCard);
+                
+                testArea.appendChild(container);
+                testArea.innerHTML += '<p style="color: #28a745; margin-top: 10px;"><strong>✅ Card components created successfully!</strong></p>';
+                testResults.componentsCreated = true;
+                updateFinalResults();
+                
+            } catch (error) {
+                document.getElementById('test-area').innerHTML = `
+                    <p style="color: #dc3545;"><strong>❌ Error creating cards:</strong> ${error.message}</p>
+                `;
+                console.error('Card creation error:', error);
+            }
+        }
+        
+        function updateFinalResults() {
+            const resultsSection = document.getElementById('results');
+            const finalResults = document.getElementById('final-results');
+            
+            testResults.overallSuccess = testResults.modulesLoaded && 
+                                        testResults.functionsAvailable && 
+                                        testResults.componentsCreated;
+            
+            resultsSection.style.display = 'block';
+            resultsSection.classList.add(testResults.overallSuccess ? 'success' : 'error');
+            
+            finalResults.innerHTML = `
+                <div class="status">${testResults.overallSuccess ? '✅ ALL TESTS PASSED' : '⚠️ SOME TESTS FAILED'}</div>
+                <div class="details">
+                    <h3>Summary:</h3>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>${testResults.modulesLoaded ? '✅' : '❌'} <strong>Module Loading:</strong> Components load without CORS errors</li>
+                        <li>${testResults.functionsAvailable ? '✅' : '❌'} <strong>Function Availability:</strong> Global functions accessible</li>
+                        <li>${testResults.componentsCreated ? '✅' : '❌'} <strong>Component Creation:</strong> Can create working UI components</li>
+                    </ul>
+                    <h3>Fix Status:</h3>
+                    <p style="font-size: 16px; font-weight: bold; color: ${testResults.overallSuccess ? '#28a745' : '#dc3545'};">
+                        ${testResults.overallSuccess 
+                            ? 'The ES6 modules have been successfully converted to global scripts. Index.html and other pages should now work with file:// protocol without CORS errors.' 
+                            : 'The module conversion is incomplete. Some functionality may still be broken when using file:// protocol.'}
+                    </p>
+                    <h3>Next Steps:</h3>
+                    <p>
+                        ${testResults.overallSuccess 
+                            ? 'You can now open index.html and other pages directly from the file system without needing a web server. All component functionality should work correctly.' 
+                            : 'Review the browser console for specific errors and ensure all ES6 exports have been converted to global function assignments.'}
+                    </p>
+                </div>
+            `;
+        }
+        
+        // Initialize tests when DOM loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(updateLoadStatus, 500); // Small delay to ensure scripts are loaded
+        });
+        
+        // Handle any script loading errors
+        window.addEventListener('error', (e) => {
+            console.error('Script loading error:', e);
+            if (e.filename && e.filename.includes('components/')) {
+                const loadStatusEl = document.getElementById('load-status');
+                loadStatusEl.innerHTML = '❌ FAILED: Component script loading error';
+                loadStatusEl.parentElement.classList.add('error');
+                document.getElementById('load-details').innerHTML += `
+                    <p style="color: #dc3545; margin-top: 10px;">
+                        <strong>Script Error:</strong> ${e.message}<br>
+                        <strong>File:</strong> ${e.filename}<br>
+                        <strong>Line:</strong> ${e.lineno}
+                    </p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

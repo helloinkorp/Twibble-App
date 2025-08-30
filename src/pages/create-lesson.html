@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Lesson - Twibble</title>
+    <meta name="description" content="Create interactive vocabulary lessons with word groups and activities">
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="../styles/design-system.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
+    
+    <style>
+        /* Ensure Material Symbols font loads properly */
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+    
+    <style>
+        /* Create Lesson specific styles using design tokens */
+        .page-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--color-background);
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: var(--space-6) var(--space-4);
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-8);
+            flex-wrap: wrap;
+            gap: var(--space-4);
+        }
+        
+        .page-title {
+            font-family: var(--font-family-headers);
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-black);
+            margin: 0;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: var(--space-3);
+        }
+        
+        /* Accordion Styles */
+        .accordion {
+            margin-bottom: var(--space-6);
+        }
+        
+        .accordion-item {
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-gray-200);
+            border-radius: 8px;
+            margin-bottom: var(--space-4);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .accordion-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-5);
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: var(--font-family-headers);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-black);
+            transition: background-color 0.2s ease;
+        }
+        
+        .accordion-header:hover {
+            background-color: var(--color-gray-50);
+        }
+        
+        .accordion-header:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+        
+        .accordion-icon {
+            font-size: 24px;
+            color: var(--color-gray-500);
+            transition: transform 0.2s ease;
+        }
+        
+        .accordion-content {
+            display: none;
+            padding: 0 var(--space-5) var(--space-5);
+            border-top: 1px solid var(--color-gray-200);
+        }
+        
+        .accordion-item.active .accordion-content {
+            display: block;
+        }
+        
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+        
+        /* Word Group Styles */
+        .word-groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+        
+        .word-group {
+            background: var(--color-card-bg-soft);
+            padding: var(--space-5);
+            border-radius: 8px;
+            border: 1px solid var(--color-gray-200);
+        }
+        
+        .word-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-4);
+        }
+        
+        .group-title {
+            font-family: var(--font-family-headers);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-black);
+            margin: 0;
+        }
+        
+        .group-title-input {
+            font-family: var(--font-family-headers);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-black);
+            background: transparent;
+            border: 1px solid transparent;
+            padding: var(--space-1) var(--space-2);
+            border-radius: 4px;
+            margin: 0;
+        }
+        
+        .group-title-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            background: var(--color-white);
+        }
+        
+        /* Enhanced Activity Toggle Styling */
+        .activity-toggles {
+            display: flex;
+            gap: var(--space-4);
+            margin-top: var(--space-3);
+            flex-wrap: wrap;
+        }
+        
+        .activity-toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .activity-toggle {
+            appearance: none;
+            width: 40px;
+            height: 20px;
+            background: var(--color-gray-300);
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        
+        .activity-toggle:checked {
+            background: var(--color-black);
+        }
+        
+        .activity-toggle::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-white);
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s ease;
+        }
+        
+        .activity-toggle:checked::before {
+            transform: translateX(20px);
+        }
+        
+        .activity-toggle:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+        
+        .toggle-label {
+            font-family: var(--font-family-body);
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-700);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .toggle-label.active {
+            color: var(--color-black);
+        }
+        
+        .word-input-container {
+            margin-bottom: var(--space-4);
+        }
+        
+        .word-input {
+            width: 100%;
+            min-height: 80px;
+            padding: var(--space-3);
+            border: 1px solid var(--color-gray-300);
+            border-radius: 4px;
+            font-family: var(--font-family-inputs);
+            font-size: var(--font-size-base);
+            resize: vertical;
+            background: var(--color-white);
+        }
+        
+        .word-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+        }
+        
+        /* Word group chips (before moving to pool) */
+        .word-group-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            margin-top: var(--space-3);
+            min-height: 40px;
+            padding: var(--space-2);
+            border-radius: 4px;
+            background: var(--color-gray-50);
+        }
+        
+        .word-group-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1);
+            padding: var(--space-1) var(--space-3);
+            background: #FEF3C7;
+            border: 1px solid #F59E0B;
+            border-radius: 16px;
+            font-family: var(--font-family-body);
+            font-size: var(--font-size-sm);
+            color: var(--color-black);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .word-group-chip:hover {
+            background: #FDE68A;
+        }
+        
+        .word-group-chip-delete {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-error);
+            color: var(--color-white);
+            font-size: 10px;
+            cursor: pointer;
+            margin-left: var(--space-1);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .word-group-chip:hover .word-group-chip-delete {
+            opacity: 1;
+        }
+        
+        /* File Upload word groups initially hidden until file is uploaded */
+        #fileUploadWordGroups {
+            display: none;
+        }
+        
+        #fileUploadWordGroups.visible {
+            display: grid;
+        }
+        
+        /* File Upload Styles */
+        .file-drop-zone {
+            border: 2px dashed var(--color-gray-300);
+            border-radius: 8px;
+            padding: var(--space-8);
+            text-align: center;
+            background: var(--color-gray-50);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .file-drop-zone.dragover {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+        
+        .file-drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .drop-icon {
+            font-size: 48px;
+            color: var(--color-gray-400);
+            margin-bottom: var(--space-2);
+        }
+        
+        .drop-text {
+            font-family: var(--font-family-body);
+            font-size: var(--font-size-base);
+            color: var(--color-gray-600);
+            margin-bottom: var(--space-2);
+        }
+        
+        .drop-subtext {
+            font-family: var(--font-family-body);
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-500);
+        }
+        
+        /* Word Pool Styles */
+        .word-pool {
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-gray-200);
+            border-radius: 8px;
+            padding: var(--space-6);
+            box-shadow: var(--shadow-sm);
+            margin-top: var(--space-8);
+        }
+        
+        .word-pool-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: var(--space-4);
+        }
+        
+        .word-pool-title {
+            font-family: var(--font-family-headers);
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-black);
+            margin: 0;
+        }
+        
+        .word-count {
+            font-family: var(--font-family-body);
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-600);
+            margin-left: auto;
+        }
+        
+        .word-chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-3);
+            min-height: 60px;
+        }
+        
+        .word-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-3);
+            background: var(--color-gray-100);
+            border: 1px solid var(--color-gray-300);
+            border-radius: 20px;
+            font-family: var(--font-family-body);
+            font-size: var(--font-size-sm);
+            color: var(--color-black);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .word-chip:hover {
+            background: var(--color-gray-200);
+        }
+        
+        .word-chip-text {
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .activity-dots {
+            display: flex;
+            gap: var(--space-1);
+        }
+        
+        .activity-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-gray-400);
+        }
+        
+        .activity-dot.vocabulary {
+            background: var(--color-info);
+        }
+        
+        .activity-dot.spelling {
+            background: var(--color-warning);
+        }
+        
+        .activity-dot.phonics {
+            background: var(--color-success);
+        }
+        
+        .delete-chip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-error);
+            color: var(--color-white);
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: var(--space-1);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .word-chip:hover .delete-chip {
+            opacity: 1;
+        }
+        
+        .delete-chip:hover {
+            background: #dc2626;
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-8);
+            color: var(--color-gray-500);
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-4);
+        }
+        
+        .empty-text {
+            font-family: var(--font-family-body);
+            font-size: var(--font-size-base);
+            text-align: center;
+        }
+        
+        /* Scheduling Section (Placeholder) */
+        .scheduling-preview {
+            background: var(--color-card-bg-soft);
+            border: 1px solid var(--color-gray-200);
+            border-radius: 8px;
+            padding: var(--space-6);
+            margin-top: var(--space-6);
+        }
+        
+        .continue-section {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-4);
+            margin-top: var(--space-8);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: var(--space-4) var(--space-3);
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .nav-buttons {
+                justify-content: space-between;
+            }
+            
+            .word-groups {
+                grid-template-columns: 1fr;
+            }
+            
+            .continue-section {
+                flex-direction: column;
+            }
+        }
+        
+        /* Accessibility Enhancements */
+        @media (prefers-reduced-motion: reduce) {
+            .accordion-icon,
+            .activity-toggle,
+            .activity-toggle::before,
+            .word-chip,
+            .delete-chip {
+                transition: none;
+            }
+        }
+        
+        /* Focus Styles */
+        .btn:focus,
+        .accordion-header:focus,
+        .word-chip:focus,
+        .file-drop-zone:focus-within {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <div class="page-container">
+        <!-- Header with Home Button and Avatar -->
+        <header id="page-header" role="banner">
+            <!-- Header will be populated by JavaScript -->
+        </header>
+        
+        <!-- Navigation Header -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Create New Lesson</h1>
+                <div class="nav-buttons">
+                    <button type="button" class="btn btn-secondary" id="backBtn">
+                        Back
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main id="main-content" class="main-content">
+            <!-- Accordion Sections -->
+            <div class="accordion">
+                <!-- Manual Entry Section -->
+                <div class="accordion-item" id="manualEntrySection">
+                    <button class="accordion-header" type="button" aria-expanded="false" aria-controls="manualEntryContent">
+                        <span>Manual Entry</span>
+                        <span class="material-symbols-outlined accordion-icon">keyboard_arrow_down</span>
+                    </button>
+                    <div class="accordion-content" id="manualEntryContent">
+                        <p class="text-secondary mb-4">Create word groups and assign activities manually.</p>
+                        
+                        <!-- Word Groups -->
+                        <div class="word-groups" id="wordGroups">
+                            <!-- Vocabulary Group -->
+                            <div class="word-group" data-group="vocabulary">
+                                <div class="word-group-header">
+                                    <input type="text" class="group-title-input" value="Vocabulary" aria-label="Group title">
+                                </div>
+                                <div class="activity-toggles">
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="vocab-toggle" checked aria-label="Enable vocabulary activity">
+                                        <label for="vocab-toggle" class="toggle-label active">Vocabulary</label>
+                                    </div>
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="vocab-spelling-toggle" aria-label="Enable spelling activity for vocabulary words">
+                                        <label for="vocab-spelling-toggle" class="toggle-label">Spelling</label>
+                                    </div>
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="vocab-phonics-toggle" aria-label="Enable phonics activity for vocabulary words">
+                                        <label for="vocab-phonics-toggle" class="toggle-label">Phonics</label>
+                                    </div>
+                                </div>
+                                <div class="word-input-container">
+                                    <textarea 
+                                        class="word-input" 
+                                        placeholder="Type a word and press Enter or comma. Paste to add many."
+                                        aria-label="Vocabulary words input"
+                                    ></textarea>
+                                </div>
+                                <div class="chip-container empty" data-group="vocabulary" id="vocabulary-chip-container"></div>
+                            </div>
+
+                            <!-- Spelling Group -->
+                            <div class="word-group" data-group="spelling">
+                                <div class="word-group-header">
+                                    <input type="text" class="group-title-input" value="Spelling" aria-label="Group title">
+                                </div>
+                                <div class="activity-toggles">
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="spelling-vocab-toggle" aria-label="Enable vocabulary activity for spelling words">
+                                        <label for="spelling-vocab-toggle" class="toggle-label">Vocabulary</label>
+                                    </div>
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="spelling-toggle" checked aria-label="Enable spelling activity">
+                                        <label for="spelling-toggle" class="toggle-label active">Spelling</label>
+                                    </div>
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="spelling-phonics-toggle" aria-label="Enable phonics activity for spelling words">
+                                        <label for="spelling-phonics-toggle" class="toggle-label">Phonics</label>
+                                    </div>
+                                </div>
+                                <div class="word-input-container">
+                                    <textarea 
+                                        class="word-input" 
+                                        placeholder="Type a word and press Enter or comma. Paste to add many."
+                                        aria-label="Spelling words input"
+                                    ></textarea>
+                                </div>
+                                <div class="chip-container empty" data-group="spelling" id="spelling-chip-container"></div>
+                            </div>
+
+                            <!-- Phonics Group -->
+                            <div class="word-group" data-group="phonics">
+                                <div class="word-group-header">
+                                    <input type="text" class="group-title-input" value="Phonics" aria-label="Group title">
+                                </div>
+                                <div class="activity-toggles">
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="phonics-vocab-toggle" aria-label="Enable vocabulary activity for phonics words">
+                                        <label for="phonics-vocab-toggle" class="toggle-label">Vocabulary</label>
+                                    </div>
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="phonics-spelling-toggle" aria-label="Enable spelling activity for phonics words">
+                                        <label for="phonics-spelling-toggle" class="toggle-label">Spelling</label>
+                                    </div>
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="phonics-toggle" checked aria-label="Enable phonics activity">
+                                        <label for="phonics-toggle" class="toggle-label active">Phonics</label>
+                                    </div>
+                                </div>
+                                <div class="word-input-container">
+                                    <textarea 
+                                        class="word-input" 
+                                        placeholder="Type a word and press Enter or comma. Paste to add many."
+                                        aria-label="Phonics words input"
+                                    ></textarea>
+                                </div>
+                                <div class="chip-container empty" data-group="phonics" id="phonics-chip-container"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Single Add to Lesson Button for Manual Entry -->
+                        <div style="margin-top: var(--space-6); text-align: center;">
+                            <button type="button" class="btn btn-primary add-all-to-lesson-btn" data-entry-type="manual">
+                                Add All Words to Lesson
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Import Section -->
+                <div class="accordion-item" id="fileImportSection">
+                    <button class="accordion-header" type="button" aria-expanded="false" aria-controls="fileImportContent">
+                        <span>File Import</span>
+                        <span class="material-symbols-outlined accordion-icon">keyboard_arrow_down</span>
+                    </button>
+                    <div class="accordion-content" id="fileImportContent">
+                        <p class="text-secondary mb-4">Import words from text files. Currently supports TXT files only.</p>
+                        
+                        <div class="file-drop-zone" id="fileDropZone">
+                            <input type="file" accept=".txt" id="fileInput" aria-label="Select file to upload">
+                            <span class="material-symbols-outlined drop-icon">upload_file</span>
+                            <p class="drop-text">Drag and drop a TXT file here</p>
+                            <p class="drop-subtext">or click to browse files</p>
+                        </div>
+                        
+                        <div id="fileStatus" class="mt-4 text-sm" style="display: none;"></div>
+                        
+                        <!-- File Upload Word Groups -->
+                        <div class="word-groups" id="fileUploadWordGroups" style="margin-top: var(--space-6);">
+                            <!-- File Upload Vocabulary Group -->
+                            <div class="word-group" data-group="file-vocabulary">
+                                <div class="word-group-header">
+                                    <input type="text" class="group-title-input" value="File Upload - Vocabulary" aria-label="Group title" readonly>
+                                </div>
+                                <div class="activity-toggles">
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="file-vocab-toggle" checked aria-label="Enable vocabulary activity">
+                                        <label for="file-vocab-toggle" class="toggle-label active">Vocabulary</label>
+                                    </div>
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="file-vocab-spelling-toggle" aria-label="Enable spelling activity for vocabulary words">
+                                        <label for="file-vocab-spelling-toggle" class="toggle-label">Spelling</label>
+                                    </div>
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="file-vocab-phonics-toggle" aria-label="Enable phonics activity for vocabulary words">
+                                        <label for="file-vocab-phonics-toggle" class="toggle-label">Phonics</label>
+                                    </div>
+                                </div>
+                                <div class="chip-container empty" data-group="file-vocabulary" id="file-vocabulary-chip-container"></div>
+                            </div>
+
+                            <!-- File Upload Spelling Group -->
+                            <div class="word-group" data-group="file-spelling">
+                                <div class="word-group-header">
+                                    <input type="text" class="group-title-input" value="File Upload - Spelling" aria-label="Group title" readonly>
+                                </div>
+                                <div class="activity-toggles">
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="file-spelling-vocab-toggle" aria-label="Enable vocabulary activity for spelling words">
+                                        <label for="file-spelling-vocab-toggle" class="toggle-label">Vocabulary</label>
+                                    </div>
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="file-spelling-toggle" checked aria-label="Enable spelling activity">
+                                        <label for="file-spelling-toggle" class="toggle-label active">Spelling</label>
+                                    </div>
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="file-spelling-phonics-toggle" aria-label="Enable phonics activity for spelling words">
+                                        <label for="file-spelling-phonics-toggle" class="toggle-label">Phonics</label>
+                                    </div>
+                                </div>
+                                <div class="chip-container empty" data-group="file-spelling" id="file-spelling-chip-container"></div>
+                            </div>
+
+                            <!-- File Upload Phonics Group -->
+                            <div class="word-group" data-group="file-phonics">
+                                <div class="word-group-header">
+                                    <input type="text" class="group-title-input" value="File Upload - Phonics" aria-label="Group title" readonly>
+                                </div>
+                                <div class="activity-toggles">
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="file-phonics-vocab-toggle" aria-label="Enable vocabulary activity for phonics words">
+                                        <label for="file-phonics-vocab-toggle" class="toggle-label">Vocabulary</label>
+                                    </div>
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="file-phonics-spelling-toggle" aria-label="Enable spelling activity for phonics words">
+                                        <label for="file-phonics-spelling-toggle" class="toggle-label">Spelling</label>
+                                    </div>
+                                    <div class="activity-toggle-wrapper">
+                                        <input type="checkbox" class="activity-toggle" id="file-phonics-toggle" checked aria-label="Enable phonics activity">
+                                        <label for="file-phonics-toggle" class="toggle-label active">Phonics</label>
+                                    </div>
+                                </div>
+                                <div class="chip-container empty" data-group="file-phonics" id="file-phonics-chip-container"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Single Add to Lesson Button for File Upload -->
+                        <div style="margin-top: var(--space-6); text-align: center;">
+                            <button type="button" class="btn btn-primary add-all-to-lesson-btn" data-entry-type="file-upload">
+                                Add File Upload Words to Lesson
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Future Sections Placeholder -->
+                <div class="accordion-item" id="advancedSection">
+                    <button class="accordion-header" type="button" aria-expanded="false" aria-controls="advancedContent">
+                        <span>Advanced Options</span>
+                        <span class="material-symbols-outlined accordion-icon">keyboard_arrow_down</span>
+                    </button>
+                    <div class="accordion-content" id="advancedContent">
+                        <p class="text-secondary mb-4">Advanced import options and settings will be available in future updates.</p>
+                        
+                        <div class="empty-state">
+                            <span class="material-symbols-outlined empty-icon">construction</span>
+                            <p class="empty-text">Coming soon: OCR, PDF import, and bulk processing tools</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Word Pool -->
+            <div class="word-pool">
+                <div class="word-pool-header">
+                    <h2 class="word-pool-title">Word Pool</h2>
+                    <span class="word-count" id="wordCount">0 words</span>
+                </div>
+                
+                <div class="word-chips-container" id="wordChipsContainer">
+                    <div class="empty-state">
+                        <span class="material-symbols-outlined empty-icon">auto_stories</span>
+                        <p class="empty-text">No words added yet. Use the sections above to add words to your lesson.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scheduling Preview (Placeholder) -->
+            <div class="scheduling-preview">
+                <h3 style="margin: 0 0 var(--space-3) 0; font-family: var(--font-family-headers); font-size: var(--font-size-lg);">
+                    Lesson Scheduling
+                </h3>
+                <p class="text-secondary mb-0">
+                    Once you've added words, you'll be able to schedule them across multiple lesson days and preview the learning sequence.
+                </p>
+            </div>
+
+            <!-- Continue Section -->
+            <div class="continue-section">
+                <button type="button" class="btn btn-secondary" id="saveDraftBtn">
+                    Save Draft
+                </button>
+                <button type="button" class="btn btn-primary" id="continueBtn" disabled>
+                    Continue to Scheduling
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Component Libraries -->
+    <!-- Component Dependencies (ES6 Modules) -->
+
+    <!-- JavaScript Module -->
+    <script type="module">
+        import { createHeader } from '../components/navigation.js';
+        import { createCtaButton, createSecondaryButton } from '../components/buttons.js';
+        import { createTextInput, createNumberInput } from '../components/forms.js';
+        import { ChipManager } from '../components/chips.js';
+        
+        // Initialize ChipManager for lesson creation
+        const chipManager = new ChipManager();
+        
+        // Role validation - must be teacher
+        function validateRole() {
+            const currentRole = localStorage.getItem('currentRole');
+            
+            // For development/testing, set default role if none exists
+            if (!currentRole) {
+                console.log('No role found, setting default teacher role for development');
+                localStorage.setItem('currentRole', 'teacher');
+                return true;
+            }
+            
+            if (currentRole !== 'teacher') {
+                alert('Access denied. This page is only available to teachers.');
+                window.location.href = 'index.html';
+                return false;
+            }
+            return true;
+        }
+
+        // Initialize page
+        function initializePage() {
+            console.log('Initializing create-lesson page...');
+            
+            // Always initialize accordion first (critical for UI)
+            initializeAccordion();
+            console.log('Accordion initialized');
+
+            // Role validation (non-blocking for development)
+            if (!validateRole()) {
+                console.warn('Role validation failed, but continuing with UI initialization');
+                // Don't return - continue with UI setup
+            }
+
+            // Setup header
+            setupHeader();
+
+            // Initialize ChipManager with containers
+            initializeChipSystem();
+
+            console.log('ChipManager initialized');
+            
+            // Initialize manual entry
+            initializeManualEntry();
+            
+            // Initialize file import
+            initializeFileImport();
+            
+            // Initialize navigation
+            initializeNavigation();
+            
+            // Initialize auto-save
+            initializeAutoSave();
+            
+            // Load existing draft if available
+            loadExistingDraft();
+        }
+
+        // Initialize ChipManager with containers
+        function initializeChipSystem() {
+            // Register Manual Entry containers
+            chipManager.registerContainer('vocabulary', document.getElementById('vocabulary-chip-container'));
+            chipManager.registerContainer('spelling', document.getElementById('spelling-chip-container'));
+            chipManager.registerContainer('phonics', document.getElementById('phonics-chip-container'));
+
+            // Register File Upload containers
+            chipManager.registerContainer('file-vocabulary', document.getElementById('file-vocabulary-chip-container'));
+            chipManager.registerContainer('file-spelling', document.getElementById('file-spelling-chip-container'));
+            chipManager.registerContainer('file-phonics', document.getElementById('file-phonics-chip-container'));
+
+            // Setup change handler to update word pool and auto-save
+            chipManager.onChipChange((chipData) => {
+                updateWordPoolFromChips(chipData);
+                updateWordCountFromChips(chipData);
+                updateContinueButton();
+                triggerAutoSave();
+            });
+
+            // Initialize dynamic activity toggle system
+            initializeActivityToggleSystem();
+        }
+
+        // Initialize Dynamic Activity Toggle System
+        function initializeActivityToggleSystem() {
+            // Map group containers to their toggle IDs
+            const groupToggleMap = {
+                'vocabulary': ['vocab-toggle', 'vocab-spelling-toggle', 'vocab-phonics-toggle'],
+                'spelling': ['spelling-vocab-toggle', 'spelling-toggle', 'spelling-phonics-toggle'],
+                'phonics': ['phonics-vocab-toggle', 'phonics-spelling-toggle', 'phonics-toggle'],
+                'file-vocabulary': ['file-vocab-toggle', 'file-vocab-spelling-toggle', 'file-vocab-phonics-toggle'],
+                'file-spelling': ['file-spelling-vocab-toggle', 'file-spelling-toggle', 'file-spelling-phonics-toggle'],
+                'file-phonics': ['file-phonics-vocab-toggle', 'file-phonics-spelling-toggle', 'file-phonics-toggle']
+            };
+
+            // Setup toggle change handlers with validation and chip updates
+            Object.entries(groupToggleMap).forEach(([groupId, toggleIds]) => {
+                toggleIds.forEach(toggleId => {
+                    const toggle = document.getElementById(toggleId);
+                    const label = document.querySelector(`label[for="${toggleId}"]`);
+                    
+                    if (toggle && label) {
+                        toggle.addEventListener('change', (e) => {
+                            handleActivityToggleChange(groupId, toggleIds, e.target);
+                        });
+                    }
+                });
+            });
+
+            console.log('Dynamic activity toggle system initialized');
+        }
+
+        // Handle activity toggle changes with validation and chip updates
+        function handleActivityToggleChange(groupId, toggleIds, changedToggle) {
+            // Get current states for this group
+            const activities = {
+                vocabulary: false,
+                spelling: false, 
+                phonics: false
+            };
+
+            // Update activity states based on toggles
+            toggleIds.forEach(toggleId => {
+                const toggle = document.getElementById(toggleId);
+                if (toggle && toggle.checked) {
+                    if (toggleId.includes('vocab') && !toggleId.includes('spelling') && !toggleId.includes('phonics')) {
+                        activities.vocabulary = true;
+                    } else if (toggleId.includes('spelling')) {
+                        activities.spelling = true;
+                    } else if (toggleId.includes('phonics')) {
+                        activities.phonics = true;
+                    }
+                }
+            });
+
+            // Validation: Prevent all toggles from being turned off
+            const hasActiveToggle = Object.values(activities).some(active => active);
+            if (!hasActiveToggle) {
+                // Revert the change and show warning
+                changedToggle.checked = true;
+                showToggleValidationWarning();
+                return;
+            }
+
+            // Update visual labels
+            updateToggleLabels(toggleIds, activities);
+
+            // Update ChipManager with new activity states
+            chipManager.updateGroupActivities(groupId, activities);
+
+            console.log(`Updated ${groupId} activities:`, activities);
+        }
+
+        // Update toggle label visual states
+        function updateToggleLabels(toggleIds, activities) {
+            toggleIds.forEach(toggleId => {
+                const toggle = document.getElementById(toggleId);
+                const label = document.querySelector(`label[for="${toggleId}"]`);
+                
+                if (toggle && label) {
+                    if (toggle.checked) {
+                        label.classList.add('active');
+                    } else {
+                        label.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        // Show validation warning when trying to disable all toggles
+        function showToggleValidationWarning() {
+            // Create a temporary warning message
+            const warning = document.createElement('div');
+            warning.className = 'validation-warning';
+            warning.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--color-warning);
+                color: white;
+                padding: var(--space-3) var(--space-4);
+                border-radius: 8px;
+                box-shadow: var(--shadow-lg);
+                z-index: 1000;
+                font-family: var(--font-family-body);
+                font-size: var(--font-size-sm);
+                max-width: 300px;
+            `;
+            warning.innerHTML = `
+                <strong>Validation Error:</strong><br>
+                At least one activity must remain enabled for each word group.
+            `;
+
+            document.body.appendChild(warning);
+
+            // Auto-remove after 4 seconds
+            setTimeout(() => {
+                if (warning.parentNode) {
+                    warning.parentNode.removeChild(warning);
+                }
+            }, 4000);
+        }
+        
+        // Setup consistent header
+        function setupHeader() {
+            const headerContainer = document.getElementById('page-header');
+            
+            // Load user data
+            const userSettingsStr = localStorage.getItem('userSettings');
+            let userSettings = null;
+            if (userSettingsStr) {
+                try {
+                    userSettings = JSON.parse(userSettingsStr);
+                } catch (error) {
+                    console.error('Error parsing user settings:', error);
+                }
+            }
+            
+            const header = createHeader({
+                showHome: true,
+                user: userSettings,
+                onHome: () => {
+                    if (window.navigationManager) {
+                        window.navigationManager.goHome();
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                },
+                onProfile: () => {
+                    if (window.navigationManager) {
+                        window.navigationManager.goHome();
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                },
+                title: ''
+            });
+
+            headerContainer.appendChild(header);
+        }
+
+        // Accordion functionality
+        function initializeAccordion() {
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            console.log(`Found ${accordionHeaders.length} accordion headers`);
+            
+            accordionHeaders.forEach((header, index) => {
+                console.log(`Setting up accordion header ${index + 1}`);
+                
+                header.addEventListener('click', (e) => {
+                    console.log('Accordion header clicked:', header.textContent.trim());
+                    e.preventDefault();
+                    
+                    const accordionItem = header.parentElement;
+                    const isActive = accordionItem.classList.contains('active');
+                    
+                    console.log(`Accordion item is currently: ${isActive ? 'OPEN' : 'CLOSED'}`);
+                    
+                    // Close all accordion items
+                    document.querySelectorAll('.accordion-item').forEach(item => {
+                        item.classList.remove('active');
+                        const itemHeader = item.querySelector('.accordion-header');
+                        if (itemHeader) {
+                            itemHeader.setAttribute('aria-expanded', 'false');
+                        }
+                    });
+                    
+                    // Open clicked item if it wasn't already active
+                    if (!isActive) {
+                        accordionItem.classList.add('active');
+                        header.setAttribute('aria-expanded', 'true');
+                        console.log('Accordion item OPENED');
+                    } else {
+                        console.log('Accordion item CLOSED');
+                    }
+                });
+                
+                // Keyboard support
+                header.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        header.click();
+                    }
+                });
+            });
+            
+            console.log('Accordion initialization complete');
+        }
+
+        // Manual entry functionality with ChipManager integration
+        function initializeManualEntry() {
+            // Initialize word input handling for each group
+            document.querySelectorAll('.word-group').forEach(wordGroup => {
+                const textarea = wordGroup.querySelector('.word-input');
+                const groupType = wordGroup.dataset.group;
+                
+                // Enhanced input handling - Enter key and comma separation
+                textarea.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        processInputWordsWithChips(textarea, groupType);
+                    }
+                });
+                
+                // Comma separation handling
+                textarea.addEventListener('input', (e) => {
+                    const value = e.target.value;
+                    if (value.includes(',')) {
+                        processInputWordsWithChips(textarea, groupType);
+                    }
+                });
+                
+                // Paste handling for multiple words
+                textarea.addEventListener('paste', (e) => {
+                    setTimeout(() => {
+                        processInputWordsWithChips(textarea, groupType);
+                    }, 10);
+                });
+            });
+            
+            // Remove old "Add All to Lesson" button functionality since chips are added directly
+            const addAllBtn = document.querySelector('.add-all-to-lesson-btn[data-entry-type="manual"]');
+            if (addAllBtn) {
+                addAllBtn.style.display = 'none'; // Hide since chips are added directly
+            }
+
+            // Note: Activity toggle listeners are now handled by initializeActivityToggleSystem()
+            // which provides validation, real-time chip updates, and visual feedback
+
+            // Group title listeners
+            document.querySelectorAll('.group-title-input').forEach(input => {
+                input.addEventListener('input', () => {
+                    triggerAutoSave();
+                });
+            });
+        }
+
+        // Process words from input and add directly as chips using ChipManager
+        function processInputWordsWithChips(textarea, groupType) {
+            const words = parseWords(textarea.value);
+            if (words.length > 0) {
+                // Get current activity states for this group
+                const currentActivities = getActivitiesForGroup(groupType);
+                const activeActivities = Object.keys(currentActivities).filter(key => currentActivities[key]);
+                
+                words.forEach(word => {
+                    // Add chip with current activity states
+                    chipManager.addChip(word.trim(), activeActivities, groupType);
+                });
+                textarea.value = '';
+                // Auto-save triggered by chipManager change handler
+            }
+        }
+        
+        // Legacy functions removed - now using ChipManager system
+        
+        // Get activities based on toggle states for a group
+        function getActivitiesForGroup(groupType) {
+            const activities = {
+                vocabulary: false,
+                spelling: false,
+                phonics: false
+            };
+            
+            if (groupType === 'vocabulary') {
+                activities.vocabulary = document.getElementById('vocab-toggle').checked;
+                activities.spelling = document.getElementById('vocab-spelling-toggle').checked;
+                activities.phonics = document.getElementById('vocab-phonics-toggle').checked;
+            } else if (groupType === 'spelling') {
+                activities.vocabulary = document.getElementById('spelling-vocab-toggle').checked;
+                activities.spelling = document.getElementById('spelling-toggle').checked;
+                activities.phonics = document.getElementById('spelling-phonics-toggle').checked;
+            } else if (groupType === 'phonics') {
+                activities.vocabulary = document.getElementById('phonics-vocab-toggle').checked;
+                activities.spelling = document.getElementById('phonics-spelling-toggle').checked;
+                activities.phonics = document.getElementById('phonics-toggle').checked;
+            } else if (groupType === 'file-vocabulary') {
+                activities.vocabulary = document.getElementById('file-vocab-toggle').checked;
+                activities.spelling = document.getElementById('file-vocab-spelling-toggle').checked;
+                activities.phonics = document.getElementById('file-vocab-phonics-toggle').checked;
+            } else if (groupType === 'file-spelling') {
+                activities.vocabulary = document.getElementById('file-spelling-vocab-toggle').checked;
+                activities.spelling = document.getElementById('file-spelling-toggle').checked;
+                activities.phonics = document.getElementById('file-spelling-phonics-toggle').checked;
+            } else if (groupType === 'file-phonics') {
+                activities.vocabulary = document.getElementById('file-phonics-vocab-toggle').checked;
+                activities.spelling = document.getElementById('file-phonics-spelling-toggle').checked;
+                activities.phonics = document.getElementById('file-phonics-toggle').checked;
+            } else if (groupType === 'file-import') {
+                // Default file import to vocabulary
+                activities.vocabulary = true;
+            }
+            
+            return activities;
+        }
+
+        // File import functionality - loads directly to Vocabulary grid per PRD
+        function initializeFileImport() {
+            const fileDropZone = document.getElementById('fileDropZone');
+            const fileInput = document.getElementById('fileInput');
+            const fileStatus = document.getElementById('fileStatus');
+
+            // Drag and drop handlers
+            fileDropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileDropZone.classList.add('dragover');
+            });
+
+            fileDropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                fileDropZone.classList.remove('dragover');
+            });
+
+            fileDropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileDropZone.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0]);
+                }
+            });
+
+            // File input handler
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+
+            function handleFileUpload(file) {
+                if (!file.name.toLowerCase().endsWith('.txt')) {
+                    showFileStatus('Error: Only TXT files are supported', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    const words = parseWords(content);
+                    
+                    if (words.length > 0) {
+                        // Show File Upload word groups
+                        document.getElementById('fileUploadWordGroups').classList.add('visible');
+                        
+                        // Load words to File Upload Vocabulary grid with current activity states
+                        const currentActivities = getActivitiesForGroup('file-vocabulary');
+                        const activeActivities = Object.keys(currentActivities).filter(key => currentActivities[key]);
+                        
+                        // Add each word with proper activities
+                        words.forEach(word => {
+                            chipManager.addChip(word.trim(), activeActivities, 'file-vocabulary');
+                        });
+                        
+                        // Keep File Import accordion open to show the loaded words
+                        const fileSection = document.getElementById('fileImportSection');
+                        if (fileSection && !fileSection.classList.contains('active')) {
+                            fileSection.querySelector('.accordion-header').click();
+                        }
+                        
+                        showFileStatus(`Successfully loaded ${words.length} words to File Upload - Vocabulary from ${file.name}`, 'success');
+                        // Auto-save triggered by chipManager change handler
+                    } else {
+                        showFileStatus('No valid words found in file', 'warning');
+                    }
+                };
+                
+                reader.onerror = () => {
+                    showFileStatus('Error reading file', 'error');
+                };
+                
+                reader.readAsText(file);
+            }
+
+            function showFileStatus(message, type) {
+                fileStatus.textContent = message;
+                fileStatus.className = `mt-4 text-sm text-${type === 'error' ? 'error' : type === 'success' ? 'success' : 'warning'}`;
+                fileStatus.style.display = 'block';
+                
+                setTimeout(() => {
+                    fileStatus.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Update word pool display from ChipManager data
+        function updateWordPoolFromChips(chipData) {
+            const container = document.getElementById('wordChipsContainer');
+            container.innerHTML = '';
+            
+            let totalChips = 0;
+            
+            // Combine all chips from all activities
+            Object.entries(chipData).forEach(([activity, chips]) => {
+                chips.forEach(chipInfo => {
+                    totalChips++;
+                    const poolChip = createWordPoolChip(chipInfo.word, activity, chipInfo.activities);
+                    container.appendChild(poolChip);
+                });
+            });
+            
+            // Show empty state if no chips
+            if (totalChips === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+                emptyState.innerHTML = `
+                    <span class="material-symbols-outlined empty-icon">auto_stories</span>
+                    <p class="empty-text">No words added yet. Use the sections above to add words to your lesson.</p>
+                `;
+                container.appendChild(emptyState);
+            }
+        }
+
+        // Create a word chip for the word pool display
+        function createWordPoolChip(word, primaryActivity, activities) {
+            const chip = document.createElement('div');
+            chip.className = `word-chip ${activities.length === 1 ? primaryActivity : 'multiple'}`;
+            chip.setAttribute('data-word', word);
+            
+            // Word text
+            const wordText = document.createElement('span');
+            wordText.textContent = word;
+            chip.appendChild(wordText);
+            
+            // Activity dots for multiple activities
+            if (activities.length > 1) {
+                const dotsContainer = document.createElement('div');
+                dotsContainer.className = 'activity-dots';
+                
+                activities.forEach(activity => {
+                    const dot = document.createElement('div');
+                    dot.className = `activity-dot ${activity === 'vocabulary' ? 'vocab' : activity}`;
+                    dotsContainer.appendChild(dot);
+                });
+                
+                chip.appendChild(dotsContainer);
+            }
+            
+            // Delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 12px;">close</span>';
+            deleteBtn.setAttribute('aria-label', `Remove ${word} from lesson`);
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeWordFromChipManager(word);
+            });
+            chip.appendChild(deleteBtn);
+            
+            return chip;
+        }
+
+        // Remove word from ChipManager
+        function removeWordFromChipManager(word) {
+            // Find the chip in ChipManager and remove it
+            for (const [chipId, chipData] of chipManager.chips) {
+                if (chipData.word === word) {
+                    chipManager.deleteChip(chipId);
+                    break;
+                }
+            }
+        }
+
+        // Update word count from ChipManager data
+        function updateWordCountFromChips(chipData) {
+            const totalCount = Object.values(chipData).flat().length;
+            document.getElementById('wordCount').textContent = `${totalCount} word${totalCount !== 1 ? 's' : ''}`;
+        }
+
+        // Update continue button state based on ChipManager data
+        function updateContinueButton() {
+            const allChips = chipManager.getAllChips();
+            const totalCount = Object.values(allChips).flat().length;
+            const continueBtn = document.getElementById('continueBtn');
+            if (continueBtn) {
+                continueBtn.disabled = totalCount === 0;
+            }
+        }
+
+        // Navigation functionality
+        function initializeNavigation() {
+            document.getElementById('backBtn').addEventListener('click', () => {
+                if (window.navigationManager) {
+                    window.navigationManager.goBack();
+                } else {
+                    window.location.href = 'teacher-dashboard.html';
+                }
+            });
+
+            document.getElementById('saveDraftBtn').addEventListener('click', () => {
+                saveDraft();
+                alert('Draft saved successfully!');
+            });
+
+            document.getElementById('continueBtn').addEventListener('click', () => {
+                // Placeholder for scheduling functionality
+                alert('Scheduling functionality will be available in the next phase.');
+            });
+        }
+
+        // Word parsing functionality
+        function parseWords(text) {
+            if (!text.trim()) return [];
+            
+            return text.split(/[\s,\n]+/)
+                .map(word => word.trim().replace(/[^\w\s-']/g, ''))
+                .filter(word => word.length > 0 && /[a-zA-Z]/.test(word))
+                .map(word => word.toLowerCase());
+        }
+
+        // Add single word to pool with PRD-compliant visual coding
+        function addWordToPool(word, groupType, activities) {
+            const container = document.getElementById('wordChipsContainer');
+            const emptyState = container.querySelector('.empty-state');
+            
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            // Check if word already exists
+            if (container.querySelector(`[data-word="${word}"]`)) {
+                return; // Skip duplicate
+            }
+
+            // Create PRD-compliant chip with gray background and colored dots
+            const chip = document.createElement('div');
+            chip.className = 'word-chip';
+            chip.setAttribute('data-word', word);
+            chip.setAttribute('data-group', groupType);
+            
+            // Word text
+            const wordText = document.createElement('span');
+            wordText.className = 'word-chip-text';
+            wordText.textContent = word;
+            chip.appendChild(wordText);
+            
+            // Activity dots container with PRD colors
+            const dotsContainer = document.createElement('div');
+            dotsContainer.className = 'activity-dots';
+            
+            if (activities.vocabulary) {
+                const dot = document.createElement('div');
+                dot.className = 'activity-dot vocabulary';
+                dot.setAttribute('title', 'Vocabulary activity enabled');
+                dotsContainer.appendChild(dot);
+            }
+            
+            if (activities.spelling) {
+                const dot = document.createElement('div');
+                dot.className = 'activity-dot spelling';
+                dot.setAttribute('title', 'Spelling activity enabled');
+                dotsContainer.appendChild(dot);
+            }
+            
+            if (activities.phonics) {
+                const dot = document.createElement('div');
+                dot.className = 'activity-dot phonics';
+                dot.setAttribute('title', 'Phonics activity enabled');
+                dotsContainer.appendChild(dot);
+            }
+            
+            chip.appendChild(dotsContainer);
+            
+            // Delete functionality
+            const deleteBtn = document.createElement('span');
+            deleteBtn.className = 'delete-chip material-symbols-outlined';
+            deleteBtn.textContent = 'close';
+            deleteBtn.setAttribute('aria-label', `Delete ${word}`);
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeWordFromPool(word);
+            });
+            
+            chip.appendChild(deleteBtn);
+            container.appendChild(chip);
+            
+            updateWordCount();
+            updateContinueButton();
+        }
+
+        // Remove word from pool
+        function removeWordFromPool(word) {
+            const chip = document.querySelector(`[data-word="${word}"]`);
+            if (chip) {
+                chip.remove();
+                updateWordCount();
+                updateContinueButton();
+                triggerAutoSave();
+                
+                // Show empty state if no words left
+                const container = document.getElementById('wordChipsContainer');
+                if (container.children.length === 0) {
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.innerHTML = `
+                        <span class="material-symbols-outlined empty-icon">auto_stories</span>
+                        <p class="empty-text">No words added yet. Use the sections above to add words to your lesson.</p>
+                    `;
+                    container.appendChild(emptyState);
+                }
+            }
+        }
+
+        // Update word count
+        function updateWordCount() {
+            const chips = document.querySelectorAll('.word-chip[data-word]');
+            const count = chips.length;
+            document.getElementById('wordCount').textContent = `${count} word${count !== 1 ? 's' : ''}`;
+        }
+
+
+        // Auto-save functionality
+        let autoSaveTimeout;
+        function initializeAutoSave() {
+            // Auto-save will be implemented in Phase 3
+            console.log('Auto-save initialized (placeholder)');
+        }
+
+        function triggerAutoSave() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                saveDraft();
+            }, 2000); // Auto-save after 2 seconds of inactivity
+        }
+
+        function saveDraft() {
+            const draftData = {
+                id: getCurrentDraftId(),
+                timestamp: Date.now(),
+                words: Array.from(document.querySelectorAll('.word-chip[data-word]')).map(chip => ({
+                    word: chip.dataset.word,
+                    group: chip.dataset.group
+                })),
+                groups: Array.from(document.querySelectorAll('.word-group')).map(group => ({
+                    type: group.dataset.group,
+                    title: group.querySelector('.group-title-input').value,
+                    active: group.querySelector('.activity-toggle').checked
+                }))
+            };
+
+            localStorage.setItem('lessonDraft', JSON.stringify(draftData));
+            console.log('Draft saved:', draftData);
+        }
+
+        function loadExistingDraft() {
+            const draft = localStorage.getItem('lessonDraft');
+            if (draft) {
+                try {
+                    const draftData = JSON.parse(draft);
+                    // Restore draft functionality will be implemented in Phase 3
+                    console.log('Draft available:', draftData);
+                } catch (error) {
+                    console.error('Error loading draft:', error);
+                }
+            }
+        }
+
+        function getCurrentDraftId() {
+            let draftId = localStorage.getItem('currentDraftId');
+            if (!draftId) {
+                draftId = 'lesson-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('currentDraftId', draftId);
+            }
+            return draftId;
+        }
+
+        // Initialize page on DOM load
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+    
+    <!-- Navigation System -->
+    <script src="../js/navigation.js"></script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header Fix Validation</title>
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="./src/styles/design-system.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols Light -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
+    
+    <style>
+        body {
+            padding: var(--space-4);
+        }
+        
+        .test-section {
+            margin-bottom: var(--space-8);
+            padding: var(--space-6);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+        }
+        
+        .header-demo {
+            border: 2px solid var(--color-primary);
+            border-radius: var(--border-radius);
+            margin: var(--space-4) 0;
+        }
+        
+        .test-result {
+            padding: var(--space-3);
+            margin: var(--space-3) 0;
+            border-radius: var(--border-radius);
+            border: 1px solid;
+        }
+        
+        .test-pass {
+            background: var(--color-gray-50);
+            border-color: var(--color-success);
+            color: var(--color-black);
+        }
+        
+        .test-fail {
+            background: var(--color-gray-50);
+            border-color: var(--color-error);
+            color: var(--color-black);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Header UX Fixes Validation</h1>
+            <p class="text-secondary">Testing systematic fixes for home icon, avatar button, and navigation flow issues</p>
+        </header>
+
+        <!-- Test 1: Home Icon Display -->
+        <section class="test-section">
+            <h2>Test 1: Home Icon Display Fix</h2>
+            <p>Expected: Home icon should appear as Material Symbol, not text "Home"</p>
+            
+            <div id="header-test-1" class="header-demo">
+                <!-- Will be populated by createHeader -->
+            </div>
+            
+            <div id="result-1" class="test-result">
+                <strong>Status:</strong> <span id="status-1">Testing...</span>
+            </div>
+        </section>
+
+        <!-- Test 2: Avatar Button Style -->
+        <section class="test-section">
+            <h2>Test 2: Avatar Button Style Fix</h2>
+            <p>Expected: Avatar should appear as clean circle without square button border</p>
+            
+            <div id="header-test-2" class="header-demo">
+                <!-- Will be populated by createHeader -->
+            </div>
+            
+            <div id="result-2" class="test-result">
+                <strong>Status:</strong> <span id="status-2">Testing...</span>
+            </div>
+        </section>
+
+        <!-- Test 3: Avatar Click Navigation -->
+        <section class="test-section">
+            <h2>Test 3: Avatar Click Navigation Fix</h2>
+            <p>Expected: Avatar click should open settings modal directly, not redirect to home first</p>
+            
+            <div id="header-test-3" class="header-demo">
+                <!-- Will be populated by createHeader -->
+            </div>
+            
+            <div id="modal-test" class="modal-overlay" style="display: none;">
+                <div class="card" style="max-width: 400px; margin: 0 auto; margin-top: 20vh;">
+                    <h3>Settings Modal Opened Successfully!</h3>
+                    <p>Avatar click worked correctly - settings opened directly without going to home page first.</p>
+                    <button onclick="closeModal()" class="btn btn-secondary">Close</button>
+                </div>
+            </div>
+            
+            <div id="result-3" class="test-result">
+                <strong>Status:</strong> <span id="status-3">Testing...</span><br>
+                <small><strong>Test:</strong> Click the avatar in the header above to verify direct navigation to settings</small>
+            </div>
+        </section>
+
+        <!-- Material Icons Test -->
+        <section class="test-section">
+            <h2>Material Symbols Font Test</h2>
+            <p>Verifying Material Symbols font is loading correctly:</p>
+            
+            <div style="font-size: 24px; line-height: 2;">
+                <span class="material-symbols-outlined">home</span> Home Icon<br>
+                <span class="material-symbols-outlined icon">person</span> Person Icon<br>
+                <span class="material-symbols-outlined icon">settings</span> Settings Icon<br>
+                <span class="material-symbols-outlined icon">search</span> Search Icon
+            </div>
+            
+            <div class="test-result">
+                <strong>Expected:</strong> Icons should appear as symbols, not text names
+            </div>
+        </section>
+    </div>
+
+    <!-- JavaScript Module for Testing -->
+    <script type="module">
+        import { createHeader } from './src/components/navigation.js';
+        
+        // Test user data
+        const testUser = {
+            name: 'Jaehong',
+            avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=jaehong&backgroundColor=b6e3f4'
+        };
+        
+        let modalOpenCount = 0;
+        
+        function runTests() {
+            console.log('Running header fix validation tests...');
+            
+            // Test 1: Home icon display
+            const header1 = createHeader({
+                showHome: true,
+                user: testUser,
+                onHome: () => {
+                    console.log('Home clicked - Test 1');
+                    document.getElementById('status-1').textContent = 'Home icon clicked successfully';
+                    document.getElementById('result-1').className = 'test-result test-pass';
+                },
+                onProfile: () => console.log('Profile clicked - Test 1')
+            });
+            
+            document.getElementById('header-test-1').appendChild(header1);
+            
+            // Validate home icon appearance
+            setTimeout(() => {
+                const homeIcon = header1.querySelector('.material-symbols-outlined');
+                const homeButton = header1.querySelector('.home-icon-button');
+                
+                if (homeIcon && homeIcon.textContent.trim() === 'home' && homeButton) {
+                    document.getElementById('status-1').textContent = 'PASS - Home icon displays correctly';
+                    document.getElementById('result-1').className = 'test-result test-pass';
+                } else {
+                    document.getElementById('status-1').textContent = 'FAIL - Home icon not displaying correctly';
+                    document.getElementById('result-1').className = 'test-result test-fail';
+                }
+            }, 100);
+            
+            // Test 2: Avatar button style
+            const header2 = createHeader({
+                showHome: false,
+                user: testUser,
+                onHome: () => console.log('Home clicked - Test 2'),
+                onProfile: () => console.log('Profile clicked - Test 2')
+            });
+            
+            document.getElementById('header-test-2').appendChild(header2);
+            
+            // Validate avatar button style
+            setTimeout(() => {
+                const profileButton = header2.querySelector('button[aria-label*="profile"]');
+                const avatar = header2.querySelector('.avatar-image, .avatar-fallback');
+                
+                if (profileButton && avatar) {
+                    const hasSquareBorder = profileButton.style.border || profileButton.className.includes('border') || profileButton.className.includes('rounded-full');
+                    if (!hasSquareBorder || profileButton.style.border === 'none' || profileButton.style.background === 'none') {
+                        document.getElementById('status-2').textContent = 'PASS - Avatar appears without square button border';
+                        document.getElementById('result-2').className = 'test-result test-pass';
+                    } else {
+                        document.getElementById('status-2').textContent = 'FAIL - Avatar still has square button styling';
+                        document.getElementById('result-2').className = 'test-result test-fail';
+                    }
+                } else {
+                    document.getElementById('status-2').textContent = 'FAIL - Avatar or button not found';
+                    document.getElementById('result-2').className = 'test-result test-fail';
+                }
+            }, 100);
+            
+            // Test 3: Avatar click navigation
+            const header3 = createHeader({
+                showHome: true,
+                user: testUser,
+                onHome: () => {
+                    console.log('Home clicked - Test 3');
+                    document.getElementById('status-3').textContent = 'ERROR - Home was clicked instead of direct settings';
+                    document.getElementById('result-3').className = 'test-result test-fail';
+                },
+                onProfile: () => {
+                    console.log('Profile clicked - Test 3');
+                    modalOpenCount++;
+                    document.getElementById('modal-test').style.display = 'block';
+                    document.getElementById('status-3').textContent = `PASS - Settings modal opened directly (${modalOpenCount} times)`;
+                    document.getElementById('result-3').className = 'test-result test-pass';
+                }
+            });
+            
+            document.getElementById('header-test-3').appendChild(header3);
+            
+            console.log('Header validation tests setup complete');
+        }
+        
+        // Global close modal function
+        window.closeModal = function() {
+            document.getElementById('modal-test').style.display = 'none';
+        };
+        
+        // Run tests when DOM is loaded
+        document.addEventListener('DOMContentLoaded', runTests);
+        
+        // Auto-run if already loaded
+        if (document.readyState !== 'loading') {
+            runTests();
+        }
+    </script>
+</body>
+</html>
