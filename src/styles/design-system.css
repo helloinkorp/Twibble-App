@@ -774,16 +774,16 @@ select {
 .word-chip {
   display: inline-flex;
   align-items: center;
-  gap: calc(var(--space-1) * 0.4);
-  padding: calc(var(--space-1) * 0.5) calc(var(--space-2) * 0.5);
-  border-radius: 8px;
-  font-size: calc(var(--font-size-sm) * 0.7);
+  gap: 1px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 9px;
   font-weight: var(--font-weight-medium);
   border: 1px solid transparent;
   cursor: grab;
   transition: all var(--transition-fast);
   user-select: none;
-  min-height: 16px;
+  min-height: 12px;
   position: relative;
 }
 
@@ -824,13 +824,13 @@ select {
 
 .word-chip .activity-dots {
   display: flex;
-  gap: calc(var(--space-1) * 0.4);
-  margin-left: calc(var(--space-1) * 0.5);
+  gap: 1px;
+  margin-left: 2px;
 }
 
 .word-chip .activity-dot {
-  width: 3px;
-  height: 3px;
+  width: 2px;
+  height: 2px;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -869,16 +869,16 @@ select {
   background: none;
   border: none;
   cursor: pointer;
-  padding: calc(var(--space-1) * 0.3);
-  margin-left: calc(var(--space-1) * 0.4);
+  padding: 1px;
+  margin-left: 2px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   transition: all var(--transition-fast);
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
 }
 
 .word-chip:hover .delete-btn {

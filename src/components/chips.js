@@ -223,8 +223,27 @@ class ChipManager {
    * Add a new chip to the system
    */
   addChip(word, activities = ['vocabulary'], containerId = 'vocabulary') {
+    // CRITICAL FIX: Validate inputs and ensure activities is never empty
+    if (!word || typeof word !== 'string' || word.trim().length === 0) {
+      console.error('ChipManager.addChip: Invalid word provided:', word);
+      return null;
+    }
+    
+    // Ensure activities is an array and not empty
+    if (!Array.isArray(activities) || activities.length === 0) {
+      console.warn('ChipManager.addChip: Empty activities array, defaulting to vocabulary');
+      activities = ['vocabulary'];
+    }
+
+    // Check if container exists
+    const container = this.containers.get(containerId);
+    if (!container) {
+      console.error(`ChipManager.addChip: Container '${containerId}' not registered! Available containers:`, Array.from(this.containers.keys()));
+      return null;
+    }
+
     const chipConfig = {
-      word,
+      word: word.trim(),
       activities,
       onDelete: (chipId) => this.deleteChip(chipId),
       draggable: true
@@ -235,18 +254,17 @@ class ChipManager {
     
     // Store chip data
     this.chips.set(chipId, {
-      word,
+      word: word.trim(),
       activities: [...activities],
       element: chipElement,
       containerId
     });
 
     // Add to container
-    const container = this.containers.get(containerId);
-    if (container) {
-      container.appendChild(chipElement);
-      container.classList.remove('empty');
-    }
+    container.appendChild(chipElement);
+    container.classList.remove('empty');
+    
+    console.log(`ChipManager.addChip: Successfully added "${word.trim()}" to ${containerId} with activities:`, activities);
 
     this.triggerChange();
     return chipId;

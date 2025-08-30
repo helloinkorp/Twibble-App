@@ -6,8 +6,8 @@
     <title>Create Lesson - Twibble</title>
     <meta name="description" content="Create interactive vocabulary lessons with word groups and activities">
     
-    <!-- Design System CSS -->
-    <link rel="stylesheet" href="../styles/design-system.css">
+    <!-- Design System CSS - Force reload to fix caching -->
+    <link rel="stylesheet" href="../styles/design-system.css?v=20250130">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -920,20 +920,45 @@
             loadExistingDraft();
         }
 
-        // Initialize ChipManager with containers
+        // Initialize ChipManager with containers - COMPREHENSIVE FIX
         function initializeChipSystem() {
-            // Register Manual Entry containers
-            chipManager.registerContainer('vocabulary', document.getElementById('vocabulary-chip-container'));
-            chipManager.registerContainer('spelling', document.getElementById('spelling-chip-container'));
-            chipManager.registerContainer('phonics', document.getElementById('phonics-chip-container'));
-
-            // Register File Upload containers
-            chipManager.registerContainer('file-vocabulary', document.getElementById('file-vocabulary-chip-container'));
-            chipManager.registerContainer('file-spelling', document.getElementById('file-spelling-chip-container'));
-            chipManager.registerContainer('file-phonics', document.getElementById('file-phonics-chip-container'));
+            console.log('=== INITIALIZING CHIP SYSTEM ===');
+            
+            // All containers to register (both manual and file upload)
+            const containerConfigs = [
+                // Manual Entry containers
+                { groupId: 'vocabulary', containerId: 'vocabulary-chip-container', type: 'manual' },
+                { groupId: 'spelling', containerId: 'spelling-chip-container', type: 'manual' },
+                { groupId: 'phonics', containerId: 'phonics-chip-container', type: 'manual' },
+                // File Upload containers (exist in DOM but initially hidden)
+                { groupId: 'file-vocabulary', containerId: 'file-vocabulary-chip-container', type: 'file' },
+                { groupId: 'file-spelling', containerId: 'file-spelling-chip-container', type: 'file' },
+                { groupId: 'file-phonics', containerId: 'file-phonics-chip-container', type: 'file' }
+            ];
+            
+            let successCount = 0;
+            let totalCount = containerConfigs.length;
+            
+            containerConfigs.forEach(({ groupId, containerId, type }) => {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    chipManager.registerContainer(groupId, container);
+                    console.log(`✅ ChipSystem: Registered ${type} container '${groupId}'`);
+                    successCount++;
+                } else {
+                    console.error(`❌ ChipSystem: Container '${containerId}' not found!`);
+                }
+            });
+            
+            console.log(`=== CHIP SYSTEM INIT COMPLETE: ${successCount}/${totalCount} containers registered ===`);
+            
+            if (successCount < totalCount) {
+                console.warn('Some containers failed to register - file upload may not work properly!');
+            }
 
             // Setup change handler to update word pool and auto-save
             chipManager.onChipChange((chipData) => {
+                console.log('ChipManager change event triggered:', chipData);
                 updateWordPoolFromChips(chipData);
                 updateWordCountFromChips(chipData);
                 updateContinueButton();
@@ -1157,6 +1182,11 @@
                 const textarea = wordGroup.querySelector('.word-input');
                 const groupType = wordGroup.dataset.group;
                 
+                // Skip groups that don't have word input textarea elements (e.g., file upload groups)
+                if (!textarea) {
+                    return;
+                }
+                
                 // Enhanced input handling - Enter key and comma separation
                 textarea.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1217,6 +1247,12 @@
         
         // Legacy functions removed - now using ChipManager system
         
+        // Helper function to safely check toggle state
+        function getToggleState(toggleId) {
+            const toggle = document.getElementById(toggleId);
+            return toggle ? toggle.checked : false;
+        }
+
         // Get activities based on toggle states for a group
         function getActivitiesForGroup(groupType) {
             const activities = {
@@ -1226,29 +1262,29 @@
             };
             
             if (groupType === 'vocabulary') {
-                activities.vocabulary = document.getElementById('vocab-toggle').checked;
-                activities.spelling = document.getElementById('vocab-spelling-toggle').checked;
-                activities.phonics = document.getElementById('vocab-phonics-toggle').checked;
+                activities.vocabulary = getToggleState('vocab-toggle');
+                activities.spelling = getToggleState('vocab-spelling-toggle');
+                activities.phonics = getToggleState('vocab-phonics-toggle');
             } else if (groupType === 'spelling') {
-                activities.vocabulary = document.getElementById('spelling-vocab-toggle').checked;
-                activities.spelling = document.getElementById('spelling-toggle').checked;
-                activities.phonics = document.getElementById('spelling-phonics-toggle').checked;
+                activities.vocabulary = getToggleState('spelling-vocab-toggle');
+                activities.spelling = getToggleState('spelling-toggle');
+                activities.phonics = getToggleState('spelling-phonics-toggle');
             } else if (groupType === 'phonics') {
-                activities.vocabulary = document.getElementById('phonics-vocab-toggle').checked;
-                activities.spelling = document.getElementById('phonics-spelling-toggle').checked;
-                activities.phonics = document.getElementById('phonics-toggle').checked;
+                activities.vocabulary = getToggleState('phonics-vocab-toggle');
+                activities.spelling = getToggleState('phonics-spelling-toggle');
+                activities.phonics = getToggleState('phonics-toggle');
             } else if (groupType === 'file-vocabulary') {
-                activities.vocabulary = document.getElementById('file-vocab-toggle').checked;
-                activities.spelling = document.getElementById('file-vocab-spelling-toggle').checked;
-                activities.phonics = document.getElementById('file-vocab-phonics-toggle').checked;
+                activities.vocabulary = getToggleState('file-vocab-toggle');
+                activities.spelling = getToggleState('file-vocab-spelling-toggle');
+                activities.phonics = getToggleState('file-vocab-phonics-toggle');
             } else if (groupType === 'file-spelling') {
-                activities.vocabulary = document.getElementById('file-spelling-vocab-toggle').checked;
-                activities.spelling = document.getElementById('file-spelling-toggle').checked;
-                activities.phonics = document.getElementById('file-spelling-phonics-toggle').checked;
+                activities.vocabulary = getToggleState('file-spelling-vocab-toggle');
+                activities.spelling = getToggleState('file-spelling-toggle');
+                activities.phonics = getToggleState('file-spelling-phonics-toggle');
             } else if (groupType === 'file-phonics') {
-                activities.vocabulary = document.getElementById('file-phonics-vocab-toggle').checked;
-                activities.spelling = document.getElementById('file-phonics-spelling-toggle').checked;
-                activities.phonics = document.getElementById('file-phonics-toggle').checked;
+                activities.vocabulary = getToggleState('file-phonics-vocab-toggle');
+                activities.spelling = getToggleState('file-phonics-spelling-toggle');
+                activities.phonics = getToggleState('file-phonics-toggle');
             } else if (groupType === 'file-import') {
                 // Default file import to vocabulary
                 activities.vocabulary = true;
@@ -1303,16 +1339,35 @@
                     const words = parseWords(content);
                     
                     if (words.length > 0) {
-                        // Show File Upload word groups
-                        document.getElementById('fileUploadWordGroups').classList.add('visible');
+                        // Show File Upload word groups when words are loaded
+                        const fileUploadWordGroups = document.getElementById('fileUploadWordGroups');
+                        if (fileUploadWordGroups) {
+                            fileUploadWordGroups.style.display = 'grid';
+                            fileUploadWordGroups.classList.add('visible');
+                            console.log('File upload word groups made visible');
+                        } else {
+                            console.error('fileUploadWordGroups element not found!');
+                        }
+                        
+                        // File containers are already registered during initialization,
+                        // so we can directly add chips without re-registration
                         
                         // Load words to File Upload Vocabulary grid with current activity states
                         const currentActivities = getActivitiesForGroup('file-vocabulary');
                         const activeActivities = Object.keys(currentActivities).filter(key => currentActivities[key]);
                         
+                        console.log('File upload - activities for file-vocabulary:', currentActivities);
+                        console.log('File upload - active activities:', activeActivities);
+                        
                         // Add each word with proper activities
+                        let successCount = 0;
                         words.forEach(word => {
-                            chipManager.addChip(word.trim(), activeActivities, 'file-vocabulary');
+                            try {
+                                chipManager.addChip(word.trim(), activeActivities, 'file-vocabulary');
+                                successCount++;
+                            } catch (error) {
+                                console.error(`Error adding chip for word "${word}":`, error);
+                            }
                         });
                         
                         // Keep File Import accordion open to show the loaded words
@@ -1321,7 +1376,8 @@
                             fileSection.querySelector('.accordion-header').click();
                         }
                         
-                        showFileStatus(`Successfully loaded ${words.length} words to File Upload - Vocabulary from ${file.name}`, 'success');
+                        showFileStatus(`Successfully loaded ${successCount} words to File Upload - Vocabulary from ${file.name}`, 'success');
+                        console.log(`File upload complete: ${successCount}/${words.length} words added successfully`);
                         // Auto-save triggered by chipManager change handler
                     } else {
                         showFileStatus('No valid words found in file', 'warning');
@@ -1442,23 +1498,33 @@
 
         // Navigation functionality
         function initializeNavigation() {
-            document.getElementById('backBtn').addEventListener('click', () => {
-                if (window.navigationManager) {
-                    window.navigationManager.goBack();
-                } else {
-                    window.location.href = 'teacher-dashboard.html';
-                }
-            });
+            const backBtn = document.getElementById('backBtn');
+            const saveDraftBtn = document.getElementById('saveDraftBtn');
+            const continueBtn = document.getElementById('continueBtn');
+            
+            if (backBtn) {
+                backBtn.addEventListener('click', () => {
+                    if (window.navigationManager) {
+                        window.navigationManager.goBack();
+                    } else {
+                        window.location.href = 'teacher-dashboard.html';
+                    }
+                });
+            }
 
-            document.getElementById('saveDraftBtn').addEventListener('click', () => {
-                saveDraft();
-                alert('Draft saved successfully!');
-            });
+            if (saveDraftBtn) {
+                saveDraftBtn.addEventListener('click', () => {
+                    saveDraft();
+                    alert('Draft saved successfully!');
+                });
+            }
 
-            document.getElementById('continueBtn').addEventListener('click', () => {
-                // Placeholder for scheduling functionality
-                alert('Scheduling functionality will be available in the next phase.');
-            });
+            if (continueBtn) {
+                continueBtn.addEventListener('click', () => {
+                    // Placeholder for scheduling functionality
+                    alert('Scheduling functionality will be available in the next phase.');
+                });
+            }
         }
 
         // Word parsing functionality
