@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chip Color Debug - Force Refresh</title>
+    <!-- Force cache bust with timestamp -->
+    <link rel="stylesheet" href="../../src/styles/design-system.css?v=2025083101">
+    <style>
+        body {
+            background: var(--color-background);
+            font-family: var(--font-family-body);
+            padding: 40px;
+        }
+        
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .chip-test {
+            display: flex;
+            gap: 16px;
+            margin: 16px 0;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 Chip Color Debug Test</h1>
+    
+    <div class="debug-section">
+        <h2>Single Activity Chips - Should Show Pastel Colors</h2>
+        <div class="chip-test">
+            <div class="word-chip vocabulary">vocabulary</div>
+            <span>← Should be pastel yellow (#fefce8)</span>
+        </div>
+        <div class="chip-test">
+            <div class="word-chip spelling">spelling</div>
+            <span>← Should be pastel mint (#ecfdf5)</span>
+        </div>
+        <div class="chip-test">
+            <div class="word-chip phonics">phonics</div>
+            <span>← Should be pastel purple (#f3e8ff)</span>
+        </div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Multiple Activity Chips - Should Show Gray + Colored Dots</h2>
+        <div class="chip-test">
+            <div class="word-chip multiple">
+                multiple
+                <div class="activity-dots">
+                    <div class="activity-dot vocab"></div>
+                    <div class="activity-dot spelling"></div>
+                </div>
+            </div>
+            <span>← Should be gray with yellow + mint dots</span>
+        </div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>CSS Load Test</h2>
+        <div id="css-test-result">Testing CSS load...</div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Size Test</h2>
+        <div id="size-test-result">Testing chip sizes...</div>
+    </div>
+    
+    <script>
+        // Test CSS loading
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                // Test colors
+                const vocabChip = document.querySelector('.word-chip.vocabulary');
+                const spellingChip = document.querySelector('.word-chip.spelling');
+                const phonicsChip = document.querySelector('.word-chip.phonics');
+                
+                if (vocabChip) {
+                    const vocabStyles = window.getComputedStyle(vocabChip);
+                    const spellingStyles = window.getComputedStyle(spellingChip);
+                    const phonicsStyles = window.getComputedStyle(phonicsChip);
+                    
+                    const cssResult = document.getElementById('css-test-result');
+                    cssResult.innerHTML = `
+                        <strong>Color Test Results:</strong><br>
+                        Vocabulary: ${vocabStyles.backgroundColor}<br>
+                        Spelling: ${spellingStyles.backgroundColor}<br>
+                        Phonics: ${phonicsStyles.backgroundColor}
+                    `;
+                    
+                    // Test sizes
+                    const sizeResult = document.getElementById('size-test-result');
+                    sizeResult.innerHTML = `
+                        <strong>Size Test Results:</strong><br>
+                        Font Size: ${vocabStyles.fontSize}<br>
+                        Padding: ${vocabStyles.padding}<br>
+                        Min Height: ${vocabStyles.minHeight}
+                    `;
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

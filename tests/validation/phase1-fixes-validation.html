@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 1 Fixes Validation</title>
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <style>
+        body {
+            background: var(--color-background);
+            font-family: var(--font-family-body);
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .validation-section {
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-gray-200);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        .test-pass {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .test-fail {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        
+        .chip-demo-area {
+            padding: 20px;
+            background: var(--color-card-bg-soft);
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        /* File drop zone styling */
+        .file-drop-zone {
+            border: 2px dashed var(--color-gray-300);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background: var(--color-card-bg-soft);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .file-drop-zone:hover {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+        
+        .file-drop-zone.drag-over {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+        
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Phase 1 Fixes Validation Tests</h1>
+    
+    <!-- Fix 1: Chip Size Reduction -->
+    <div class="validation-section">
+        <h2>Fix 1: Word Chip Size Reduction</h2>
+        <p><strong>Expected:</strong> font-size: 9px, padding: 2px 4px, min-height: 12px, gap: 1px</p>
+        
+        <div class="chip-demo-area">
+            <div class="word-chip" data-activity="vocabulary">Vocabulary</div>
+            <div class="word-chip" data-activity="spelling">Spelling</div>
+            <div class="word-chip" data-activity="phonics">Phonics</div>
+            <div class="word-chip" data-activity="multiple">Multiple</div>
+        </div>
+        
+        <div id="chip-size-result" class="test-result"></div>
+    </div>
+    
+    <!-- Fix 2: File Browse Click Functionality -->
+    <div class="validation-section">
+        <h2>Fix 2: File Browse Click Functionality</h2>
+        <p><strong>Test:</strong> Click the area below to trigger file browser</p>
+        
+        <div class="file-drop-zone" id="fileDropZone">
+            <input type="file" id="fileInput" class="file-input" accept=".txt">
+            <span class="material-symbols-light">upload_file</span>
+            <p><strong>Drag and drop TXT files here</strong></p>
+            <p>or <strong>click to browse files</strong></p>
+        </div>
+        
+        <div id="file-browse-result" class="test-result"></div>
+    </div>
+    
+    <!-- Fix 3: Manual Word Addition Flow -->
+    <div class="validation-section">
+        <h2>Fix 3: Manual Word Addition Flow</h2>
+        <p><strong>Test:</strong> Type words, verify they don't auto-populate until button clicked</p>
+        
+        <div style="margin: 20px 0;">
+            <input type="text" id="wordInput" placeholder="Type words separated by commas" style="width: 300px; padding: 8px;">
+            <button id="addWordsBtn" class="btn btn-secondary">Add to Word Pool</button>
+        </div>
+        
+        <div id="tempWords" style="margin: 10px 0; min-height: 40px; background: var(--color-card-bg-soft); padding: 10px; border-radius: 4px;">
+            <strong>Temporary Words (Yellow):</strong>
+        </div>
+        
+        <div id="wordPool" style="margin: 10px 0; min-height: 40px; background: var(--color-card-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--color-gray-200);">
+            <strong>Word Pool:</strong>
+        </div>
+        
+        <div id="word-flow-result" class="test-result"></div>
+    </div>
+    
+    <!-- Fix 4: Button Type Conversion -->
+    <div class="validation-section">
+        <h2>Fix 4: Button Type Conversion</h2>
+        <p><strong>Expected:</strong> Secondary button styling (black border, black text)</p>
+        
+        <div style="margin: 20px 0;">
+            <button class="btn btn-primary">Primary (CTA) Button</button>
+            <button class="btn btn-secondary">Secondary Button (Fixed)</button>
+        </div>
+        
+        <div id="button-style-result" class="test-result"></div>
+    </div>
+    
+    <script>
+        // Fix 1: Test chip sizing
+        function testChipSizing() {
+            const chip = document.querySelector('.word-chip');
+            const styles = window.getComputedStyle(chip);
+            const fontSize = parseInt(styles.fontSize);
+            const padding = styles.padding;
+            const minHeight = parseInt(styles.minHeight) || 0;
+            
+            const result = document.getElementById('chip-size-result');
+            
+            if (fontSize === 9 && padding.includes('2px 4px') && minHeight === 12) {
+                result.className = 'test-result test-pass';
+                result.textContent = `✅ PASS: font-size: ${fontSize}px, padding: ${padding}, min-height: ${minHeight}px`;
+            } else {
+                result.className = 'test-result test-fail';
+                result.textContent = `❌ FAIL: font-size: ${fontSize}px, padding: ${padding}, min-height: ${minHeight}px`;
+            }
+        }
+        
+        // Fix 2: Test file browse functionality
+        function testFileBrowse() {
+            const fileDropZone = document.getElementById('fileDropZone');
+            const fileInput = document.getElementById('fileInput');
+            const result = document.getElementById('file-browse-result');
+            
+            let clickWorking = false;
+            
+            // Test click handler
+            fileDropZone.addEventListener('click', (e) => {
+                if (e.target !== fileInput) {
+                    e.preventDefault();
+                    fileInput.click();
+                    clickWorking = true;
+                    result.className = 'test-result test-pass';
+                    result.textContent = '✅ PASS: Click handler triggered successfully';
+                }
+            });
+            
+            // Test file input change
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    result.className = 'test-result test-pass';
+                    result.textContent = `✅ PASS: File selected - ${e.target.files[0].name}`;
+                }
+            });
+            
+            setTimeout(() => {
+                if (!clickWorking) {
+                    result.className = 'test-result';
+                    result.textContent = 'Click the file drop zone to test';
+                }
+            }, 1000);
+        }
+        
+        // Fix 3: Test word addition flow
+        function testWordFlow() {
+            const wordInput = document.getElementById('wordInput');
+            const addWordsBtn = document.getElementById('addWordsBtn');
+            const tempWords = document.getElementById('tempWords');
+            const wordPool = document.getElementById('wordPool');
+            const result = document.getElementById('word-flow-result');
+            
+            let tempWordStorage = [];
+            
+            // Test input without auto-population
+            wordInput.addEventListener('input', () => {
+                const words = wordInput.value.split(',').map(w => w.trim()).filter(w => w);
+                tempWordStorage = words;
+                
+                // Show temporary words (yellow chips)
+                tempWords.innerHTML = '<strong>Temporary Words (Yellow):</strong> ';
+                words.forEach(word => {
+                    const chip = document.createElement('span');
+                    chip.className = 'word-chip';
+                    chip.style.background = '#fef3cd'; // Yellow/cream
+                    chip.textContent = word;
+                    tempWords.appendChild(chip);
+                });
+                
+                if (words.length > 0 && wordPool.children.length === 1) {
+                    result.className = 'test-result test-pass';
+                    result.textContent = '✅ PASS: Words in temporary storage, not auto-populated';
+                }
+            });
+            
+            // Test button click to move words
+            addWordsBtn.addEventListener('click', () => {
+                if (tempWordStorage.length > 0) {
+                    wordPool.innerHTML = '<strong>Word Pool:</strong> ';
+                    tempWordStorage.forEach(word => {
+                        const chip = document.createElement('span');
+                        chip.className = 'word-chip';
+                        chip.setAttribute('data-activity', 'vocabulary');
+                        chip.textContent = word;
+                        wordPool.appendChild(chip);
+                    });
+                    
+                    tempWords.innerHTML = '<strong>Temporary Words (Yellow):</strong>';
+                    tempWordStorage = [];
+                    wordInput.value = '';
+                    
+                    result.className = 'test-result test-pass';
+                    result.textContent = '✅ PASS: Words moved to pool only on button click';
+                }
+            });
+        }
+        
+        // Fix 4: Test button styling
+        function testButtonStyling() {
+            const secondaryBtn = document.querySelector('.btn-secondary');
+            const styles = window.getComputedStyle(secondaryBtn);
+            const result = document.getElementById('button-style-result');
+            
+            const backgroundColor = styles.backgroundColor;
+            const borderColor = styles.borderColor;
+            const color = styles.color;
+            
+            // Secondary should have transparent/white background, black border and text
+            const isCorrectStyle = (
+                (backgroundColor === 'rgba(0, 0, 0, 0)' || backgroundColor === 'transparent' || backgroundColor === 'rgb(255, 255, 255)') &&
+                (color === 'rgb(0, 0, 0)' || color === 'black')
+            );
+            
+            if (isCorrectStyle) {
+                result.className = 'test-result test-pass';
+                result.textContent = '✅ PASS: Secondary button styled correctly (transparent bg, black text)';
+            } else {
+                result.className = 'test-result test-fail';
+                result.textContent = `❌ FAIL: bg: ${backgroundColor}, color: ${color}, border: ${borderColor}`;
+            }
+        }
+        
+        // Run all tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testChipSizing();
+                testFileBrowse();
+                testWordFlow();
+                testButtonStyling();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

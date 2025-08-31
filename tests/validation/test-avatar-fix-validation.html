@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Fix Validation - Header vs Modal Consistency</title>
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
+    
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-6);
+        }
+
+        .test-section {
+            margin-bottom: var(--space-8);
+            padding: var(--space-6);
+            border: 2px solid var(--color-gray-200);
+            border-radius: var(--border-radius-lg);
+            background: var(--color-card-bg);
+        }
+
+        .test-section h2 {
+            margin: 0 0 var(--space-4);
+            color: var(--color-primary);
+            font-family: var(--font-family-headers);
+        }
+
+        .avatar-showcase {
+            display: flex;
+            gap: var(--space-6);
+            align-items: center;
+            justify-content: center;
+            margin: var(--space-6) 0;
+            flex-wrap: wrap;
+        }
+
+        .avatar-demo {
+            text-align: center;
+            padding: var(--space-4);
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .avatar-demo h4 {
+            margin: 0 0 var(--space-2);
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-600);
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-4);
+            margin: var(--space-4) 0;
+        }
+
+        .status-card {
+            padding: var(--space-4);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            background: white;
+        }
+
+        .status-ok { border-left: 4px solid var(--color-success); }
+        .status-error { border-left: 4px solid var(--color-error); }
+        .status-warning { border-left: 4px solid var(--color-warning); }
+
+        .test-controls {
+            display: flex;
+            gap: var(--space-3);
+            flex-wrap: wrap;
+            margin: var(--space-4) 0;
+        }
+
+        .console-output {
+            background: var(--color-gray-900);
+            color: var(--color-gray-100);
+            padding: var(--space-4);
+            border-radius: var(--border-radius);
+            font-family: monospace;
+            font-size: var(--font-size-sm);
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: var(--space-4);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-base);
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: white;
+            padding: var(--space-6);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto var(--space-4);
+            display: block;
+            border: 2px solid var(--color-gray-200);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="text-center mb-8">Avatar Fix Validation Test</h1>
+        <p class="text-center text-secondary mb-8">
+            Testing the fix for avatar display consistency between navigation header and settings modal.
+            <br>Root cause: Tailwind CSS classes replaced with design system custom properties.
+        </p>
+
+        <!-- Fixed Navigation Test -->
+        <div class="test-section">
+            <h2>✅ Fixed Navigation Header</h2>
+            <p class="text-secondary mb-4">Navigation component now uses design system CSS custom properties instead of Tailwind classes</p>
+            <div id="navigation-container"></div>
+        </div>
+
+        <!-- Avatar Size Consistency Test -->
+        <div class="test-section">
+            <h2>🎯 Avatar Size & Style Consistency</h2>
+            <p class="text-secondary mb-4">All avatars should be perfectly circular with consistent sizing</p>
+            <div class="avatar-showcase">
+                <div class="avatar-demo">
+                    <h4>Header Avatar (40px)</h4>
+                    <div id="header-avatar-demo"></div>
+                </div>
+                <div class="avatar-demo">
+                    <h4>Modal Avatar (80px)</h4>
+                    <div id="modal-avatar-demo"></div>
+                </div>
+                <div class="avatar-demo">
+                    <h4>Profile Avatar (64px)</h4>
+                    <div id="profile-avatar-demo"></div>
+                </div>
+                <div class="avatar-demo">
+                    <h4>Initials Fallback (40px)</h4>
+                    <div id="initials-avatar-demo"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Scenarios -->
+        <div class="test-section">
+            <h2>🧪 Test Scenarios</h2>
+            <div class="test-controls">
+                <button id="test-dicebear" class="btn btn-primary">Dicebear Avatar</button>
+                <button id="test-initials" class="btn btn-secondary">Initials Only</button>
+                <button id="test-broken-url" class="btn btn-secondary">Broken URL</button>
+                <button id="show-modal" class="btn btn-secondary">Show Modal</button>
+                <button id="run-validation" class="btn btn-success">Run Full Validation</button>
+            </div>
+        </div>
+
+        <!-- Status Report -->
+        <div class="test-section">
+            <h2>📊 Validation Status</h2>
+            <div class="status-grid">
+                <div id="status-header" class="status-card status-warning">
+                    <h4>Header Avatar</h4>
+                    <p id="header-status-text">Testing...</p>
+                </div>
+                <div id="status-modal" class="status-card status-warning">
+                    <h4>Modal Avatar</h4>
+                    <p id="modal-status-text">Testing...</p>
+                </div>
+                <div id="status-consistency" class="status-card status-warning">
+                    <h4>Consistency Check</h4>
+                    <p id="consistency-status-text">Testing...</p>
+                </div>
+                <div id="status-circular" class="status-card status-warning">
+                    <h4>Circular Shape</h4>
+                    <p id="circular-status-text">Testing...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Console Output -->
+        <div class="test-section">
+            <h2>🔍 Debug Console</h2>
+            <div id="console-output" class="console-output">Test initialized. Click buttons to run tests...\n</div>
+        </div>
+    </div>
+
+    <!-- Test Modal -->
+    <div id="test-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Profile & Settings</h3>
+            <img id="modal-avatar" class="modal-avatar" src="" alt="User avatar">
+            <h4 id="modal-name">User Name</h4>
+            <button id="close-modal" class="btn btn-secondary">Close</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createHeader } from './src/components/navigation.js';
+
+        class AvatarFixValidation {
+            constructor() {
+                this.console = document.getElementById('console-output');
+                this.testUser = {
+                    name: 'Test User',
+                    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fix-validation&backgroundColor=b6e3f4,c0aede,d1d4f9'
+                };
+                
+                this.init();
+            }
+
+            init() {
+                this.log('🚀 Avatar Fix Validation Test Started');
+                this.log('Root Cause: Navigation component was using Tailwind CSS classes (w-10 h-10 rounded-full)');
+                this.log('Fix: Replaced with design system CSS custom properties');
+                
+                this.setupUserData();
+                this.createTestNavigation();
+                this.createAvatarDemos();
+                this.setupEventListeners();
+                
+                // Run initial validation
+                setTimeout(() => this.runValidation(), 1000);
+            }
+
+            log(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                this.console.textContent += `[${timestamp}] ${message}\n`;
+                this.console.scrollTop = this.console.scrollHeight;
+                console.log(message);
+            }
+
+            setupUserData() {
+                try {
+                    localStorage.setItem('userSettings', JSON.stringify({
+                        ...this.testUser,
+                        onboardingCompleted: true,
+                        createdAt: new Date().toISOString()
+                    }));
+                    this.log(`✅ Test user data set: ${this.testUser.name}`);
+                } catch (error) {
+                    this.log(`❌ Error setting user data: ${error.message}`);
+                }
+            }
+
+            createTestNavigation() {
+                try {
+                    const container = document.getElementById('navigation-container');
+                    const userSettings = JSON.parse(localStorage.getItem('userSettings'));
+                    
+                    const header = createHeader({
+                        showHome: true,
+                        user: userSettings,
+                        onHome: () => this.log('🏠 Home clicked'),
+                        onProfile: () => this.showModal(),
+                        title: 'Fix Validation Test'
+                    });
+
+                    container.appendChild(header);
+                    this.log('✅ Navigation header created with fixed avatar component');
+                    
+                    // Analyze the created avatar
+                    setTimeout(() => this.analyzeHeaderAvatar(header), 500);
+                    
+                } catch (error) {
+                    this.log(`❌ Error creating navigation: ${error.message}`);
+                    this.updateStatus('header', 'error', `Error: ${error.message}`);
+                }
+            }
+
+            analyzeHeaderAvatar(header) {
+                const profileButton = header.querySelector('button[aria-label*="profile"]');
+                if (!profileButton) {
+                    this.log('❌ No profile button found');
+                    this.updateStatus('header', 'error', 'No profile button found');
+                    return;
+                }
+
+                const avatar = profileButton.querySelector('img, div');
+                if (!avatar) {
+                    this.log('❌ No avatar element found in profile button');
+                    this.updateStatus('header', 'error', 'No avatar element');
+                    return;
+                }
+
+                // Check if avatar is circular
+                const styles = window.getComputedStyle(avatar);
+                const borderRadius = styles.borderRadius;
+                const width = styles.width;
+                const height = styles.height;
+                
+                this.log(`📏 Header avatar styles:`);
+                this.log(`   Width: ${width}, Height: ${height}`);
+                this.log(`   Border radius: ${borderRadius}`);
+                this.log(`   Type: ${avatar.tagName}`);
+
+                // Validate circular shape (50% border-radius or equivalent to width/height)
+                const isCircular = borderRadius.includes('50%') || 
+                                   borderRadius.includes('20px') || // 40px * 0.5
+                                   borderRadius === width;
+
+                if (isCircular && width === '40px' && height === '40px') {
+                    this.log('✅ Header avatar: Correct size and circular shape');
+                    this.updateStatus('header', 'ok', 'Perfect circle, 40px × 40px');
+                } else {
+                    this.log('⚠️ Header avatar: Size or shape issue detected');
+                    this.updateStatus('header', 'warning', `Size: ${width}×${height}, Radius: ${borderRadius}`);
+                }
+
+                return { isCircular, width, height, borderRadius, type: avatar.tagName };
+            }
+
+            createAvatarDemos() {
+                // Create demo avatars with different sizes to show consistency
+                this.createDemoAvatar('header-avatar-demo', 40);
+                this.createDemoAvatar('modal-avatar-demo', 80);
+                this.createDemoAvatar('profile-avatar-demo', 64);
+                this.createInitialsDemoAvatar('initials-avatar-demo', 40);
+            }
+
+            createDemoAvatar(containerId, size) {
+                const container = document.getElementById(containerId);
+                const avatar = document.createElement('img');
+                avatar.src = this.testUser.avatar;
+                avatar.alt = 'Demo avatar';
+                avatar.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    border: 1px solid var(--color-gray-200);
+                    display: block;
+                `;
+                container.appendChild(avatar);
+            }
+
+            createInitialsDemoAvatar(containerId, size) {
+                const container = document.getElementById(containerId);
+                const avatar = document.createElement('div');
+                avatar.textContent = 'TU';
+                avatar.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    border-radius: 50%;
+                    background: var(--color-primary);
+                    border: 1px solid var(--color-gray-200);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: ${Math.floor(size * 0.35)}px;
+                    font-weight: 500;
+                    color: white;
+                `;
+                container.appendChild(avatar);
+            }
+
+            showModal() {
+                const modal = document.getElementById('test-modal');
+                const modalAvatar = document.getElementById('modal-avatar');
+                const modalName = document.getElementById('modal-name');
+
+                modalAvatar.src = this.testUser.avatar;
+                modalName.textContent = this.testUser.name;
+
+                modal.classList.add('show');
+                this.log('📱 Modal opened - analyzing modal avatar...');
+                
+                // Analyze modal avatar
+                setTimeout(() => this.analyzeModalAvatar(), 500);
+            }
+
+            analyzeModalAvatar() {
+                const modalAvatar = document.getElementById('modal-avatar');
+                const styles = window.getComputedStyle(modalAvatar);
+                const borderRadius = styles.borderRadius;
+                const width = styles.width;
+                const height = styles.height;
+
+                this.log(`📏 Modal avatar styles:`);
+                this.log(`   Width: ${width}, Height: ${height}`);
+                this.log(`   Border radius: ${borderRadius}`);
+
+                const isCircular = borderRadius.includes('50%') || 
+                                   borderRadius.includes('40px') || // 80px * 0.5
+                                   borderRadius === width;
+
+                if (isCircular && width === '80px' && height === '80px') {
+                    this.log('✅ Modal avatar: Correct size and circular shape');
+                    this.updateStatus('modal', 'ok', 'Perfect circle, 80px × 80px');
+                } else {
+                    this.log('⚠️ Modal avatar: Size or shape issue detected');
+                    this.updateStatus('modal', 'warning', `Size: ${width}×${height}, Radius: ${borderRadius}`);
+                }
+            }
+
+            runValidation() {
+                this.log('\n🔍 RUNNING COMPREHENSIVE VALIDATION...\n');
+
+                // Test 1: Header avatar validation
+                const header = document.querySelector('#navigation-container header');
+                const headerResult = this.analyzeHeaderAvatar(header);
+
+                // Test 2: Circular shape validation
+                this.validateCircularShape();
+
+                // Test 3: Design system integration
+                this.validateDesignSystemIntegration();
+
+                // Test 4: Consistency check
+                this.validateConsistency();
+
+                this.log('\n✨ VALIDATION COMPLETE!\n');
+            }
+
+            validateCircularShape() {
+                const avatars = document.querySelectorAll('img[alt*="avatar"], div[class*="avatar"]');
+                let circularCount = 0;
+                let totalCount = avatars.length;
+
+                avatars.forEach((avatar, index) => {
+                    const styles = window.getComputedStyle(avatar);
+                    const borderRadius = styles.borderRadius;
+                    const isCircular = borderRadius.includes('50%') || 
+                                       parseFloat(borderRadius) >= (parseFloat(styles.width) / 2);
+                    
+                    if (isCircular) circularCount++;
+                    
+                    this.log(`   Avatar ${index + 1}: ${isCircular ? '✅' : '❌'} ${avatar.tagName} - radius: ${borderRadius}`);
+                });
+
+                if (circularCount === totalCount) {
+                    this.log('✅ All avatars are circular');
+                    this.updateStatus('circular', 'ok', `All ${totalCount} avatars are circular`);
+                } else {
+                    this.log(`⚠️ ${totalCount - circularCount} avatars are not circular`);
+                    this.updateStatus('circular', 'warning', `${circularCount}/${totalCount} circular`);
+                }
+            }
+
+            validateDesignSystemIntegration() {
+                this.log('🎨 Validating design system integration...');
+                
+                // Check if CSS custom properties are being used
+                const testDiv = document.createElement('div');
+                testDiv.style.backgroundColor = 'var(--color-primary)';
+                document.body.appendChild(testDiv);
+                
+                const computedBg = window.getComputedStyle(testDiv).backgroundColor;
+                document.body.removeChild(testDiv);
+                
+                if (computedBg !== 'rgba(0, 0, 0, 0)' && computedBg !== 'transparent') {
+                    this.log('✅ Design system CSS custom properties are working');
+                } else {
+                    this.log('❌ Design system CSS custom properties not loading');
+                }
+            }
+
+            validateConsistency() {
+                this.log('🔄 Checking avatar consistency...');
+                
+                const headerButton = document.querySelector('button[aria-label*="profile"]');
+                const headerAvatar = headerButton?.querySelector('img, div');
+                
+                if (!headerAvatar) {
+                    this.updateStatus('consistency', 'error', 'Header avatar not found');
+                    return;
+                }
+
+                // Check if using image or initials
+                const isImage = headerAvatar.tagName === 'IMG';
+                const src = isImage ? headerAvatar.src : 'initials';
+                
+                this.log(`   Header avatar: ${isImage ? 'Image' : 'Initials'}`);
+                this.log(`   Source/Content: ${src}`);
+
+                // Consistency criteria:
+                // 1. Circular shape
+                // 2. Proper sizing
+                // 3. Design system colors
+                const styles = window.getComputedStyle(headerAvatar);
+                const isCircular = styles.borderRadius.includes('50%');
+                const correctSize = styles.width === '40px' && styles.height === '40px';
+                
+                if (isCircular && correctSize) {
+                    this.updateStatus('consistency', 'ok', 'Header and modal avatars consistent');
+                } else {
+                    this.updateStatus('consistency', 'warning', 'Minor inconsistencies detected');
+                }
+            }
+
+            updateStatus(type, status, message) {
+                const statusCard = document.getElementById(`status-${type}`);
+                const statusText = document.getElementById(`${type}-status-text`);
+                
+                statusCard.className = `status-card status-${status}`;
+                statusText.textContent = message;
+            }
+
+            setupEventListeners() {
+                // Test buttons
+                document.getElementById('test-dicebear').addEventListener('click', () => {
+                    this.testUser.avatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=test1&backgroundColor=b6e3f4';
+                    this.setupUserData();
+                    location.reload();
+                });
+
+                document.getElementById('test-initials').addEventListener('click', () => {
+                    this.testUser.avatar = '';
+                    this.setupUserData();
+                    location.reload();
+                });
+
+                document.getElementById('test-broken-url').addEventListener('click', () => {
+                    this.testUser.avatar = 'https://invalid-url.com/broken.png';
+                    this.setupUserData();
+                    location.reload();
+                });
+
+                document.getElementById('show-modal').addEventListener('click', () => {
+                    this.showModal();
+                });
+
+                document.getElementById('run-validation').addEventListener('click', () => {
+                    this.runValidation();
+                });
+
+                // Modal close
+                document.getElementById('close-modal').addEventListener('click', () => {
+                    document.getElementById('test-modal').classList.remove('show');
+                });
+
+                // Close modal on overlay click
+                document.getElementById('test-modal').addEventListener('click', (e) => {
+                    if (e.target.id === 'test-modal') {
+                        e.target.classList.remove('show');
+                    }
+                });
+            }
+        }
+
+        // Initialize validation test
+        document.addEventListener('DOMContentLoaded', () => {
+            new AvatarFixValidation();
+        });
+    </script>
+</body>
+</html>

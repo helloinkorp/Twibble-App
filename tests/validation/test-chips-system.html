@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chips System Validation - Twibble</title>
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="../../src/styles/design-system.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
+    
+    <style>
+        body {
+            padding: var(--space-4);
+            background: var(--color-background);
+        }
+        
+        .test-section {
+            background: var(--color-white);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-gray-200);
+        }
+        
+        .section-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--space-4);
+            color: var(--color-black);
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+            flex-wrap: wrap;
+        }
+        
+        .test-input {
+            flex: 1;
+            min-width: 200px;
+            padding: var(--space-3);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius);
+            font-family: var(--font-family-body);
+        }
+        
+        .file-upload {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .status-indicator {
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--space-4);
+        }
+        
+        .status-success {
+            background: var(--color-success);
+            color: white;
+        }
+        
+        .status-info {
+            background: var(--color-info);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Chips System Validation</h1>
+            <p class="text-secondary">Testing PRD-compliant word chips with drag-and-drop functionality</p>
+        </header>
+
+        <!-- Chip Visual Examples -->
+        <section class="test-section">
+            <h2 class="section-title">Chip Visual Examples</h2>
+            <div style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+                <div class="word-chip vocabulary">
+                    <span>vocabulary</span>
+                </div>
+                <div class="word-chip spelling">
+                    <span>spelling</span>
+                </div>
+                <div class="word-chip phonics">
+                    <span>phonics</span>
+                </div>
+                <div class="word-chip multiple">
+                    <span>multiple</span>
+                    <div class="activity-dots">
+                        <div class="activity-dot vocab"></div>
+                        <div class="activity-dot spelling"></div>
+                        <div class="activity-dot phonics"></div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-small text-secondary">Expected: Vocabulary=pastel yellow, Spelling=pastel mint, Phonics=pastel purple, Multiple=gray with colored dots</p>
+        </section>
+
+        <!-- Manual Word Addition -->
+        <section class="test-section">
+            <h2 class="section-title">Manual Word Addition</h2>
+            <div class="test-controls">
+                <input type="text" id="word-input" class="test-input" placeholder="Enter words (comma or space separated)" value="cat, dog, bird, fish">
+                <select id="activity-select" class="test-input">
+                    <option value="vocabulary">Vocabulary</option>
+                    <option value="spelling">Spelling</option>
+                    <option value="phonics">Phonics</option>
+                </select>
+                <button onclick="addManualWords()" class="btn btn-secondary">Add Words</button>
+            </div>
+        </section>
+
+        <!-- File Upload Test -->
+        <section class="test-section">
+            <h2 class="section-title">File Upload Test</h2>
+            <div class="test-controls">
+                <div class="file-upload">
+                    <button class="btn btn-secondary">Upload Text File</button>
+                    <input type="file" id="file-input" accept=".txt" onchange="handleFileUpload(event)">
+                </div>
+                <button onclick="simulateFileUpload()" class="btn btn-tertiary">Simulate File Upload</button>
+            </div>
+            <div id="upload-status"></div>
+        </section>
+
+        <!-- Word Groups Grid (Drag & Drop Target) -->
+        <section class="test-section">
+            <h2 class="section-title">Word Groups - Drag & Drop</h2>
+            <p class="text-small text-secondary">Drag chips between groups to test reassignment and color changes</p>
+            
+            <div class="word-groups">
+                <div class="word-group">
+                    <div class="word-group-header">
+                        <h3 class="word-group-title">Vocabulary</h3>
+                        <div class="activity-toggle">
+                            <input type="checkbox" id="vocab-toggle" checked>
+                            <label for="vocab-toggle">Enabled</label>
+                        </div>
+                    </div>
+                    <div id="vocabulary-container" class="chip-container empty" data-activity="vocabulary">
+                        <!-- Chips will be added here -->
+                    </div>
+                </div>
+
+                <div class="word-group">
+                    <div class="word-group-header">
+                        <h3 class="word-group-title">Spelling</h3>
+                        <div class="activity-toggle">
+                            <input type="checkbox" id="spelling-toggle" checked>
+                            <label for="spelling-toggle">Enabled</label>
+                        </div>
+                    </div>
+                    <div id="spelling-container" class="chip-container empty" data-activity="spelling">
+                        <!-- Chips will be added here -->
+                    </div>
+                </div>
+
+                <div class="word-group">
+                    <div class="word-group-header">
+                        <h3 class="word-group-title">Phonics</h3>
+                        <div class="activity-toggle">
+                            <input type="checkbox" id="phonics-toggle" checked>
+                            <label for="phonics-toggle">Enabled</label>
+                        </div>
+                    </div>
+                    <div id="phonics-container" class="chip-container empty" data-activity="phonics">
+                        <!-- Chips will be added here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Status -->
+        <section class="test-section">
+            <h2 class="section-title">System Status</h2>
+            <div id="chip-status" class="status-indicator status-info">
+                Ready to test chips system
+            </div>
+            <pre id="chip-data" style="background: var(--color-gray-50); padding: var(--space-4); border-radius: var(--border-radius); font-size: var(--font-size-sm); overflow-x: auto;"></pre>
+        </section>
+
+        <!-- Action Buttons -->
+        <section class="test-section">
+            <h2 class="section-title">Test Actions</h2>
+            <div class="test-controls">
+                <button onclick="clearAllChips()" class="btn btn-destructive">Clear All</button>
+                <button onclick="loadSampleData()" class="btn btn-secondary">Load Sample Data</button>
+                <button onclick="exportChipData()" class="btn btn-tertiary">Export Data</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- JavaScript -->
+    <script type="module">
+        import { ChipManager } from './src/components/chips.js';
+        
+        // Initialize chip manager
+        const chipManager = new ChipManager();
+        
+        // Register containers
+        chipManager.registerContainer('vocabulary', document.getElementById('vocabulary-container'));
+        chipManager.registerContainer('spelling', document.getElementById('spelling-container'));
+        chipManager.registerContainer('phonics', document.getElementById('phonics-container'));
+        
+        // Setup change handler to update status
+        chipManager.onChipChange((chipData) => {
+            updateChipStatus(chipData);
+        });
+        
+        // Global functions for button handlers
+        window.addManualWords = function() {
+            const input = document.getElementById('word-input');
+            const activity = document.getElementById('activity-select').value;
+            
+            if (!input.value.trim()) {
+                showStatus('Please enter some words', 'info');
+                return;
+            }
+            
+            // Parse words (comma or space separated)
+            const words = input.value.split(/[,\s]+/).filter(word => word.trim());
+            
+            words.forEach(word => {
+                chipManager.addChip(word.trim(), [activity], activity);
+            });
+            
+            input.value = '';
+            showStatus(`Added ${words.length} words to ${activity}`, 'success');
+        };
+        
+        window.handleFileUpload = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.name.endsWith('.txt')) {
+                showStatus('Please upload a .txt file', 'info');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const words = content.split(/\s+/).filter(word => word.trim());
+                
+                // Load to vocabulary as default per PRD
+                chipManager.loadChips(words, 'vocabulary');
+                showStatus(`Loaded ${words.length} words from file to Vocabulary`, 'success');
+            };
+            reader.readAsText(file);
+        };
+        
+        window.simulateFileUpload = function() {
+            const sampleWords = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig', 'grape', 'honeydew'];
+            chipManager.loadChips(sampleWords, 'vocabulary');
+            showStatus(`Simulated file upload: ${sampleWords.length} words loaded to Vocabulary`, 'success');
+        };
+        
+        window.clearAllChips = function() {
+            chipManager.clearAll();
+            showStatus('All chips cleared', 'info');
+        };
+        
+        window.loadSampleData = function() {
+            const sampleData = {
+                vocabulary: ['cat', 'dog', 'bird'],
+                spelling: ['house', 'tree', 'car'],
+                phonics: ['bat', 'sun', 'run']
+            };
+            
+            Object.entries(sampleData).forEach(([activity, words]) => {
+                words.forEach(word => {
+                    chipManager.addChip(word, [activity], activity);
+                });
+            });
+            
+            showStatus('Sample data loaded', 'success');
+        };
+        
+        window.exportChipData = function() {
+            const data = chipManager.getAllChips();
+            console.log('Chip Data:', data);
+            
+            // Display in the status area
+            document.getElementById('chip-data').textContent = JSON.stringify(data, null, 2);
+            showStatus('Data exported to console and displayed below', 'success');
+        };
+        
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('chip-status');
+            statusEl.textContent = message;
+            statusEl.className = `status-indicator status-${type}`;
+        }
+        
+        function updateChipStatus(chipData) {
+            const totalChips = Object.values(chipData).flat().length;
+            const vocabCount = chipData.vocabulary?.length || 0;
+            const spellingCount = chipData.spelling?.length || 0;
+            const phonicsCount = chipData.phonics?.length || 0;
+            
+            showStatus(`Total: ${totalChips} chips | Vocab: ${vocabCount} | Spelling: ${spellingCount} | Phonics: ${phonicsCount}`, 'info');
+            
+            // Update data display
+            document.getElementById('chip-data').textContent = JSON.stringify(chipData, null, 2);
+        }
+        
+        // Initial load
+        showStatus('Chips system ready - try adding words or uploading a file!', 'success');
+    </script>
+</body>
+</html>

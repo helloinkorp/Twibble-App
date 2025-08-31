@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Activity Toggle System Test - Twibble</title>
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <style>
+        body {
+            padding: 20px;
+            font-family: var(--font-family-body);
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid var(--color-gray-200);
+            border-radius: 8px;
+        }
+        .test-title {
+            font-family: var(--font-family-headers);
+            font-size: var(--font-size-lg);
+            margin-bottom: 15px;
+            color: var(--color-black);
+        }
+        .chip-container {
+            min-height: 60px;
+            padding: 15px;
+            border: 2px dashed var(--color-gray-300);
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .chip-container.empty {
+            background: var(--color-gray-50);
+        }
+        .activity-toggles {
+            display: flex;
+            gap: var(--space-4);
+            margin: 15px 0;
+        }
+        .activity-toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        .activity-toggle {
+            appearance: none;
+            width: 40px;
+            height: 20px;
+            background: var(--color-gray-300);
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        .activity-toggle:checked {
+            background: var(--color-black);
+        }
+        .activity-toggle::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-white);
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s ease;
+        }
+        .activity-toggle:checked::before {
+            transform: translateX(20px);
+        }
+        .toggle-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-700);
+            font-weight: var(--font-weight-medium);
+        }
+        .toggle-label.active {
+            color: var(--color-black);
+        }
+        .test-controls {
+            background: var(--color-gray-50);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .btn {
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-family-body);
+            font-size: var(--font-size-sm);
+        }
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+        .btn-secondary {
+            background: var(--color-gray-200);
+            color: var(--color-black);
+        }
+        .results {
+            background: var(--color-card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dynamic Activity Toggle System Test</h1>
+    <p>This page tests the real-time chip color updates when activity toggles change.</p>
+
+    <div class="test-section">
+        <h2 class="test-title">Test Group 1: Vocabulary Words</h2>
+        
+        <div class="activity-toggles">
+            <div class="activity-toggle-wrapper">
+                <input type="checkbox" class="activity-toggle" id="test-vocab-toggle" checked>
+                <label for="test-vocab-toggle" class="toggle-label active">Vocabulary</label>
+            </div>
+            <div class="activity-toggle-wrapper">
+                <input type="checkbox" class="activity-toggle" id="test-vocab-spelling-toggle">
+                <label for="test-vocab-spelling-toggle" class="toggle-label">Spelling</label>
+            </div>
+            <div class="activity-toggle-wrapper">
+                <input type="checkbox" class="activity-toggle" id="test-vocab-phonics-toggle">
+                <label for="test-vocab-phonics-toggle" class="toggle-label">Phonics</label>
+            </div>
+        </div>
+
+        <div class="chip-container empty" data-group="test-vocabulary" id="test-vocabulary-container"></div>
+
+        <div class="test-controls">
+            <button class="btn btn-primary" onclick="addTestWord('test-vocabulary')">Add Test Word</button>
+            <button class="btn btn-secondary" onclick="clearTestWords('test-vocabulary')">Clear Words</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2 class="test-title">System State Monitor</h2>
+        <div class="results" id="systemState">
+            Initializing...
+        </div>
+        <button class="btn btn-secondary" onclick="updateSystemState()">Refresh State</button>
+    </div>
+
+    <!-- Test Results Section -->
+    <div class="test-section">
+        <h2 class="test-title">Test Results</h2>
+        <div id="testResults">
+            <p><strong>Expected Behavior:</strong></p>
+            <ul>
+                <li>✓ Single activity = specific pastel color (vocab=yellow, spelling=mint, phonics=purple)</li>
+                <li>✓ Multiple activities = gray background with colored dots</li>
+                <li>✓ Toggles update chip colors instantly</li>
+                <li>✓ Validation prevents all toggles being turned off</li>
+                <li>✓ Drag-and-drop functionality maintained</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { ChipManager } from './src/components/chips.js';
+
+        // Initialize ChipManager for testing
+        const chipManager = new ChipManager();
+        let testWordCounter = 1;
+
+        // Register test containers
+        chipManager.registerContainer('test-vocabulary', document.getElementById('test-vocabulary-container'));
+
+        // Setup change handler for monitoring
+        chipManager.onChipChange((chipData) => {
+            updateSystemState();
+            console.log('Chip data changed:', chipData);
+        });
+
+        // Initialize test toggle system
+        function initializeTestToggleSystem() {
+            const groupToggleMap = {
+                'test-vocabulary': ['test-vocab-toggle', 'test-vocab-spelling-toggle', 'test-vocab-phonics-toggle']
+            };
+
+            Object.entries(groupToggleMap).forEach(([groupId, toggleIds]) => {
+                toggleIds.forEach(toggleId => {
+                    const toggle = document.getElementById(toggleId);
+                    const label = document.querySelector(`label[for="${toggleId}"]`);
+                    
+                    if (toggle && label) {
+                        toggle.addEventListener('change', (e) => {
+                            handleTestActivityToggleChange(groupId, toggleIds, e.target);
+                        });
+                    }
+                });
+            });
+
+            console.log('Test toggle system initialized');
+        }
+
+        function handleTestActivityToggleChange(groupId, toggleIds, changedToggle) {
+            const activities = {
+                vocabulary: false,
+                spelling: false, 
+                phonics: false
+            };
+
+            toggleIds.forEach(toggleId => {
+                const toggle = document.getElementById(toggleId);
+                if (toggle && toggle.checked) {
+                    if (toggleId.includes('vocab') && !toggleId.includes('spelling') && !toggleId.includes('phonics')) {
+                        activities.vocabulary = true;
+                    } else if (toggleId.includes('spelling')) {
+                        activities.spelling = true;
+                    } else if (toggleId.includes('phonics')) {
+                        activities.phonics = true;
+                    }
+                }
+            });
+
+            // Validation
+            const hasActiveToggle = Object.values(activities).some(active => active);
+            if (!hasActiveToggle) {
+                changedToggle.checked = true;
+                showValidationWarning();
+                return;
+            }
+
+            // Update labels
+            toggleIds.forEach(toggleId => {
+                const toggle = document.getElementById(toggleId);
+                const label = document.querySelector(`label[for="${toggleId}"]`);
+                
+                if (toggle && label) {
+                    if (toggle.checked) {
+                        label.classList.add('active');
+                    } else {
+                        label.classList.remove('active');
+                    }
+                }
+            });
+
+            // Update ChipManager
+            chipManager.updateGroupActivities(groupId, activities);
+            updateSystemState();
+        }
+
+        function showValidationWarning() {
+            const warning = document.createElement('div');
+            warning.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--color-warning);
+                color: white;
+                padding: 12px 16px;
+                border-radius: 8px;
+                z-index: 1000;
+                font-size: 14px;
+                max-width: 300px;
+            `;
+            warning.innerHTML = '<strong>Validation:</strong> At least one activity must remain enabled.';
+            document.body.appendChild(warning);
+
+            setTimeout(() => {
+                if (warning.parentNode) {
+                    warning.parentNode.removeChild(warning);
+                }
+            }, 3000);
+        }
+
+        // Global functions for testing
+        window.addTestWord = function(groupId) {
+            // Get current activities
+            const toggleIds = ['test-vocab-toggle', 'test-vocab-spelling-toggle', 'test-vocab-phonics-toggle'];
+            const activities = {
+                vocabulary: false,
+                spelling: false, 
+                phonics: false
+            };
+
+            toggleIds.forEach(toggleId => {
+                const toggle = document.getElementById(toggleId);
+                if (toggle && toggle.checked) {
+                    if (toggleId.includes('vocab') && !toggleId.includes('spelling') && !toggleId.includes('phonics')) {
+                        activities.vocabulary = true;
+                    } else if (toggleId.includes('spelling')) {
+                        activities.spelling = true;
+                    } else if (toggleId.includes('phonics')) {
+                        activities.phonics = true;
+                    }
+                }
+            });
+
+            const activeActivities = Object.keys(activities).filter(key => activities[key]);
+            const testWord = `word${testWordCounter++}`;
+            chipManager.addChip(testWord, activeActivities, groupId);
+        };
+
+        window.clearTestWords = function(groupId) {
+            chipManager.clearAll();
+            testWordCounter = 1;
+        };
+
+        window.updateSystemState = function() {
+            const allChips = chipManager.getAllChips();
+            const activityStates = chipManager.getActivityStates();
+            
+            const stateInfo = {
+                'Total Chips': Object.values(allChips).flat().length,
+                'Chips by Container': allChips,
+                'Activity States': Object.fromEntries(activityStates),
+                'Timestamp': new Date().toLocaleTimeString()
+            };
+
+            document.getElementById('systemState').textContent = JSON.stringify(stateInfo, null, 2);
+        };
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTestToggleSystem();
+            updateSystemState();
+            console.log('Dynamic Activity Toggle Test initialized');
+        });
+    </script>
+</body>
+</html>

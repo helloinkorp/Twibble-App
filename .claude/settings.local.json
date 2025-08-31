@@ -71,7 +71,17 @@
       "Bash(git checkout:*)",
       "mcp__playwright__browser_drag",
       "Bash(git commit:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(for file in final-fixes-validation.html final-integration-validation.html phase1-fixes-validation.html typography-audit-validation.html validate-file-upload-fix.html validate-file-upload-staging-fix.html avatar-consistency-test.html design-system-architecture-test.html test-avatar-fix-validation.html test-avatar-fix.html test-chips-system.html test-dynamic-toggles.html test-header-fixes.html test-home-icon-fix.html test-index-fix.html test-lesson-creation.html test-main-page-integration.html test-modules.html test-navigation-fix.html test-word-flow-fix.html test-word-pool-cleanup.html test_fix.html test_onboarding.html test_onboarding_fix.html)",
+      "Bash(do if [ -f \"$file\" ])",
+      "Bash(then cp \"$file\" \"tests/validation/\")",
+      "Bash(fi)",
+      "Bash(copy final-integration-validation.html testsvalidation )",
+      "Bash(copy phase1-fixes-validation.html testsvalidation )",
+      "Bash(copy typography-audit-validation.html testsvalidation )",
+      "Bash(copy validate-file-upload-fix.html testsvalidation )",
+      "Bash(copy validate-file-upload-staging-fix.html testsvalidation)",
+      "Bash(sed:*)"
     ],
     "deny": [
       "Bash(rm:*)",

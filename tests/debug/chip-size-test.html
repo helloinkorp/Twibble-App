@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chip Size Test - IMMEDIATE VERIFICATION</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CRITICAL: Force CSS reload with timestamp -->
+    <link rel="stylesheet" href="../../src/styles/design-system.css?v=<?php echo time(); ?>" id="design-css">
+    
+    <style>
+        body {
+            padding: var(--space-8);
+            font-family: var(--font-family-body);
+        }
+        
+        .test-section {
+            margin-bottom: var(--space-8);
+            padding: var(--space-6);
+            border: 2px solid var(--color-primary);
+            border-radius: var(--border-radius);
+        }
+        
+        .size-comparison {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+        
+        /* OLD SIZE for comparison */
+        .word-chip-old {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: var(--font-weight-medium);
+            border: 1px solid transparent;
+            min-height: 24px;
+            background: #fefce8;
+            color: #854d0e;
+            border-color: #fbbf24;
+        }
+        
+        .computed-values {
+            background: var(--color-gray-100);
+            padding: var(--space-4);
+            border-radius: var(--border-radius);
+            font-family: monospace;
+            font-size: var(--font-size-sm);
+        }
+        
+        .critical-notice {
+            background: #fee2e2;
+            border: 2px solid #dc2626;
+            border-radius: var(--border-radius);
+            padding: var(--space-4);
+            margin-bottom: var(--space-6);
+            color: #dc2626;
+            font-weight: var(--font-weight-semibold);
+        }
+    </style>
+</head>
+<body>
+    <div class="critical-notice">
+        ⚠️ CRITICAL: If chips still look large, HARD REFRESH the browser:
+        <br>• Windows: Ctrl + Shift + R
+        <br>• Mac: Cmd + Shift + R  
+        <br>• Or open in Incognito/Private mode
+        <br>• Or disable cache in DevTools (Network tab → Disable cache)
+    </div>
+
+    <h1>Chip Size Reduction Test</h1>
+    
+    <div class="test-section">
+        <h2>Size Comparison (OLD vs NEW)</h2>
+        
+        <div class="size-comparison">
+            <div>
+                <strong>OLD SIZE:</strong><br>
+                <span class="word-chip-old">vocabulary</span>
+            </div>
+            
+            <div>
+                <strong>NEW SIZE (50-60% smaller):</strong><br>
+                <span class="word-chip vocabulary">vocabulary</span>
+            </div>
+        </div>
+        
+        <div class="computed-values">
+            <strong>NEW Computed Values:</strong><br>
+            • font-size: 9px (was ~14px = 36% reduction)<br>
+            • padding: 2px 4px (was ~8px 12px = 50-67% reduction)<br>
+            • min-height: 12px (was ~24px = 50% reduction)<br>
+            • gap: 1px (was ~4px = 75% reduction)
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>All Activity Types</h2>
+        <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+            <span class="word-chip vocabulary">vocabulary</span>
+            <span class="word-chip spelling">spelling</span>
+            <span class="word-chip phonics">phonics</span>
+            <span class="word-chip multiple">multiple
+                <div class="activity-dots">
+                    <div class="activity-dot vocab"></div>
+                    <div class="activity-dot spelling"></div>
+                    <div class="activity-dot phonics"></div>
+                </div>
+            </span>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Browser Cache Detection</h2>
+        <div id="cache-test" style="color: red; font-weight: bold;">
+            🔄 Loading CSS... If this stays red, CSS cache is stale.
+        </div>
+    </div>
+
+    <script>
+        // Force CSS reload if needed
+        function forceCSSReload() {
+            const link = document.getElementById('design-css');
+            const href = link.href.split('?')[0];
+            link.href = href + '?v=' + new Date().getTime();
+        }
+        
+        // Test if new CSS is loaded by checking computed style
+        function testCSSLoad() {
+            const chip = document.querySelector('.word-chip');
+            const computedStyle = getComputedStyle(chip);
+            const fontSize = parseFloat(computedStyle.fontSize);
+            const cacheTest = document.getElementById('cache-test');
+            
+            if (fontSize <= 10) {
+                cacheTest.innerHTML = '✅ NEW CSS LOADED! Font size: ' + fontSize + 'px';
+                cacheTest.style.color = 'green';
+            } else {
+                cacheTest.innerHTML = '❌ OLD CSS CACHED! Font size: ' + fontSize + 'px - HARD REFRESH NEEDED!';
+                cacheTest.style.color = 'red';
+            }
+        }
+        
+        // Test immediately and after a short delay
+        setTimeout(testCSSLoad, 100);
+        setTimeout(testCSSLoad, 500);
+        
+        // Add reload button
+        const reloadBtn = document.createElement('button');
+        reloadBtn.innerHTML = '🔄 Force CSS Reload';
+        reloadBtn.className = 'btn btn-primary';
+        reloadBtn.style.marginTop = '16px';
+        reloadBtn.onclick = () => {
+            forceCSSReload();
+            setTimeout(testCSSLoad, 100);
+        };
+        document.querySelector('.critical-notice').appendChild(reloadBtn);
+    </script>
+</body>
+</html>

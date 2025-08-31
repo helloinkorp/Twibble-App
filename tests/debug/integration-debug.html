@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Debug - Main vs Test Pages</title>
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <style>
+        body {
+            padding: 20px;
+            font-family: var(--font-family-body);
+        }
+        .debug-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #333;
+            border-radius: 8px;
+        }
+        .status-good { border-color: green; background: #f0fff0; }
+        .status-bad { border-color: red; background: #fff0f0; }
+        .status-warning { border-color: orange; background: #fff8f0; }
+        .test-result {
+            font-family: monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .word-chip {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Integration Debug Analysis</h1>
+    
+    <div class="debug-section">
+        <h2>1. CSS Loading Test</h2>
+        <p>Testing if design-system.css is properly loaded and chip styles are working:</p>
+        
+        <div class="comparison-grid">
+            <div>
+                <strong>Expected Chip Sizes (Small):</strong><br>
+                <span class="word-chip vocabulary">vocabulary</span>
+                <span class="word-chip spelling">spelling</span>
+                <span class="word-chip phonics">phonics</span>
+            </div>
+            <div id="css-test-results" class="test-result">Testing CSS...</div>
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <h2>2. File Structure Check</h2>
+        <p>Checking if all required files and containers exist in main page structure:</p>
+        <div id="structure-test-results" class="test-result">Testing file structure...</div>
+    </div>
+
+    <div class="debug-section">
+        <h2>3. ChipManager Integration Test</h2>
+        <p>Testing if ChipManager can be properly instantiated and containers found:</p>
+        <div id="chipmanager-test-results" class="test-result">Testing ChipManager...</div>
+        
+        <!-- File Upload Word Groups Test -->
+        <div class="word-groups" id="testFileUploadWordGroups">
+            <div class="word-group" data-group="file-vocabulary">
+                <div><strong>Test File Upload - Vocabulary</strong></div>
+                <div class="chip-container empty" data-group="file-vocabulary" id="test-file-vocabulary-chip-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <h2>4. Browser Console Errors</h2>
+        <p>Any JavaScript errors will be captured here:</p>
+        <div id="console-errors" class="test-result">No errors captured yet...</div>
+    </div>
+
+    <script type="module">
+        import { ChipManager } from './src/components/chips.js';
+        
+        // Capture console errors
+        const originalError = console.error;
+        const consoleErrors = [];
+        console.error = function(...args) {
+            consoleErrors.push(args.join(' '));
+            originalError.apply(console, args);
+            document.getElementById('console-errors').textContent = consoleErrors.join('\n');
+        };
+
+        // Test CSS loading
+        function testCSS() {
+            const chip = document.querySelector('.word-chip');
+            if (chip) {
+                const computedStyle = getComputedStyle(chip);
+                const fontSize = parseFloat(computedStyle.fontSize);
+                const padding = computedStyle.padding;
+                const results = document.getElementById('css-test-results');
+                
+                if (fontSize <= 10) {
+                    results.textContent = `✅ CSS LOADED CORRECTLY:\n- Font size: ${fontSize}px (expected ≤10px)\n- Padding: ${padding}`;
+                    results.parentElement.className = 'debug-section status-good';
+                } else {
+                    results.textContent = `❌ CSS NOT LOADING:\n- Font size: ${fontSize}px (expected ≤10px)\n- Padding: ${padding}\n- CSS may be cached or not loading`;
+                    results.parentElement.className = 'debug-section status-bad';
+                }
+            } else {
+                document.getElementById('css-test-results').textContent = '❌ No chip elements found for testing';
+                document.getElementById('css-test-results').parentElement.className = 'debug-section status-bad';
+            }
+        }
+
+        // Test file structure
+        function testFileStructure() {
+            const results = document.getElementById('structure-test-results');
+            let output = 'FILE STRUCTURE CHECK:\n';
+            
+            // Check main page containers that should exist
+            const requiredContainers = [
+                'vocabulary-chip-container',
+                'spelling-chip-container', 
+                'phonics-chip-container',
+                'file-vocabulary-chip-container',
+                'file-spelling-chip-container',
+                'file-phonics-chip-container'
+            ];
+
+            let allFound = true;
+            requiredContainers.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    output += `✅ ${id}: FOUND\n`;
+                } else {
+                    output += `❌ ${id}: MISSING\n`;
+                    allFound = false;
+                }
+            });
+
+            results.textContent = output;
+            results.parentElement.className = allFound ? 'debug-section status-good' : 'debug-section status-bad';
+        }
+
+        // Test ChipManager integration
+        function testChipManager() {
+            const results = document.getElementById('chipmanager-test-results');
+            let output = 'CHIPMANAGER INTEGRATION TEST:\n';
+
+            try {
+                // Test ChipManager instantiation
+                const chipManager = new ChipManager();
+                output += '✅ ChipManager instantiated successfully\n';
+
+                // Test container registration with test container
+                const testContainer = document.getElementById('test-file-vocabulary-chip-container');
+                if (testContainer) {
+                    chipManager.registerContainer('test-file-vocabulary', testContainer);
+                    output += '✅ Test container registered successfully\n';
+
+                    // Test adding a chip
+                    const chipId = chipManager.addChip('test-word', ['vocabulary'], 'test-file-vocabulary');
+                    if (chipId) {
+                        output += '✅ Test chip added successfully\n';
+                        output += `  - Chip ID: ${chipId}\n`;
+                    } else {
+                        output += '❌ Failed to add test chip\n';
+                    }
+                } else {
+                    output += '❌ Test container not found\n';
+                }
+
+                results.textContent = output;
+                results.parentElement.className = 'debug-section status-good';
+            } catch (error) {
+                output += `❌ ChipManager error: ${error.message}\n`;
+                output += `  Stack: ${error.stack}\n`;
+                results.textContent = output;
+                results.parentElement.className = 'debug-section status-bad';
+            }
+        }
+
+        // Run all tests
+        setTimeout(() => {
+            testCSS();
+            testFileStructure(); 
+            testChipManager();
+        }, 100);
+
+        // Test again after 1 second to catch any loading delays
+        setTimeout(() => {
+            console.log('Running delayed tests...');
+            testCSS();
+        }, 1000);
+    </script>
+</body>
+</html>

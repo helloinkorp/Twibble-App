@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Display Consistency Test - Header vs Modal</title>
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
+    
+    <style>
+        /* Modal styles - copied from index.html for consistency test */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-base);
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: white;
+            padding: var(--space-6);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            max-width: 400px;
+            width: 90%;
+            transform: translateY(20px);
+            transition: transform var(--transition-base);
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-4);
+        }
+
+        .modal-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-medium);
+            margin: 0;
+        }
+
+        .current-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto var(--space-4);
+            display: block;
+            border: 2px solid var(--color-gray-200);
+        }
+
+        .profile-name {
+            text-align: center;
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+            margin: 0 0 var(--space-4);
+        }
+
+        .test-section {
+            margin-bottom: var(--space-8);
+            padding: var(--space-6);
+            border: 2px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+        }
+
+        .test-section h3 {
+            margin: 0 0 var(--space-4);
+            color: var(--color-primary);
+        }
+
+        .avatar-comparison {
+            display: flex;
+            gap: var(--space-6);
+            align-items: center;
+            justify-content: center;
+            margin: var(--space-4) 0;
+        }
+
+        .avatar-test-item {
+            text-align: center;
+        }
+
+        .avatar-test-item h4 {
+            margin: 0 0 var(--space-2);
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-600);
+        }
+
+        .test-controls {
+            display: flex;
+            gap: var(--space-4);
+            flex-wrap: wrap;
+            margin: var(--space-4) 0;
+        }
+
+        .debug-output {
+            background: var(--color-gray-50);
+            padding: var(--space-4);
+            border-radius: var(--border-radius);
+            font-family: monospace;
+            font-size: var(--font-size-sm);
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: var(--space-4);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: var(--space-2);
+        }
+
+        .status-ok { background: var(--color-success); }
+        .status-error { background: var(--color-error); }
+        .status-warning { background: var(--color-warning); }
+    </style>
+</head>
+<body>
+    <div class="container py-8">
+        <h1 class="text-center mb-8">Avatar Display Consistency Test</h1>
+        <p class="text-center text-secondary mb-8">Testing avatar display consistency between navigation header and settings modal</p>
+
+        <!-- Navigation Header Test -->
+        <div class="test-section">
+            <h3>Navigation Header Avatar <span id="nav-status" class="status-indicator status-warning"></span></h3>
+            <div id="navigation-container"></div>
+            <div class="avatar-comparison">
+                <div class="avatar-test-item">
+                    <h4>Header Avatar</h4>
+                    <div id="header-avatar-display">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Avatar Test -->
+        <div class="test-section">
+            <h3>Settings Modal Avatar <span id="modal-status" class="status-indicator status-warning"></span></h3>
+            <button id="open-modal-btn" class="btn btn-primary">Open Settings Modal</button>
+            <div class="avatar-comparison">
+                <div class="avatar-test-item">
+                    <h4>Modal Avatar</h4>
+                    <div id="modal-avatar-display">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Controls -->
+        <div class="test-section">
+            <h3>Test Scenarios</h3>
+            <div class="test-controls">
+                <button id="test-normal" class="btn btn-secondary">Normal Dicebear Avatar</button>
+                <button id="test-missing" class="btn btn-secondary">Missing Avatar (Initials)</button>
+                <button id="test-broken" class="btn btn-secondary">Broken URL</button>
+                <button id="test-base64" class="btn btn-secondary">Base64 Avatar</button>
+                <button id="compare-avatars" class="btn btn-primary">Compare Both</button>
+            </div>
+        </div>
+
+        <!-- Debug Output -->
+        <div class="test-section">
+            <h3>Debug Information</h3>
+            <div id="debug-output" class="debug-output">Test initialized. Use buttons above to run tests.\n</div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title" class="modal-title">Profile & Settings</h2>
+                <button id="close-modal-btn" type="button" class="btn btn-secondary" aria-label="Close settings">
+                    ×
+                </button>
+            </div>
+            <div class="text-center">
+                <img id="modal-avatar" class="current-avatar" src="" alt="Your avatar">
+                <h3 id="modal-name" class="profile-name"></h3>
+                <p class="text-secondary mb-4">Your profile and settings</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createHeader } from './src/components/navigation.js';
+
+        class AvatarConsistencyTest {
+            constructor() {
+                this.debugOutput = document.getElementById('debug-output');
+                this.navContainer = document.getElementById('navigation-container');
+                this.currentHeader = null;
+                this.testData = {
+                    normal: {
+                        name: 'Test User',
+                        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=consistency&backgroundColor=b6e3f4,c0aede,d1d4f9'
+                    },
+                    missing: {
+                        name: 'No Avatar User',
+                        avatar: ''
+                    },
+                    broken: {
+                        name: 'Broken URL User',
+                        avatar: 'https://invalid-url.com/avatar.png'
+                    },
+                    base64: {
+                        name: 'Base64 User',
+                        avatar: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iMjAiIGZpbGw9IiNEOTc3MDYiLz4KPHRleHQgeD0iMjAiIHk9IjI2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSI1MDAiPkI8L3RleHQ+Cjwvc3ZnPgo='
+                    }
+                };
+
+                this.init();
+            }
+
+            init() {
+                this.log('🚀 Avatar Consistency Test Initialized');
+                
+                // Set up test with normal avatar initially
+                this.setUserData(this.testData.normal);
+                this.createNavigationHeader();
+                this.setupEventListeners();
+                
+                // Run initial comparison
+                setTimeout(() => this.compareAvatars(), 1000);
+            }
+
+            log(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                this.debugOutput.textContent += `[${timestamp}] ${message}\n`;
+                this.debugOutput.scrollTop = this.debugOutput.scrollHeight;
+                console.log(message);
+            }
+
+            setUserData(userData) {
+                try {
+                    localStorage.setItem('userSettings', JSON.stringify({
+                        ...userData,
+                        onboardingCompleted: true,
+                        createdAt: new Date().toISOString()
+                    }));
+                    this.log(`📝 Set user data: ${userData.name}, avatar: ${userData.avatar ? 'YES' : 'NO'}`);
+                    this.log(`   Avatar URL: ${userData.avatar ? userData.avatar.substring(0, 50) + '...' : 'EMPTY'}`);
+                } catch (error) {
+                    this.log(`❌ Error setting user data: ${error.message}`);
+                }
+            }
+
+            createNavigationHeader() {
+                try {
+                    // Clear previous header
+                    if (this.currentHeader) {
+                        this.navContainer.removeChild(this.currentHeader);
+                    }
+
+                    // Get user data from localStorage (same as pages do)
+                    const userSettingsStr = localStorage.getItem('userSettings');
+                    const userSettings = userSettingsStr ? JSON.parse(userSettingsStr) : null;
+
+                    this.log(`🔍 Creating header with user data: ${JSON.stringify(userSettings)}`);
+
+                    // Create header using same pattern as actual pages
+                    this.currentHeader = createHeader({
+                        showHome: true,
+                        user: userSettings,
+                        onHome: () => this.log('🏠 Home clicked'),
+                        onProfile: () => this.showProfileModal(),
+                        title: 'Consistency Test'
+                    });
+
+                    this.navContainer.appendChild(this.currentHeader);
+
+                    // Extract avatar element for analysis
+                    setTimeout(() => this.analyzeHeaderAvatar(), 500);
+
+                } catch (error) {
+                    this.log(`❌ Error creating navigation header: ${error.message}`);
+                    document.getElementById('nav-status').className = 'status-indicator status-error';
+                }
+            }
+
+            analyzeHeaderAvatar() {
+                const profileButton = this.currentHeader.querySelector('button[aria-label*="profile"]');
+                if (!profileButton) {
+                    this.log('❌ No profile button found in header');
+                    document.getElementById('nav-status').className = 'status-indicator status-error';
+                    document.getElementById('header-avatar-display').innerHTML = '<span style="color: red;">No profile button</span>';
+                    return;
+                }
+
+                const avatarImg = profileButton.querySelector('img');
+                const avatarDiv = profileButton.querySelector('div');
+
+                let avatarInfo = '';
+                let status = 'status-error';
+
+                if (avatarImg) {
+                    avatarInfo = `<img src="${avatarImg.src}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" alt="Header avatar"><br>`;
+                    avatarInfo += `Type: Image<br>Source: ${avatarImg.src.substring(0, 50)}...`;
+                    
+                    if (avatarImg.complete && avatarImg.naturalWidth > 0) {
+                        status = 'status-ok';
+                        this.log('✅ Header avatar: Image loaded successfully');
+                    } else {
+                        status = 'status-warning';
+                        this.log('⚠️ Header avatar: Image loading...');
+                        
+                        avatarImg.addEventListener('load', () => {
+                            this.log('✅ Header avatar: Image loaded after delay');
+                            document.getElementById('nav-status').className = 'status-indicator status-ok';
+                        });
+
+                        avatarImg.addEventListener('error', () => {
+                            this.log('❌ Header avatar: Image failed to load');
+                            document.getElementById('nav-status').className = 'status-indicator status-error';
+                        });
+                    }
+                } else if (avatarDiv) {
+                    const bgColor = window.getComputedStyle(avatarDiv).backgroundColor;
+                    avatarInfo = `<div style="width: 40px; height: 40px; border-radius: 50%; background: ${bgColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 500;">${avatarDiv.textContent}</div><br>`;
+                    avatarInfo += `Type: Initials<br>Content: "${avatarDiv.textContent}"<br>Background: ${bgColor}`;
+                    status = 'status-ok';
+                    this.log('✅ Header avatar: Initials fallback working');
+                } else {
+                    avatarInfo = '<span style="color: red;">No avatar found</span>';
+                    this.log('❌ Header avatar: No avatar element found');
+                }
+
+                document.getElementById('header-avatar-display').innerHTML = avatarInfo;
+                document.getElementById('nav-status').className = `status-indicator ${status}`;
+            }
+
+            showProfileModal() {
+                try {
+                    const modal = document.getElementById('profile-modal');
+                    const modalAvatar = document.getElementById('modal-avatar');
+                    const modalName = document.getElementById('modal-name');
+                    
+                    // Get user settings (same as index.html)
+                    const userSettingsStr = localStorage.getItem('userSettings');
+                    const userSettings = userSettingsStr ? JSON.parse(userSettingsStr) : null;
+
+                    if (!userSettings) {
+                        this.log('❌ No user settings for modal');
+                        return;
+                    }
+
+                    this.log(`🔍 Opening modal with user data: ${JSON.stringify(userSettings)}`);
+
+                    // Populate modal (exact same logic as index.html)
+                    modalAvatar.src = userSettings.avatar;
+                    modalAvatar.alt = `${userSettings.name}'s avatar`;
+                    modalName.textContent = userSettings.name;
+
+                    // Show modal
+                    modal.classList.add('show');
+                    document.getElementById('close-modal-btn').focus();
+
+                    // Analyze modal avatar
+                    setTimeout(() => this.analyzeModalAvatar(), 500);
+
+                } catch (error) {
+                    this.log(`❌ Error showing modal: ${error.message}`);
+                }
+            }
+
+            analyzeModalAvatar() {
+                const modalAvatar = document.getElementById('modal-avatar');
+                let avatarInfo = '';
+                let status = 'status-error';
+
+                if (modalAvatar.complete && modalAvatar.naturalWidth > 0) {
+                    avatarInfo = `<img src="${modalAvatar.src}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;" alt="Modal avatar"><br>`;
+                    avatarInfo += `Type: Image<br>Source: ${modalAvatar.src.substring(0, 50)}...`;
+                    status = 'status-ok';
+                    this.log('✅ Modal avatar: Image loaded successfully');
+                } else if (modalAvatar.src) {
+                    avatarInfo = `<span style="color: orange;">Loading...</span><br>Source: ${modalAvatar.src.substring(0, 50)}...`;
+                    status = 'status-warning';
+                    this.log('⚠️ Modal avatar: Image loading...');
+
+                    modalAvatar.addEventListener('load', () => {
+                        this.log('✅ Modal avatar: Image loaded after delay');
+                        document.getElementById('modal-status').className = 'status-indicator status-ok';
+                    });
+
+                    modalAvatar.addEventListener('error', () => {
+                        this.log('❌ Modal avatar: Image failed to load');
+                        document.getElementById('modal-status').className = 'status-indicator status-error';
+                    });
+                } else {
+                    avatarInfo = '<span style="color: red;">No src attribute</span>';
+                    this.log('❌ Modal avatar: No src attribute');
+                }
+
+                document.getElementById('modal-avatar-display').innerHTML = avatarInfo;
+                document.getElementById('modal-status').className = `status-indicator ${status}`;
+            }
+
+            compareAvatars() {
+                this.log('\n🔍 AVATAR COMPARISON ANALYSIS:');
+                
+                // Check localStorage data
+                const userSettingsStr = localStorage.getItem('userSettings');
+                const userSettings = userSettingsStr ? JSON.parse(userSettingsStr) : null;
+                
+                this.log(`📊 User Settings: ${userSettings ? 'EXISTS' : 'MISSING'}`);
+                if (userSettings) {
+                    this.log(`   Name: ${userSettings.name || 'MISSING'}`);
+                    this.log(`   Avatar: ${userSettings.avatar ? 'EXISTS' : 'MISSING'}`);
+                    this.log(`   Avatar URL: ${userSettings.avatar || 'EMPTY'}`);
+                }
+
+                // Check header avatar
+                const headerButton = this.currentHeader?.querySelector('button[aria-label*="profile"]');
+                const headerImg = headerButton?.querySelector('img');
+                const headerDiv = headerButton?.querySelector('div');
+
+                this.log(`🖼️ Header Avatar: ${headerImg ? 'IMAGE' : headerDiv ? 'INITIALS' : 'MISSING'}`);
+                if (headerImg) {
+                    this.log(`   Src: ${headerImg.src}`);
+                    this.log(`   Loaded: ${headerImg.complete && headerImg.naturalWidth > 0}`);
+                } else if (headerDiv) {
+                    this.log(`   Initials: ${headerDiv.textContent}`);
+                }
+
+                // Check modal avatar
+                const modalImg = document.getElementById('modal-avatar');
+                this.log(`🔲 Modal Avatar: ${modalImg ? 'EXISTS' : 'MISSING'}`);
+                if (modalImg) {
+                    this.log(`   Src: ${modalImg.src || 'EMPTY'}`);
+                    this.log(`   Loaded: ${modalImg.complete && modalImg.naturalWidth > 0}`);
+                }
+
+                // Compare sources
+                if (userSettings?.avatar && headerImg && modalImg) {
+                    const sourcesMatch = headerImg.src === modalImg.src && modalImg.src === userSettings.avatar;
+                    this.log(`\n🎯 CONSISTENCY CHECK: ${sourcesMatch ? 'PASS' : 'FAIL'}`);
+                    if (!sourcesMatch) {
+                        this.log(`   Expected: ${userSettings.avatar}`);
+                        this.log(`   Header:   ${headerImg.src}`);
+                        this.log(`   Modal:    ${modalImg.src}`);
+                    }
+                } else {
+                    this.log('\n🎯 CONSISTENCY CHECK: Cannot compare - missing elements');
+                }
+            }
+
+            setupEventListeners() {
+                // Modal controls
+                document.getElementById('close-modal-btn').addEventListener('click', () => {
+                    document.getElementById('profile-modal').classList.remove('show');
+                });
+
+                document.getElementById('open-modal-btn').addEventListener('click', () => {
+                    this.showProfileModal();
+                });
+
+                // Test scenario buttons
+                document.getElementById('test-normal').addEventListener('click', () => {
+                    this.setUserData(this.testData.normal);
+                    this.createNavigationHeader();
+                    setTimeout(() => this.compareAvatars(), 1000);
+                });
+
+                document.getElementById('test-missing').addEventListener('click', () => {
+                    this.setUserData(this.testData.missing);
+                    this.createNavigationHeader();
+                    setTimeout(() => this.compareAvatars(), 1000);
+                });
+
+                document.getElementById('test-broken').addEventListener('click', () => {
+                    this.setUserData(this.testData.broken);
+                    this.createNavigationHeader();
+                    setTimeout(() => this.compareAvatars(), 1000);
+                });
+
+                document.getElementById('test-base64').addEventListener('click', () => {
+                    this.setUserData(this.testData.base64);
+                    this.createNavigationHeader();
+                    setTimeout(() => this.compareAvatars(), 1000);
+                });
+
+                document.getElementById('compare-avatars').addEventListener('click', () => {
+                    this.compareAvatars();
+                });
+
+                // Close modal on overlay click
+                document.getElementById('profile-modal').addEventListener('click', (e) => {
+                    if (e.target.id === 'profile-modal') {
+                        e.target.classList.remove('show');
+                    }
+                });
+            }
+        }
+
+        // Initialize test when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new AvatarConsistencyTest();
+        });
+    </script>
+</body>
+</html>

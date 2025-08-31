@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Fixes Validation Test</title>
+    <link rel="stylesheet" href="../../src/styles/design-system.css?v=2025083102">
+    <style>
+        body {
+            background: var(--color-background);
+            font-family: var(--font-family-body);
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .test-pass {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .test-fail {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .chip-demo {
+            display: flex;
+            gap: 16px;
+            margin: 16px 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .demo-label {
+            font-weight: 500;
+            margin-right: 10px;
+            min-width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 Final Fixes Validation Test</h1>
+    <p><strong>Testing all 4 major fixes:</strong> Word Pool sizing, File upload behavior, Button styling, Spelling/Phonics colors</p>
+    
+    <div class="test-section">
+        <h2>✅ Fix 1: Word Pool Chip Sizing</h2>
+        <p><strong>Expected:</strong> Word Pool chips should use same small size as input grids (9px font, 2px 4px padding)</p>
+        <div class="chip-demo">
+            <span class="demo-label">Small Size:</span>
+            <div class="word-chip vocabulary">vocabulary</div>
+            <div class="word-chip spelling">spelling</div>
+            <div class="word-chip phonics">phonics</div>
+        </div>
+        <div id="size-test-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>✅ Fix 2: Spelling/Phonics Colors</h2>
+        <p><strong>Expected:</strong> Each activity type shows distinct pastel colors</p>
+        <div class="chip-demo">
+            <span class="demo-label">Vocabulary:</span>
+            <div class="word-chip vocabulary">vocabulary</div>
+            <span style="font-size: 12px; color: #666;">← Should be pastel yellow (#fefce8)</span>
+        </div>
+        <div class="chip-demo">
+            <span class="demo-label">Spelling:</span>
+            <div class="word-chip spelling">spelling</div>
+            <span style="font-size: 12px; color: #666;">← Should be pastel mint (#ecfdf5)</span>
+        </div>
+        <div class="chip-demo">
+            <span class="demo-label">Phonics:</span>
+            <div class="word-chip phonics">phonics</div>
+            <span style="font-size: 12px; color: #666;">← Should be pastel purple (#f3e8ff)</span>
+        </div>
+        <div id="color-test-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>✅ Fix 3: Multiple Activity Chips</h2>
+        <p><strong>Expected:</strong> Gray background with colored dots for multiple activities</p>
+        <div class="chip-demo">
+            <span class="demo-label">Multiple:</span>
+            <div class="word-chip multiple">
+                multiple
+                <div class="activity-dots">
+                    <div class="activity-dot vocab"></div>
+                    <div class="activity-dot spelling"></div>
+                    <div class="activity-dot phonics"></div>
+                </div>
+            </div>
+            <span style="font-size: 12px; color: #666;">← Gray with yellow/mint/purple dots</span>
+        </div>
+        <div id="multiple-test-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>✅ Fix 4: Button Styling Test</h2>
+        <p><strong>Expected:</strong> Secondary buttons have black border/text, Primary buttons have orange fill</p>
+        <div class="chip-demo">
+            <span class="demo-label">Primary (CTA):</span>
+            <button class="btn btn-primary">Primary Button</button>
+        </div>
+        <div class="chip-demo">
+            <span class="demo-label">Secondary:</span>
+            <button class="btn btn-secondary">Secondary Button</button>
+        </div>
+        <div id="button-test-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 Test Summary</h2>
+        <div id="overall-result" class="test-result">Running tests...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔗 Test Create Lesson Page</h2>
+        <p>After validating here, test the actual fixes at:</p>
+        <a href="http://127.0.0.1:8080/src/pages/create-lesson.html" target="_blank" class="btn btn-primary">Open Create Lesson Page</a>
+    </div>
+    
+    <script>
+        function runAllTests() {
+            let passCount = 0;
+            let totalTests = 4;
+            
+            // Test 1: Chip Sizing
+            const chip = document.querySelector('.word-chip');
+            const styles = window.getComputedStyle(chip);
+            const fontSize = parseInt(styles.fontSize);
+            const padding = styles.padding;
+            const minHeight = parseInt(styles.minHeight) || 0;
+            
+            const sizeResult = document.getElementById('size-test-result');
+            if (fontSize === 9 && padding.includes('2px 4px') && minHeight === 12) {
+                sizeResult.className = 'test-pass';
+                sizeResult.textContent = `✅ PASS: Sizing correct (${fontSize}px font, ${padding} padding, ${minHeight}px min-height)`;
+                passCount++;
+            } else {
+                sizeResult.className = 'test-fail';
+                sizeResult.textContent = `❌ FAIL: Sizing wrong (${fontSize}px font, ${padding} padding, ${minHeight}px min-height)`;
+            }
+            
+            // Test 2: Colors
+            const vocabChip = document.querySelector('.word-chip.vocabulary');
+            const spellingChip = document.querySelector('.word-chip.spelling');
+            const phonicsChip = document.querySelector('.word-chip.phonics');
+            
+            const vocabBg = window.getComputedStyle(vocabChip).backgroundColor;
+            const spellingBg = window.getComputedStyle(spellingChip).backgroundColor;
+            const phonicsBg = window.getComputedStyle(phonicsChip).backgroundColor;
+            
+            const colorResult = document.getElementById('color-test-result');
+            
+            // Convert RGB to check if colors are different (not all same)
+            const allDifferent = vocabBg !== spellingBg && spellingBg !== phonicsBg && vocabBg !== phonicsBg;
+            const hasColors = !vocabBg.includes('rgba(0, 0, 0, 0)') && !spellingBg.includes('rgba(0, 0, 0, 0)');
+            
+            if (allDifferent && hasColors) {
+                colorResult.className = 'test-pass';
+                colorResult.textContent = `✅ PASS: All chips have distinct colors (vocab: ${vocabBg}, spelling: ${spellingBg}, phonics: ${phonicsBg})`;
+                passCount++;
+            } else {
+                colorResult.className = 'test-fail';
+                colorResult.textContent = `❌ FAIL: Colors not distinct (vocab: ${vocabBg}, spelling: ${spellingBg}, phonics: ${phonicsBg})`;
+            }
+            
+            // Test 3: Multiple Activity Chips
+            const multipleChip = document.querySelector('.word-chip.multiple');
+            const multipleBg = window.getComputedStyle(multipleChip).backgroundColor;
+            const hasDots = multipleChip.querySelector('.activity-dots') !== null;
+            
+            const multipleResult = document.getElementById('multiple-test-result');
+            if (hasDots && multipleBg.includes('244, 244, 245')) { // gray-100
+                multipleResult.className = 'test-pass';
+                multipleResult.textContent = `✅ PASS: Multiple activity chip has gray background and colored dots`;
+                passCount++;
+            } else {
+                multipleResult.className = 'test-fail';
+                multipleResult.textContent = `❌ FAIL: Multiple activity chip incorrect (bg: ${multipleBg}, has dots: ${hasDots})`;
+            }
+            
+            // Test 4: Button Styling
+            const primaryBtn = document.querySelector('.btn-primary');
+            const secondaryBtn = document.querySelector('.btn-secondary');
+            
+            const primaryBg = window.getComputedStyle(primaryBtn).backgroundColor;
+            const secondaryBg = window.getComputedStyle(secondaryBtn).backgroundColor;
+            
+            const buttonResult = document.getElementById('button-test-result');
+            const primaryIsOrange = primaryBg.includes('217, 119, 6'); // #D97706
+            const secondaryIsTransparent = secondaryBg.includes('rgba(0, 0, 0, 0)') || secondaryBg.includes('255, 255, 255');
+            
+            if (primaryIsOrange && secondaryIsTransparent) {
+                buttonResult.className = 'test-pass';
+                buttonResult.textContent = `✅ PASS: Button styling correct (primary: ${primaryBg}, secondary: ${secondaryBg})`;
+                passCount++;
+            } else {
+                buttonResult.className = 'test-fail';
+                buttonResult.textContent = `❌ FAIL: Button styling wrong (primary: ${primaryBg}, secondary: ${secondaryBg})`;
+            }
+            
+            // Overall Result
+            const overallResult = document.getElementById('overall-result');
+            if (passCount === totalTests) {
+                overallResult.className = 'test-pass';
+                overallResult.innerHTML = `🎉 ALL TESTS PASSED! (${passCount}/${totalTests})<br><strong>All 4 fixes are working correctly. Ready for production!</strong>`;
+            } else {
+                overallResult.className = 'test-fail';
+                overallResult.innerHTML = `❌ ${totalTests - passCount} tests failed. (${passCount}/${totalTests} passed)<br>Please check the failing components above.`;
+            }
+        }
+        
+        // Run tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(runAllTests, 1000);
+        });
+    </script>
+</body>
+</html>
