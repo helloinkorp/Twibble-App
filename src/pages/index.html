@@ -361,7 +361,8 @@
     
     <!-- JavaScript Module -->
     <script type="module">
-        import { createHeader } from '../components/navigation.js';
+        // Use consolidated navigation system - createHeader is now in NavigationUtils
+        import '../js/navigation.js';
         
         // Role Selection Page Manager
         class RoleSelectionManager {
@@ -464,7 +465,7 @@
             setupHeader() {
                 const headerContainer = document.getElementById('page-header');
                 
-                const header = createHeader({
+                const header = window.NavigationUtils.createHeader({
                     showHome: true, // Show home button with icon only
                     user: this.userSettings,
                     onHome: () => {

@@ -836,7 +836,8 @@
 
     <!-- JavaScript Module -->
     <script type="module">
-        import { createHeader } from '../components/navigation.js';
+        // Use consolidated navigation system - createHeader is now in NavigationUtils
+        import '../js/navigation.js';
         import { createCtaButton, createSecondaryButton } from '../components/buttons.js';
         import { createTextInput, createNumberInput } from '../components/forms.js';
         import { ChipManager, createWordChip } from '../components/chips.js';
@@ -1127,7 +1128,7 @@
                 }
             }
             
-            const header = createHeader({
+            const header = window.NavigationUtils.createHeader({
                 showHome: true,
                 user: userSettings,
                 onHome: () => {

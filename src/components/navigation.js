@@ -1,5 +1,9 @@
 /**
- * Twibble Navigation Components
+ * DEPRECATED: This file has been consolidated into src/js/navigation.js
+ * All functions have been moved to the NavigationUtils object in the main navigation system.
+ * This file should be deleted - kept temporarily for reference during consolidation.
+ * 
+ * ORIGINAL: Twibble Navigation Components
  * Header with home button, progress indicators, accordion components
  * All components work in complete isolation with WCAG compliance
  * Imports design-system.css for token system

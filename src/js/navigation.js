@@ -4,6 +4,36 @@
  * Provides seamless flow between all 6 HTML pages with proper browser history management
  */
 
+// Import CSS if not already loaded
+if (!document.querySelector('link[href*="design-system.css"]')) {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = '../styles/design-system.css';
+  document.head.appendChild(link);
+}
+
+// Import unified avatar component
+let createAvatar = null;
+try {
+  // Try to import avatar component
+  import('../components/avatar.js').then(module => {
+    createAvatar = module.createAvatar;
+  }).catch(() => {
+    console.warn('Avatar component not available, using fallback');
+  });
+} catch (error) {
+  console.warn('Avatar component import failed, using fallback');
+}
+
+// Ensure Material Symbols font is loaded
+if (!document.querySelector('link[href*="Material+Symbols+Outlined"]')) {
+  const materialLink = document.createElement('link');
+  materialLink.rel = 'stylesheet';
+  materialLink.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0';
+  document.head.appendChild(materialLink);
+  console.log('Material Symbols font loaded by navigation component');
+}
+
 /**
  * Navigation Configuration - Central routing definition
  */
@@ -387,7 +417,7 @@ class NavigationManager {
 
 /**
  * Navigation Utilities
- * Helper functions for common navigation tasks
+ * Helper functions for common navigation tasks and UI components
  */
 const NavigationUtils = {
     /**
@@ -477,6 +507,706 @@ const NavigationUtils = {
                 window.navigationManager.goBack();
             });
         });
+    },
+
+    /**
+     * App Header Component - Consistent across all pages
+     * @param {Object} config - Header configuration
+     * @param {boolean} config.showHome - Whether to show home button
+     * @param {Object} config.user - User data {name, avatar}
+     * @param {Function} config.onHome - Home button click handler
+     * @param {Function} config.onProfile - Profile click handler
+     * @param {string} config.title - Page title
+     * @returns {HTMLElement} Header element
+     */
+    createHeader(config = {}) {
+        const {
+            showHome = true,
+            user = null,
+            onHome = () => window.location.href = '/index.html',
+            onProfile = () => {},
+            title = '',
+            className = ''
+        } = config;
+
+        const header = document.createElement('header');
+        header.className = `bg-white border-b border-gray-200 p-4 ${className}`.trim();
+        header.setAttribute('role', 'banner');
+        
+        const container = document.createElement('div');
+        container.className = 'flex items-center justify-between max-w-6xl mx-auto';
+        
+        // Left side - Home button and title
+        const leftSide = document.createElement('div');
+        leftSide.className = 'flex items-center gap-4';
+        
+        if (showHome) {
+            // Create home button with proper icon styling
+            const homeButton = document.createElement('button');
+            homeButton.type = 'button';
+            homeButton.className = 'home-icon-button';
+            homeButton.setAttribute('aria-label', 'Go to home page');
+            
+            // Create the icon inside the button
+            const homeIcon = document.createElement('span');
+            homeIcon.className = 'material-symbols-outlined icon';
+            homeIcon.textContent = 'home';
+            
+            // Apply comprehensive styling to ensure proper icon display
+            homeIcon.style.cssText = `
+              font-family: 'Material Symbols Outlined' !important;
+              font-weight: normal !important;
+              font-style: normal !important;
+              font-size: 24px !important;
+              line-height: 1 !important;
+              letter-spacing: normal !important;
+              text-transform: none !important;
+              display: inline-block !important;
+              white-space: nowrap !important;
+              word-wrap: normal !important;
+              direction: ltr !important;
+              -webkit-font-feature-settings: 'liga' !important;
+              -webkit-font-smoothing: antialiased !important;
+              font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24 !important;
+              color: var(--color-gray-600) !important;
+              user-select: none !important;
+            `;
+            
+            // Style the button to be clean and borderless
+            homeButton.style.cssText = `
+              background: none;
+              border: none;
+              padding: var(--space-2);
+              cursor: pointer;
+              border-radius: var(--border-radius);
+              transition: background-color var(--transition-fast);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              min-height: 44px;
+              min-width: 44px;
+            `;
+            
+            // Add hover effect
+            homeButton.addEventListener('mouseenter', () => {
+              homeButton.style.backgroundColor = 'var(--color-gray-100)';
+            });
+            
+            homeButton.addEventListener('mouseleave', () => {
+              homeButton.style.backgroundColor = 'transparent';
+            });
+            
+            // Add click handler
+            homeButton.addEventListener('click', onHome);
+            
+            homeButton.appendChild(homeIcon);
+            leftSide.appendChild(homeButton);
+        }
+        
+        if (title) {
+            const titleEl = document.createElement('h1');
+            titleEl.textContent = title;
+            titleEl.className = 'text-2xl font-medium m-0';
+            leftSide.appendChild(titleEl);
+        }
+        
+        // Right side - User profile
+        const rightSide = document.createElement('div');
+        rightSide.className = 'flex items-center gap-3';
+        
+        // Debug logging for user data
+        console.log('Navigation createHeader received user data:', user);
+        
+        if (user && user.name) {
+            const profileButton = document.createElement('button');
+            profileButton.type = 'button';
+            profileButton.setAttribute('aria-label', `${user.name} profile and settings`);
+            
+            // Style button to be invisible - just a clean circular avatar
+            profileButton.style.cssText = `
+              background: none;
+              border: none;
+              padding: 0;
+              cursor: pointer;
+              border-radius: 50%;
+              transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            `;
+            
+            // Add hover effect that slightly scales the avatar
+            profileButton.addEventListener('mouseenter', () => {
+              profileButton.style.transform = 'scale(1.05)';
+              profileButton.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            });
+            
+            profileButton.addEventListener('mouseleave', () => {
+              profileButton.style.transform = 'scale(1)';
+              profileButton.style.boxShadow = 'none';
+            });
+            
+            // Create avatar using unified avatar component or fallback
+            let avatarElement;
+            
+            if (createAvatar) {
+              // Use unified avatar component for consistency
+              avatarElement = createAvatar({
+                user: user,
+                size: 40,
+                className: 'navigation-avatar',
+                showBorder: true
+              });
+              console.log('Navigation: Using unified avatar component for:', user.name);
+            } else {
+              // Fallback implementation with design system styles
+              console.log('Navigation: Using fallback avatar implementation for:', user.name);
+              
+              if (user.avatar && user.avatar.trim()) {
+                console.log('Creating avatar image with source:', user.avatar);
+                
+                const avatar = document.createElement('img');
+                avatar.src = user.avatar.trim();
+                avatar.alt = user.name || 'User avatar';
+                avatar.className = 'avatar-image';
+                avatar.style.cssText = `
+                  width: 40px;
+                  height: 40px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                  border: 1px solid var(--color-gray-200);
+                  display: block;
+                `;
+                
+                // Add error handling for avatar loading
+                avatar.addEventListener('error', function() {
+                  console.warn('Avatar failed to load, creating fallback for user:', user.name);
+                  console.warn('Failed avatar URL:', this.src);
+                  
+                  // Create fallback avatar with initials
+                  const fallback = document.createElement('div');
+                  fallback.className = 'avatar-fallback';
+                  fallback.style.cssText = `
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    background: var(--color-primary);
+                    border: 1px solid var(--color-gray-200);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: white;
+                    font-family: var(--font-family-body) !important;
+                  `;
+                  fallback.textContent = user.name.charAt(0).toUpperCase();
+                  fallback.setAttribute('aria-label', `${user.name} avatar (initials)`);
+                  
+                  // Replace the broken image with fallback
+                  if (profileButton.contains(this)) {
+                    profileButton.replaceChild(fallback, this);
+                  }
+                });
+                
+                // Success handler for avatar loading
+                avatar.addEventListener('load', function() {
+                  console.log('Avatar loaded successfully for:', user.name);
+                });
+                
+                avatarElement = avatar;
+              } else {
+                console.log('No avatar provided, creating initials fallback for user:', user.name);
+                
+                // Create fallback avatar with initials (no avatar URL provided)
+                const fallback = document.createElement('div');
+                fallback.className = 'avatar-fallback';
+                fallback.style.cssText = `
+                  width: 40px;
+                  height: 40px;
+                  border-radius: 50%;
+                  background: var(--color-primary);
+                  border: 1px solid var(--color-gray-200);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 14px;
+                  font-weight: 500;
+                  color: white;
+                  font-family: var(--font-family-body) !important;
+                `;
+                fallback.textContent = user.name.charAt(0).toUpperCase();
+                fallback.setAttribute('aria-label', `${user.name} avatar (initials)`);
+                
+                avatarElement = fallback;
+              }
+            }
+            
+            profileButton.appendChild(avatarElement);
+            profileButton.addEventListener('click', onProfile);
+            rightSide.appendChild(profileButton);
+        } else {
+            console.warn('Navigation createHeader: No user data or user name provided', { user, hasName: !!(user && user.name) });
+        }
+        
+        container.appendChild(leftSide);
+        container.appendChild(rightSide);
+        header.appendChild(container);
+        
+        return header;
+    },
+
+    /**
+     * Progress Indicator - Shows completion progress
+     * @param {Object} config - Progress configuration
+     * @param {number} config.current - Current step (0-based)
+     * @param {number} config.total - Total steps
+     * @param {Array} config.steps - Array of step labels
+     * @param {boolean} config.showLabels - Whether to show step labels
+     * @returns {HTMLElement} Progress indicator
+     */
+    createProgressIndicator(config = {}) {
+        const {
+            current = 0,
+            total = 3,
+            steps = [],
+            showLabels = false,
+            className = ''
+        } = config;
+
+        const progress = document.createElement('div');
+        progress.className = `progress-indicator ${className}`.trim();
+        progress.setAttribute('role', 'progressbar');
+        progress.setAttribute('aria-valuemin', '0');
+        progress.setAttribute('aria-valuemax', total.toString());
+        progress.setAttribute('aria-valuenow', current.toString());
+        progress.setAttribute('aria-label', `Step ${current + 1} of ${total}`);
+        
+        // Progress bar
+        const progressBar = document.createElement('div');
+        progressBar.className = 'flex items-center mb-4';
+        
+        for (let i = 0; i < total; i++) {
+            // Step circle
+            const step = document.createElement('div');
+            step.className = `w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium ${
+              i <= current 
+                ? 'bg-primary border-primary text-white' 
+                : 'bg-white border-gray-300 text-gray-500'
+            }`;
+            step.textContent = (i + 1).toString();
+            
+            progressBar.appendChild(step);
+            
+            // Connector line (except for last step)
+            if (i < total - 1) {
+              const connector = document.createElement('div');
+              connector.className = `flex-1 h-0.5 mx-2 ${
+                i < current ? 'bg-primary' : 'bg-gray-300'
+              }`;
+              progressBar.appendChild(connector);
+            }
+        }
+        
+        progress.appendChild(progressBar);
+        
+        // Step labels
+        if (showLabels && steps.length > 0) {
+            const labels = document.createElement('div');
+            labels.className = 'flex justify-between text-xs text-gray-600';
+            
+            steps.forEach((label, index) => {
+              const labelEl = document.createElement('span');
+              labelEl.textContent = label;
+              labelEl.className = index <= current ? 'font-medium text-primary' : '';
+              labels.appendChild(labelEl);
+            });
+            
+            progress.appendChild(labels);
+        }
+        
+        return progress;
+    },
+
+    /**
+     * Accordion Component - Collapsible content sections
+     * @param {Object} config - Accordion configuration
+     * @param {Array} config.sections - Array of section objects
+     * @param {boolean} config.allowMultiple - Allow multiple sections open
+     * @param {number} config.defaultOpen - Default open section index
+     * @returns {HTMLElement} Accordion element
+     */
+    createAccordion(config = {}) {
+        const {
+            sections = [],
+            allowMultiple = false,
+            defaultOpen = -1,
+            className = ''
+        } = config;
+
+        const accordion = document.createElement('div');
+        accordion.className = `accordion ${className}`.trim();
+        accordion.setAttribute('role', 'region');
+        accordion.setAttribute('aria-label', 'Expandable content sections');
+        
+        const openSections = new Set();
+        if (defaultOpen >= 0 && defaultOpen < sections.length) {
+            openSections.add(defaultOpen);
+        }
+        
+        sections.forEach((section, index) => {
+            const sectionEl = document.createElement('div');
+            sectionEl.className = 'border border-gray-200 rounded-lg mb-2';
+            
+            // Header button
+            const header = document.createElement('button');
+            header.type = 'button';
+            header.className = 'w-full flex items-center justify-between p-4 text-left font-medium hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset';
+            header.setAttribute('aria-expanded', openSections.has(index) ? 'true' : 'false');
+            header.setAttribute('aria-controls', `accordion-content-${index}`);
+            
+            const title = document.createElement('span');
+            title.textContent = section.title || `Section ${index + 1}`;
+            header.appendChild(title);
+            
+            const icon = document.createElement('span');
+            icon.className = 'icon icon-small transition-transform duration-200';
+            icon.innerHTML = 'keyboard_arrow_down';
+            if (openSections.has(index)) {
+              icon.style.transform = 'rotate(180deg)';
+            }
+            header.appendChild(icon);
+            
+            // Content panel
+            const content = document.createElement('div');
+            content.id = `accordion-content-${index}`;
+            content.className = `accordion-content overflow-hidden transition-all duration-200 ${
+              openSections.has(index) ? 'max-h-none' : 'max-h-0'
+            }`;
+            content.setAttribute('role', 'region');
+            content.setAttribute('aria-labelledby', `accordion-header-${index}`);
+            
+            const contentInner = document.createElement('div');
+            contentInner.className = 'p-4 pt-0 text-gray-700';
+            
+            if (typeof section.content === 'string') {
+              contentInner.innerHTML = section.content;
+            } else if (section.content instanceof HTMLElement) {
+              contentInner.appendChild(section.content);
+            }
+            
+            content.appendChild(contentInner);
+            
+            // Toggle functionality
+            header.addEventListener('click', () => {
+              const isOpen = openSections.has(index);
+              
+              if (!allowMultiple) {
+                // Close all other sections
+                openSections.clear();
+                accordion.querySelectorAll('.accordion-content').forEach(otherContent => {
+                  otherContent.style.maxHeight = '0';
+                });
+                accordion.querySelectorAll('button[aria-expanded="true"]').forEach(otherButton => {
+                  otherButton.setAttribute('aria-expanded', 'false');
+                  const otherIcon = otherButton.querySelector('.icon');
+                  if (otherIcon) {
+                    otherIcon.style.transform = 'rotate(0deg)';
+                  }
+                });
+              }
+              
+              if (isOpen) {
+                // Close this section
+                openSections.delete(index);
+                content.style.maxHeight = '0';
+                header.setAttribute('aria-expanded', 'false');
+                icon.style.transform = 'rotate(0deg)';
+              } else {
+                // Open this section
+                openSections.add(index);
+                content.style.maxHeight = content.scrollHeight + 'px';
+                header.setAttribute('aria-expanded', 'true');
+                icon.style.transform = 'rotate(180deg)';
+                
+                // Auto-adjust height after transitions
+                setTimeout(() => {
+                  if (openSections.has(index)) {
+                    content.style.maxHeight = 'none';
+                  }
+                }, 200);
+              }
+            });
+            
+            header.id = `accordion-header-${index}`;
+            sectionEl.appendChild(header);
+            sectionEl.appendChild(content);
+            accordion.appendChild(sectionEl);
+        });
+        
+        return accordion;
+    },
+
+    /**
+     * Breadcrumb Navigation
+     * @param {Object} config - Breadcrumb configuration
+     * @param {Array} config.items - Array of breadcrumb items
+     * @param {string} config.separator - Separator icon
+     * @returns {HTMLElement} Breadcrumb navigation
+     */
+    createBreadcrumb(config = {}) {
+        const {
+            items = [],
+            separator = 'chevron_right',
+            className = ''
+        } = config;
+
+        const nav = document.createElement('nav');
+        nav.className = `breadcrumb ${className}`.trim();
+        nav.setAttribute('aria-label', 'Breadcrumb');
+        
+        const ol = document.createElement('ol');
+        ol.className = 'flex items-center space-x-2 text-sm';
+        
+        items.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.className = 'flex items-center';
+            
+            if (index > 0) {
+              const sep = document.createElement('span');
+              sep.className = 'icon icon-small text-gray-400 mr-2';
+              sep.innerHTML = separator;
+              sep.setAttribute('aria-hidden', 'true');
+              li.appendChild(sep);
+            }
+            
+            if (item.href && index < items.length - 1) {
+              const link = document.createElement('a');
+              link.href = item.href;
+              link.textContent = item.text;
+              link.className = 'text-primary hover:text-primary-hover';
+              li.appendChild(link);
+            } else {
+              const span = document.createElement('span');
+              span.textContent = item.text;
+              span.className = index === items.length - 1 ? 'text-gray-900 font-medium' : 'text-gray-600';
+              if (index === items.length - 1) {
+                span.setAttribute('aria-current', 'page');
+              }
+              li.appendChild(span);
+            }
+            
+            ol.appendChild(li);
+        });
+        
+        nav.appendChild(ol);
+        return nav;
+    },
+
+    /**
+     * Tab Navigation Component
+     * @param {Object} config - Tab configuration
+     * @param {Array} config.tabs - Array of tab objects
+     * @param {number} config.activeTab - Active tab index
+     * @param {Function} config.onChange - Tab change handler
+     * @returns {HTMLElement} Tab navigation
+     */
+    createTabs(config = {}) {
+        const {
+            tabs = [],
+            activeTab = 0,
+            onChange = () => {},
+            className = ''
+        } = config;
+
+        const tabContainer = document.createElement('div');
+        tabContainer.className = `tabs ${className}`.trim();
+        
+        // Tab list
+        const tabList = document.createElement('div');
+        tabList.className = 'border-b border-gray-200';
+        tabList.setAttribute('role', 'tablist');
+        
+        const nav = document.createElement('nav');
+        nav.className = '-mb-px flex space-x-8';
+        
+        tabs.forEach((tab, index) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+              index === activeTab
+                ? 'border-primary text-primary'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`;
+            button.textContent = tab.title;
+            button.setAttribute('role', 'tab');
+            button.setAttribute('aria-selected', index === activeTab ? 'true' : 'false');
+            button.setAttribute('aria-controls', `tabpanel-${index}`);
+            button.id = `tab-${index}`;
+            
+            button.addEventListener('click', () => {
+              // Update button states
+              nav.querySelectorAll('button').forEach((btn, btnIndex) => {
+                const isActive = btnIndex === index;
+                btn.className = `py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  isActive
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`;
+                btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+              });
+              
+              // Update panel states
+              tabContainer.querySelectorAll('[role="tabpanel"]').forEach((panel, panelIndex) => {
+                panel.hidden = panelIndex !== index;
+              });
+              
+              onChange(index, tab);
+            });
+            
+            nav.appendChild(button);
+        });
+        
+        tabList.appendChild(nav);
+        tabContainer.appendChild(tabList);
+        
+        // Tab panels
+        tabs.forEach((tab, index) => {
+            const panel = document.createElement('div');
+            panel.className = 'py-6';
+            panel.setAttribute('role', 'tabpanel');
+            panel.setAttribute('aria-labelledby', `tab-${index}`);
+            panel.id = `tabpanel-${index}`;
+            panel.hidden = index !== activeTab;
+            
+            if (typeof tab.content === 'string') {
+              panel.innerHTML = tab.content;
+            } else if (tab.content instanceof HTMLElement) {
+              panel.appendChild(tab.content);
+            }
+            
+            tabContainer.appendChild(panel);
+        });
+        
+        return tabContainer;
+    },
+
+    /**
+     * Render navigation components to container for testing/showcase
+     * @param {HTMLElement} container - Container element
+     */
+    renderNavigationShowcase(container) {
+        container.innerHTML = '';
+        
+        const showcase = document.createElement('div');
+        showcase.className = 'container p-8';
+        
+        const section = document.createElement('section');
+        section.innerHTML = '<h2>Navigation Components</h2><p class="text-secondary mb-6">Headers, progress indicators, and navigation elements</p>';
+        
+        // Header example
+        const headerSection = document.createElement('div');
+        headerSection.className = 'mb-8';
+        headerSection.innerHTML = '<h3 class="mb-4">Header Component</h3>';
+        
+        const sampleHeader = this.createHeader({
+            title: 'Teacher Dashboard',
+            user: {
+              name: 'Ms. Anderson',
+              avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=teacher'
+            },
+            onHome: () => alert('Home clicked'),
+            onProfile: () => alert('Profile clicked')
+        });
+        
+        headerSection.appendChild(sampleHeader);
+        
+        // Progress indicator
+        const progressSection = document.createElement('div');
+        progressSection.className = 'mb-8';
+        progressSection.innerHTML = '<h3 class="mb-4">Progress Indicator</h3>';
+        
+        const progressExample = this.createProgressIndicator({
+            current: 1,
+            total: 3,
+            steps: ['Hero', 'Name', 'Avatar'],
+            showLabels: true
+        });
+        
+        progressSection.appendChild(progressExample);
+        
+        // Accordion
+        const accordionSection = document.createElement('div');
+        accordionSection.className = 'mb-8';
+        accordionSection.innerHTML = '<h3 class="mb-4">Accordion Component</h3>';
+        
+        const accordionExample = this.createAccordion({
+            sections: [
+              {
+                title: 'Getting Started',
+                content: '<p>Welcome to Twibble! This section covers the basics of creating your first lesson.</p>'
+              },
+              {
+                title: 'Creating Lessons',
+                content: '<p>Learn how to add words, set difficulty levels, and schedule activities for your students.</p>'
+              },
+              {
+                title: 'Sharing & Management',
+                content: '<p>Share lessons with students via QR codes and track their progress through the dashboard.</p>'
+              }
+            ],
+            defaultOpen: 0
+        });
+        
+        accordionSection.appendChild(accordionExample);
+        
+        // Breadcrumb
+        const breadcrumbSection = document.createElement('div');
+        breadcrumbSection.className = 'mb-8';
+        breadcrumbSection.innerHTML = '<h3 class="mb-4">Breadcrumb Navigation</h3>';
+        
+        const breadcrumbExample = this.createBreadcrumb({
+            items: [
+              { text: 'Home', href: '#' },
+              { text: 'Lessons', href: '#' },
+              { text: 'Create Lesson' }
+            ]
+        });
+        
+        breadcrumbSection.appendChild(breadcrumbExample);
+        
+        // Tabs
+        const tabsSection = document.createElement('div');
+        tabsSection.innerHTML = '<h3 class="mb-4">Tab Navigation</h3>';
+        
+        const tabsExample = this.createTabs({
+            tabs: [
+              {
+                title: 'Vocabulary',
+                content: '<p>Add words and their definitions for vocabulary learning.</p>'
+              },
+              {
+                title: 'Phonics',
+                content: '<p>Configure phonics activities and sound patterns.</p>'
+              },
+              {
+                title: 'Spelling',
+                content: '<p>Set up spelling exercises and word assembly tasks.</p>'
+              }
+            ],
+            activeTab: 0,
+            onChange: (index, tab) => console.log('Tab changed:', tab.title)
+        });
+        
+        tabsSection.appendChild(tabsExample);
+        
+        section.appendChild(headerSection);
+        section.appendChild(progressSection);
+        section.appendChild(accordionSection);
+        section.appendChild(breadcrumbSection);
+        section.appendChild(tabsSection);
+        showcase.appendChild(section);
+        container.appendChild(showcase);
     }
 };
 

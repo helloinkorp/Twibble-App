@@ -441,7 +441,8 @@
         import { renderButtonShowcase } from './src/components/buttons.js';
         import { renderCardShowcase } from './src/components/cards.js';
         import { renderFormShowcase } from './src/components/forms.js';
-        import { renderNavigationShowcase } from './src/components/navigation.js';
+        // Import consolidated navigation system which includes renderNavigationShowcase in NavigationUtils
+        import './src/js/navigation.js';
         import { renderInteractiveShowcase } from './src/components/interactive.js';
         
         // Performance tracking
@@ -459,7 +460,11 @@
             if (buttonContainer) renderButtonShowcase(buttonContainer);
             if (cardContainer) renderCardShowcase(cardContainer);
             if (formContainer) renderFormShowcase(formContainer);
-            if (navigationContainer) renderNavigationShowcase(navigationContainer);
+            if (navigationContainer && window.NavigationUtils && window.NavigationUtils.renderNavigationShowcase) {
+                window.NavigationUtils.renderNavigationShowcase(navigationContainer);
+            } else if (navigationContainer) {
+                console.error('NavigationUtils.renderNavigationShowcase not available from consolidated navigation system');
+            }
             if (interactiveContainer) renderInteractiveShowcase(interactiveContainer);
             
             // Performance metrics

@@ -536,7 +536,8 @@
     
     <!-- JavaScript Module -->
     <script type="module">
-        import { createHeader } from '../components/navigation.js';
+        // Use consolidated navigation system - createHeader is now in NavigationUtils
+        import '../js/navigation.js';
         
         // Teacher Dashboard Manager
         class TeacherDashboard {
@@ -591,7 +592,7 @@
             setupHeader() {
                 const headerContainer = document.getElementById('page-header');
                 
-                const header = createHeader({
+                const header = window.NavigationUtils.createHeader({
                     showHome: true,
                     user: this.userSettings,
                     onHome: () => {

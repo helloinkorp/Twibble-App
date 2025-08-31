@@ -507,7 +507,8 @@
     
     <!-- JavaScript Module -->
     <script type="module">
-        import { createHeader } from '../components/navigation.js';
+        // Use consolidated navigation system - createHeader is now in NavigationUtils
+        import '../js/navigation.js';
         import { createCtaButton, createSecondaryButton } from '../components/buttons.js';
         import { createFlippableCard, createWordChip, createLetterAssembly } from '../components/interactive.js';
         
@@ -607,7 +608,7 @@
                 }
             }
             
-            const header = createHeader({
+            const header = window.NavigationUtils.createHeader({
                 showHome: true,
                 user: userSettings,
                 onHome: () => {
