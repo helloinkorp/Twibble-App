@@ -67,7 +67,10 @@
       "Read(C:\\Users\\USER\\Pictures\\Screenshots/**)",
       "mcp__playwright__browser_tabs",
       "Read(C:\\Users\\USER\\Pictures\\Screenshots/**)",
-      "Read(C:\\Users\\USER\\Pictures\\Screenshots/**)"
+      "Read(C:\\Users\\USER\\Pictures\\Screenshots/**)",
+      "Bash(git checkout:*)",
+      "mcp__playwright__browser_drag",
+      "Bash(git commit:*)"
     ],
     "deny": [
       "Bash(rm:*)",

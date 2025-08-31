@@ -5,115 +5,15 @@
  * Imports design-system.css for token system
  */
 
+// Import unified createWordChip implementation
+import { createWordChip } from '../utils/word-chip.js';
+
 // Import CSS if not already loaded
 if (!document.querySelector('link[href*="design-system.css"]')) {
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = '../styles/design-system.css';
   document.head.appendChild(link);
-}
-
-/**
- * Word Chip Component - Interactive word elements with activity indicators
- * @param {Object} config - Chip configuration
- * @param {string} config.word - The word text
- * @param {boolean} config.completed - Whether word is completed
- * @param {string} config.difficulty - Difficulty level (easy, medium, hard)
- * @param {Array} config.activities - Activity status array
- * @param {Function} config.onClick - Click handler
- * @param {boolean} config.draggable - Whether chip is draggable
- * @returns {HTMLElement} Word chip element
- */
-function createWordChip(config = {}) {
-  const {
-    word = '',
-    completed = false,
-    difficulty = 'medium',
-    activities = [],
-    onClick = () => {},
-    draggable = false,
-    className = ''
-  } = config;
-
-  const chip = document.createElement('div');
-  chip.className = `word-chip ${
-    completed 
-      ? 'completed' 
-      : ''
-  } ${className}`.trim();
-  
-  chip.setAttribute('role', 'button');
-  chip.setAttribute('tabindex', '0');
-  chip.setAttribute('aria-label', `${word} ${completed ? 'completed' : 'incomplete'}`);
-  
-  if (draggable) {
-    chip.draggable = true;
-    chip.setAttribute('aria-grabbed', 'false');
-  }
-  
-  // Word text
-  const wordText = document.createElement('span');
-  wordText.className = 'font-medium';
-  wordText.textContent = word;
-  chip.appendChild(wordText);
-  
-  // Activity dots
-  if (activities.length > 0) {
-    const dotsContainer = document.createElement('div');
-    dotsContainer.className = 'flex gap-1';
-    
-    activities.forEach((activity, index) => {
-      const dot = document.createElement('div');
-      dot.className = `w-2 h-2 rounded-full ${
-        activity.completed 
-          ? `bg-${activity.type === 'vocabulary' ? 'info' : activity.type === 'phonics' ? 'warning' : 'success'}` 
-          : 'bg-gray-300'
-      }`;
-      dot.setAttribute('title', `${activity.name || activity.type}: ${activity.completed ? 'Complete' : 'Incomplete'}`);
-      dotsContainer.appendChild(dot);
-    });
-    
-    chip.appendChild(dotsContainer);
-  }
-  
-  // Difficulty indicator
-  const difficultyColors = {
-    easy: 'bg-success',
-    medium: 'bg-warning',
-    hard: 'bg-error'
-  };
-  
-  const difficultyDot = document.createElement('div');
-  difficultyDot.className = `w-3 h-3 rounded-full ${difficultyColors[difficulty]} opacity-60`;
-  difficultyDot.setAttribute('title', `Difficulty: ${difficulty}`);
-  difficultyDot.setAttribute('aria-label', `Difficulty: ${difficulty}`);
-  chip.appendChild(difficultyDot);
-  
-  // Event handlers
-  chip.addEventListener('click', onClick);
-  chip.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onClick(e);
-    }
-  });
-  
-  // Drag and drop handlers
-  if (draggable) {
-    chip.addEventListener('dragstart', (e) => {
-      e.dataTransfer.setData('text/plain', word);
-      e.dataTransfer.setData('application/json', JSON.stringify(config));
-      chip.setAttribute('aria-grabbed', 'true');
-      chip.style.opacity = '0.5';
-    });
-    
-    chip.addEventListener('dragend', () => {
-      chip.setAttribute('aria-grabbed', 'false');
-      chip.style.opacity = '1';
-    });
-  }
-  
-  return chip;
 }
 
 /**
