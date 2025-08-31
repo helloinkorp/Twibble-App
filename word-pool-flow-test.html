@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Pool Flow Test</title>
+    <link rel="stylesheet" href="./src/styles/design-system.css">
+    <style>
+        body {
+            background: var(--color-background);
+            font-family: var(--font-family-body);
+            padding: 20px;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        
+        .word-pool {
+            min-height: 80px;
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-gray-200);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .status-success { background: #dcfce7; color: #15803d; }
+        .status-info { background: #dbeafe; color: #1d4ed8; }
+        .status-warning { background: #fef3c7; color: #a16207; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Word Pool Flow Test</h1>
+    <p>This test validates the correct flow: Manual words show immediately, File words show only after button press</p>
+    
+    <div class="test-section">
+        <h2>Step 1: Test Manual Entry</h2>
+        <p>Manual words should appear in Word Pool immediately when button is clicked</p>
+        <input type="text" id="manualInput" placeholder="Enter words: cat, dog, bird" style="width: 300px; padding: 8px; margin: 10px 0;">
+        <button id="addManualWords" class="btn btn-secondary">Add to Word Pool</button>
+        <div id="manualStatus" class="status status-info">Enter some words and click the button</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Step 2: Test File Upload</h2>
+        <p>File words should NOT appear in Word Pool until "Add to Lesson" button is clicked</p>
+        <input type="file" id="fileInput" accept=".txt" style="margin: 10px 0;">
+        <button id="addFileWords" class="btn btn-secondary">Add File Words to Lesson</button>
+        <div id="fileStatus" class="status status-info">Upload a TXT file to test</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Word Pool (Final Result)</h2>
+        <div class="word-pool" id="wordPool">
+            <strong>Word Pool:</strong>
+            <div id="poolContent">No words added yet</div>
+        </div>
+        <div id="poolStatus" class="status status-info">Word Pool should update correctly based on the flow above</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Debug Console</h2>
+        <div id="debugConsole" style="background: #f9f9f9; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
+            Debug messages will appear here...
+        </div>
+    </div>
+    
+    <script type="module">
+        import { ChipManager, createWordChip } from './src/components/chips.js';
+        
+        const chipManager = new ChipManager();
+        let fileWordsAddedToLesson = false;
+        
+        function log(message) {
+            const debugConsole = document.getElementById('debugConsole');
+            const timestamp = new Date().toLocaleTimeString();
+            debugConsole.innerHTML += `[${timestamp}] ${message}<br>`;
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+            console.log(message);
+        }
+        
+        // Register containers
+        const vocabContainer = document.createElement('div');
+        const fileVocabContainer = document.createElement('div');
+        chipManager.registerContainer('vocabulary', vocabContainer);
+        chipManager.registerContainer('file-vocabulary', fileVocabContainer);
+        
+        // Manual entry test
+        document.getElementById('addManualWords').addEventListener('click', () => {
+            const input = document.getElementById('manualInput');
+            const words = input.value.split(',').map(w => w.trim()).filter(w => w);
+            
+            if (words.length === 0) {
+                document.getElementById('manualStatus').textContent = 'Please enter some words first';
+                return;
+            }
+            
+            log(`Adding ${words.length} manual words`);
+            words.forEach(word => {
+                chipManager.addChip(word, ['vocabulary'], 'vocabulary');
+                log(`Added manual word: ${word}`);
+            });
+            
+            document.getElementById('manualStatus').className = 'status status-success';
+            document.getElementById('manualStatus').textContent = `✅ Added ${words.length} manual words`;
+            input.value = '';
+        });
+        
+        // File upload test
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const words = e.target.result.split(/[,\s\n]+/).map(w => w.trim()).filter(w => w && w.length > 0);
+                
+                log(`File uploaded: ${words.length} words found`);
+                words.forEach(word => {
+                    chipManager.addChip(word, ['vocabulary'], 'file-vocabulary');
+                    log(`Added file word: ${word} (should not appear in pool yet)`);
+                });
+                
+                document.getElementById('fileStatus').className = 'status status-warning';
+                document.getElementById('fileStatus').textContent = `⚠️ ${words.length} file words staged. Click "Add to Lesson" to add to Word Pool`;
+            };
+            reader.readAsText(file);
+        });
+        
+        // Add file words to lesson
+        document.getElementById('addFileWords').addEventListener('click', () => {
+            fileWordsAddedToLesson = true;
+            log('File words added to lesson - updating Word Pool');
+            
+            const chipData = chipManager.getAllChips();
+            updateWordPool(chipData);
+            
+            document.getElementById('fileStatus').className = 'status status-success';
+            document.getElementById('fileStatus').textContent = '✅ File words added to Word Pool';
+        });
+        
+        // Word Pool update function (simplified version of real app)
+        function updateWordPool(chipData) {
+            const poolContent = document.getElementById('poolContent');
+            poolContent.innerHTML = '';
+            
+            let totalChips = 0;
+            
+            Object.entries(chipData).forEach(([activity, chips]) => {
+                chips.forEach(chipInfo => {
+                    // Apply same logic as real app
+                    const isFileUploadChip = chipInfo.containerId && chipInfo.containerId.startsWith('file-');
+                    const hasManualChips = Object.values(chipData).some(chips => 
+                        chips.some(chip => !chip.containerId.startsWith('file-'))
+                    );
+                    
+                    // Only include if manual chips exist or file words have been added to lesson
+                    if (hasManualChips || fileWordsAddedToLesson) {
+                        const chipElement = createWordChip({
+                            word: chipInfo.word,
+                            activities: chipInfo.activities,
+                            draggable: false
+                        });
+                        poolContent.appendChild(chipElement);
+                        totalChips++;
+                        log(`Added to pool: ${chipInfo.word}`);
+                    }
+                });
+            });
+            
+            if (totalChips === 0) {
+                poolContent.textContent = 'No words in pool yet';
+            }
+            
+            document.getElementById('poolStatus').className = 'status status-success';
+            document.getElementById('poolStatus').textContent = `✅ Word Pool updated: ${totalChips} words`;
+        }
+        
+        // Setup change handler (like real app)
+        chipManager.onChipChange((chipData) => {
+            log('ChipManager change event triggered');
+            
+            const hasManualChips = Object.values(chipData).some(chips => 
+                chips.some(chip => !chip.containerId.startsWith('file-'))
+            );
+            
+            log(`Has manual chips: ${hasManualChips}, File words added: ${fileWordsAddedToLesson}`);
+            
+            if (hasManualChips || fileWordsAddedToLesson) {
+                log('Updating Word Pool');
+                updateWordPool(chipData);
+            } else {
+                log('Skipping Word Pool update (file words not added to lesson yet)');
+            }
+        });
+        
+        log('Word Pool Flow Test initialized');
+    </script>
+</body>
+</html>

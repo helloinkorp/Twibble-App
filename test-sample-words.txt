@@ -1,0 +1,15 @@
+apple
+banana
+cherry
+dog
+elephant
+frog
+guitar
+house
+ice
+jump
+kite
+lemon
+monkey
+nest
+orange

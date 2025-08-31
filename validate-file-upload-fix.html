@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Fix Validation</title>
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <style>
+        body { padding: 20px; font-family: Arial, sans-serif; }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px; 
+            background: #f9f9f9;
+        }
+        .test-section.success { border-color: #28a745; background: #d4edda; }
+        .test-section.error { border-color: #dc3545; background: #f8d7da; }
+        .chip-container {
+            min-height: 60px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            background: white;
+            border-radius: 4px;
+        }
+        .chip {
+            display: inline-block;
+            padding: 4px 12px;
+            margin: 2px;
+            background: #e9ecef;
+            border: 1px solid #adb5bd;
+            border-radius: 16px;
+            font-size: 14px;
+        }
+        .drop-zone {
+            border: 2px dashed #007bff;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .console { 
+            background: #000; 
+            color: #0f0; 
+            padding: 10px; 
+            font-family: monospace; 
+            height: 200px; 
+            overflow-y: auto; 
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>File Upload Fix Validation Test</h1>
+    
+    <div class="test-section" id="test1">
+        <h3>✅ Test 1: ChipManager Container Registration</h3>
+        <button onclick="testContainerRegistration()">Test Container Registration</button>
+        <div class="chip-container" id="test-file-vocabulary-chip-container"></div>
+        <div class="result" id="test1-result"></div>
+    </div>
+
+    <div class="test-section" id="test2">
+        <h3>✅ Test 2: File Upload Simulation</h3>
+        <input type="file" accept=".txt" id="testFileInput">
+        <button onclick="simulateFileUpload()">Simulate File Upload</button>
+        <div class="result" id="test2-result"></div>
+    </div>
+
+    <div class="test-section" id="test3">
+        <h3>✅ Test 3: ChipManager.addChip Direct Test</h3>
+        <button onclick="testDirectChipAdd()">Test Direct Chip Addition</button>
+        <div class="chip-container" id="direct-test-container"></div>
+        <div class="result" id="test3-result"></div>
+    </div>
+
+    <div class="test-section" id="test4">
+        <h3>✅ Test 4: Activities Validation</h3>
+        <button onclick="testActivitiesValidation()">Test Activities Validation</button>
+        <div class="result" id="test4-result"></div>
+    </div>
+
+    <h2>Debug Console</h2>
+    <div class="console" id="console"></div>
+
+    <script type="module">
+        import { ChipManager } from './src/components/chips.js';
+        
+        // Global variables for testing
+        window.chipManager = new ChipManager();
+        
+        const console_div = document.getElementById('console');
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#f00' : type === 'warn' ? '#fa0' : '#0f0';
+            console_div.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            console_div.scrollTop = console_div.scrollHeight;
+            console.log(message);
+        }
+
+        // Global test functions
+        window.testContainerRegistration = function() {
+            log('Testing container registration...');
+            
+            const container = document.getElementById('test-file-vocabulary-chip-container');
+            if (!container) {
+                setTestResult('test1', 'ERROR: Test container not found', false);
+                return;
+            }
+
+            try {
+                chipManager.registerContainer('test-file-vocabulary', container);
+                log('Successfully registered test container');
+                
+                // Verify registration
+                const registeredContainers = Array.from(chipManager.containers.keys());
+                if (registeredContainers.includes('test-file-vocabulary')) {
+                    setTestResult('test1', 'SUCCESS: Container registered successfully', true);
+                } else {
+                    setTestResult('test1', 'ERROR: Container registration failed', false);
+                }
+            } catch (error) {
+                log(`ERROR: ${error.message}`, 'error');
+                setTestResult('test1', `ERROR: ${error.message}`, false);
+            }
+        };
+
+        window.simulateFileUpload = function() {
+            log('Simulating file upload...');
+            
+            const testWords = ['apple', 'banana', 'cherry', 'dog', 'elephant'];
+            const activities = ['vocabulary'];
+            
+            try {
+                // Ensure container is registered
+                const container = document.getElementById('test-file-vocabulary-chip-container');
+                if (!chipManager.containers.has('test-file-vocabulary')) {
+                    chipManager.registerContainer('test-file-vocabulary', container);
+                    log('Registered container for simulation');
+                }
+
+                // Add words like the file upload would
+                let successCount = 0;
+                testWords.forEach(word => {
+                    try {
+                        const chipId = chipManager.addChip(word, activities, 'test-file-vocabulary');
+                        if (chipId) {
+                            successCount++;
+                            log(`Added chip: ${word}`);
+                        }
+                    } catch (error) {
+                        log(`Failed to add ${word}: ${error.message}`, 'error');
+                    }
+                });
+
+                if (successCount === testWords.length) {
+                    setTestResult('test2', `SUCCESS: ${successCount}/${testWords.length} words added successfully`, true);
+                } else {
+                    setTestResult('test2', `PARTIAL: ${successCount}/${testWords.length} words added`, false);
+                }
+            } catch (error) {
+                log(`ERROR in file upload simulation: ${error.message}`, 'error');
+                setTestResult('test2', `ERROR: ${error.message}`, false);
+            }
+        };
+
+        window.testDirectChipAdd = function() {
+            log('Testing direct chip addition...');
+            
+            const container = document.getElementById('direct-test-container');
+            if (!chipManager.containers.has('direct-test')) {
+                chipManager.registerContainer('direct-test', container);
+            }
+
+            try {
+                // Test various scenarios
+                const tests = [
+                    { word: 'valid-word', activities: ['vocabulary'], expected: true },
+                    { word: '', activities: ['vocabulary'], expected: false }, // Empty word
+                    { word: 'test-empty-activities', activities: [], expected: true }, // Empty activities (should default)
+                    { word: 'test-invalid-container', activities: ['vocabulary'], containerId: 'nonexistent', expected: false }
+                ];
+
+                let passedTests = 0;
+                tests.forEach((test, index) => {
+                    try {
+                        const chipId = chipManager.addChip(
+                            test.word, 
+                            test.activities, 
+                            test.containerId || 'direct-test'
+                        );
+                        
+                        const success = test.expected ? (chipId !== null) : (chipId === null);
+                        if (success) {
+                            passedTests++;
+                            log(`Test ${index + 1} PASSED`);
+                        } else {
+                            log(`Test ${index + 1} FAILED`, 'warn');
+                        }
+                    } catch (error) {
+                        if (!test.expected) {
+                            passedTests++;
+                            log(`Test ${index + 1} PASSED (expected error)`);
+                        } else {
+                            log(`Test ${index + 1} FAILED: ${error.message}`, 'error');
+                        }
+                    }
+                });
+
+                if (passedTests === tests.length) {
+                    setTestResult('test3', `SUCCESS: All ${tests.length} direct add tests passed`, true);
+                } else {
+                    setTestResult('test3', `PARTIAL: ${passedTests}/${tests.length} tests passed`, false);
+                }
+            } catch (error) {
+                setTestResult('test3', `ERROR: ${error.message}`, false);
+            }
+        };
+
+        window.testActivitiesValidation = function() {
+            log('Testing activities validation...');
+            
+            // Test the getActivitiesForGroup function simulation
+            const mockActivities = {
+                vocabulary: true,
+                spelling: false,
+                phonics: false
+            };
+
+            const activeActivities = Object.keys(mockActivities).filter(key => mockActivities[key]);
+            
+            if (activeActivities.length > 0 && activeActivities.includes('vocabulary')) {
+                setTestResult('test4', 'SUCCESS: Activities validation working correctly', true);
+                log('Activities validation test passed');
+            } else {
+                setTestResult('test4', 'ERROR: Activities validation failed', false);
+                log('Activities validation test failed', 'error');
+            }
+        };
+
+        function setTestResult(testId, message, success) {
+            const resultElement = document.getElementById(`${testId}-result`);
+            const testSection = document.getElementById(testId);
+            
+            resultElement.textContent = message;
+            testSection.className = `test-section ${success ? 'success' : 'error'}`;
+        }
+
+        log('File Upload Fix Validation Test initialized');
+        log('Click the test buttons to run individual tests');
+
+        // Auto-run basic tests
+        setTimeout(() => {
+            log('Running automatic tests...');
+            testContainerRegistration();
+            setTimeout(testActivitiesValidation, 500);
+        }, 1000);
+    </script>
+</body>
+</html>

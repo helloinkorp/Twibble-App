@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page Integration Test - CACHE BYPASS</title>
+    
+    <!-- CRITICAL: Force cache bypass with timestamp -->
+    <link rel="stylesheet" href="src/styles/design-system.css?v=20250130">
+    
+    <style>
+        body {
+            padding: 20px;
+            font-family: var(--font-family-body);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #333;
+            border-radius: 8px;
+        }
+        .status-good { border-color: green; background: #f0fff0; }
+        .status-bad { border-color: red; background: #fff0f0; }
+        .status-warning { border-color: orange; background: #fff8f0; }
+        .test-result {
+            font-family: monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚨 MAIN PAGE INTEGRATION TEST 🚨</h1>
+    
+    <div class="test-section">
+        <h2>1. CSS Loading and Chip Size Verification</h2>
+        <p><strong>Testing if chip size fixes are properly loaded:</strong></p>
+        
+        <div style="margin: 10px 0;">
+            <span class="word-chip vocabulary">vocabulary</span>
+            <span class="word-chip spelling">spelling</span>
+            <span class="word-chip phonics">phonics</span>
+            <span class="word-chip multiple">multiple
+                <div class="activity-dots">
+                    <div class="activity-dot vocab"></div>
+                    <div class="activity-dot spelling"></div>
+                    <div class="activity-dot phonics"></div>
+                </div>
+            </span>
+        </div>
+        
+        <div id="css-test-results" class="test-result">Testing CSS loading...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Container Existence Check</h2>
+        <p><strong>Verifying all required containers exist like in main page:</strong></p>
+        
+        <!-- Simulate main page structure -->
+        <div class="word-groups">
+            <!-- Manual Entry containers -->
+            <div class="word-group">
+                <h3>Manual Entry Containers</h3>
+                <div class="chip-container empty" id="vocabulary-chip-container"></div>
+                <div class="chip-container empty" id="spelling-chip-container"></div>
+                <div class="chip-container empty" id="phonics-chip-container"></div>
+            </div>
+        </div>
+
+        <!-- File Upload containers (initially hidden like main page) -->
+        <div class="word-groups" id="fileUploadWordGroups" style="display: none;">
+            <div class="word-group">
+                <h3>File Upload Containers</h3>
+                <div class="chip-container empty" id="file-vocabulary-chip-container"></div>
+                <div class="chip-container empty" id="file-spelling-chip-container"></div>
+                <div class="chip-container empty" id="file-phonics-chip-container"></div>
+            </div>
+        </div>
+        
+        <div id="container-test-results" class="test-result">Testing containers...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. ChipManager Full Integration Test</h2>
+        <p><strong>Testing complete ChipManager functionality:</strong></p>
+        
+        <button id="test-manual-add" class="btn btn-primary">Test Manual Add</button>
+        <button id="test-file-upload" class="btn btn-secondary">Test File Upload Simulation</button>
+        <button id="test-activity-toggle" class="btn btn-tertiary">Test Activity Toggle</button>
+        
+        <div id="chipmanager-test-results" class="test-result">Ready to test ChipManager...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Console Log Monitor</h2>
+        <p><strong>Real-time console monitoring:</strong></p>
+        <div id="console-monitor" class="test-result">Monitoring console...</div>
+    </div>
+
+    <script type="module">
+        import { ChipManager } from './src/components/chips.js';
+        
+        // Console monitoring
+        const consoleMonitor = document.getElementById('console-monitor');
+        const logs = [];
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addLog(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = `[${timestamp}] ${type.toUpperCase()}: ${args.join(' ')}`;
+            logs.push(message);
+            consoleMonitor.textContent = logs.slice(-20).join('\n'); // Show last 20 logs
+            consoleMonitor.scrollTop = consoleMonitor.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            addLog('log', ...args);
+            originalLog.apply(console, args);
+        };
+        console.error = function(...args) {
+            addLog('error', ...args);
+            originalError.apply(console, args);
+        };
+        console.warn = function(...args) {
+            addLog('warn', ...args);
+            originalWarn.apply(console, args);
+        };
+
+        // Test CSS loading
+        function testCSS() {
+            const chip = document.querySelector('.word-chip');
+            const results = document.getElementById('css-test-results');
+            
+            if (chip) {
+                const computedStyle = getComputedStyle(chip);
+                const fontSize = parseFloat(computedStyle.fontSize);
+                const padding = computedStyle.padding;
+                const gap = computedStyle.gap;
+                
+                let output = `CSS VERIFICATION RESULTS:\n`;
+                output += `- Font size: ${fontSize}px ${fontSize <= 10 ? '✅' : '❌ (should be ≤10px)'}\n`;
+                output += `- Padding: ${padding}\n`;
+                output += `- Gap: ${gap || 'not set'}\n`;
+                
+                if (fontSize <= 10) {
+                    output += `\n✅ CHIP SIZE FIX IS WORKING!`;
+                    results.parentElement.className = 'test-section status-good';
+                } else {
+                    output += `\n❌ CHIP SIZE FIX IS NOT WORKING - CSS may be cached`;
+                    results.parentElement.className = 'test-section status-bad';
+                }
+                
+                results.textContent = output;
+            } else {
+                results.textContent = '❌ No chip elements found';
+                results.parentElement.className = 'test-section status-bad';
+            }
+        }
+
+        // Test container existence
+        function testContainers() {
+            const results = document.getElementById('container-test-results');
+            const requiredContainers = [
+                'vocabulary-chip-container',
+                'spelling-chip-container',
+                'phonics-chip-container',
+                'file-vocabulary-chip-container',
+                'file-spelling-chip-container',
+                'file-phonics-chip-container'
+            ];
+
+            let output = 'CONTAINER EXISTENCE CHECK:\n';
+            let allFound = true;
+            
+            requiredContainers.forEach(id => {
+                const element = document.getElementById(id);
+                const status = element ? '✅ FOUND' : '❌ MISSING';
+                output += `- ${id}: ${status}\n`;
+                if (!element) allFound = false;
+            });
+
+            if (allFound) {
+                output += '\n✅ ALL CONTAINERS FOUND!';
+                results.parentElement.className = 'test-section status-good';
+            } else {
+                output += '\n❌ SOME CONTAINERS MISSING!';
+                results.parentElement.className = 'test-section status-bad';
+            }
+
+            results.textContent = output;
+        }
+
+        // Test ChipManager
+        let chipManager;
+        function testChipManager() {
+            const results = document.getElementById('chipmanager-test-results');
+            let output = 'CHIPMANAGER INTEGRATION TEST:\n\n';
+
+            try {
+                // Initialize ChipManager
+                chipManager = new ChipManager();
+                output += '✅ ChipManager instantiated\n';
+
+                // Register all containers
+                const containerConfigs = [
+                    { groupId: 'vocabulary', containerId: 'vocabulary-chip-container' },
+                    { groupId: 'spelling', containerId: 'spelling-chip-container' },
+                    { groupId: 'phonics', containerId: 'phonics-chip-container' },
+                    { groupId: 'file-vocabulary', containerId: 'file-vocabulary-chip-container' },
+                    { groupId: 'file-spelling', containerId: 'file-spelling-chip-container' },
+                    { groupId: 'file-phonics', containerId: 'file-phonics-chip-container' }
+                ];
+
+                let registeredCount = 0;
+                containerConfigs.forEach(({ groupId, containerId }) => {
+                    const container = document.getElementById(containerId);
+                    if (container) {
+                        chipManager.registerContainer(groupId, container);
+                        output += `✅ Registered: ${groupId}\n`;
+                        registeredCount++;
+                    } else {
+                        output += `❌ Failed to register: ${groupId}\n`;
+                    }
+                });
+
+                output += `\nRegistration Summary: ${registeredCount}/${containerConfigs.length}\n`;
+
+                if (registeredCount === containerConfigs.length) {
+                    output += '\n✅ CHIPMANAGER FULLY INTEGRATED!';
+                    results.parentElement.className = 'test-section status-good';
+                } else {
+                    output += '\n⚠️ PARTIAL INTEGRATION - some containers failed';
+                    results.parentElement.className = 'test-section status-warning';
+                }
+
+            } catch (error) {
+                output += `❌ ChipManager Error: ${error.message}\n`;
+                output += `Stack: ${error.stack}`;
+                results.parentElement.className = 'test-section status-bad';
+            }
+
+            results.textContent = output;
+        }
+
+        // Button event handlers
+        document.getElementById('test-manual-add').addEventListener('click', () => {
+            if (chipManager) {
+                const chipId = chipManager.addChip('test-word-manual', ['vocabulary'], 'vocabulary');
+                console.log('Added manual chip:', chipId);
+            }
+        });
+
+        document.getElementById('test-file-upload').addEventListener('click', () => {
+            // Show file upload containers first
+            const fileGroups = document.getElementById('fileUploadWordGroups');
+            if (fileGroups) {
+                fileGroups.style.display = 'grid';
+                console.log('Made file upload groups visible');
+            }
+            
+            if (chipManager) {
+                const chipId = chipManager.addChip('test-file-word', ['vocabulary'], 'file-vocabulary');
+                console.log('Added file upload chip:', chipId);
+            }
+        });
+
+        document.getElementById('test-activity-toggle').addEventListener('click', () => {
+            if (chipManager) {
+                chipManager.updateGroupActivities('vocabulary', {
+                    vocabulary: true,
+                    spelling: true,
+                    phonics: false
+                });
+                console.log('Updated activity states for vocabulary group');
+            }
+        });
+
+        // Run tests after DOM is ready
+        setTimeout(() => {
+            console.log('=== STARTING INTEGRATION TESTS ===');
+            testCSS();
+            testContainers();
+            testChipManager();
+        }, 100);
+    </script>
+</body>
+</html>

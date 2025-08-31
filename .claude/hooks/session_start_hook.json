@@ -1,0 +1,33 @@
+{
+  "hook_name": "session_start_orchestrator",
+  "trigger": "session_start",
+  "commands": [
+    {
+      "action": "load_context",
+      "files": [
+        "AGENT_GUIDELINES.md",
+        "CLAUDE.md", 
+        "prd.md",
+        "tasks.txt",
+        "progress_ledger.md",
+        "plan.md"
+      ]
+    },
+    {
+      "action": "generate_trace_id", 
+      "format": "trace-{timestamp}-{session}"
+    },
+    {
+      "action": "validate_ledger_sync",
+      "check": "tasks.txt == progress_ledger.md"
+    },
+    {
+      "action": "set_orchestrator_mode",
+      "config": {
+        "max_subagents": 8,
+        "delegation_required": true,
+        "quality_gates": "mandatory"
+      }
+    }
+  ]
+}

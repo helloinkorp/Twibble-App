@@ -1,0 +1,47 @@
+{
+  "project_permissions": {
+    "name": "Twibble App Development",
+    "scope": "full_project_access",
+    "auto_approve": true,
+    "paths": {
+      "read_write": [
+        "C:\\Users\\USER\\Desktop\\Twibble App\\src\\**",
+        "C:\\Users\\USER\\Desktop\\Twibble App\\orchestrator\\**",
+        "C:\\Users\\USER\\Desktop\\Twibble App\\logs\\**",
+        "C:\\Users\\USER\\Desktop\\Twibble App\\artifacts\\**",
+        "C:\\Users\\USER\\Desktop\\Twibble App\\*.md",
+        "C:\\Users\\USER\\Desktop\\Twibble App\\*.json",
+        "C:\\Users\\USER\\Desktop\\Twibble App\\*.html",
+        "C:\\Users\\USER\\Desktop\\Twibble App\\*.css",
+        "C:\\Users\\USER\\Desktop\\Twibble App\\*.js"
+      ],
+      "read_only": [
+        "C:\\Users\\USER\\Desktop\\Twibble App\\logo.png"
+      ]
+    },
+    "tools": {
+      "file_operations": ["Read", "Write", "Edit", "MultiEdit"],
+      "search_operations": ["Glob", "Grep", "LS"],
+      "system_operations": ["Bash"],
+      "development_operations": ["Task", "TodoWrite"]
+    },
+    "restrictions": {
+      "no_delete_core_files": [
+        "orchestrator/AGENT_GUIDELINES.md",
+        "orchestrator/PRD.md", 
+        "orchestrator/Design_system.md",
+        "orchestrator/plan.md",
+        "orchestrator/CLAUDE.md"
+      ],
+      "require_backup": false,
+      "validate_before_commit": true
+    }
+  },
+  "orchestrator_permissions": {
+    "delegate_to_agents": true,
+    "modify_task_ledger": true,
+    "update_progress_tracking": true,
+    "create_checkpoints": true,
+    "enforce_quality_gates": true
+  }
+}

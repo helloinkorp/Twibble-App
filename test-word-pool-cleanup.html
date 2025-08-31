@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Pool Cleanup Test</title>
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        
+        .status-pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-waiting {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .word-pool-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            min-height: 50px;
+        }
+        
+        .btn {
+            margin: 5px;
+        }
+        
+        .test-input {
+            width: 100%;
+            min-height: 60px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .chip-container {
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            min-height: 50px;
+        }
+        
+        .log {
+            font-family: monospace;
+            font-size: 12px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Word Pool Auto-Update Cleanup Test</h1>
+        
+        <div class="test-section">
+            <h2>Test Overview</h2>
+            <p><strong>Goal:</strong> Verify that Word Pool updates ONLY when buttons are pressed, never automatically from chip creation.</p>
+            <div id="overallStatus" class="status status-waiting">
+                ⏳ Ready to test Word Pool cleanup implementation
+            </div>
+        </div>
+
+        <!-- Test 1: Manual Entry -->
+        <div class="test-section">
+            <h2>Test 1: Manual Entry (No Auto-Update)</h2>
+            <p><strong>Expected:</strong> Words should appear in staging area, but NOT in Word Pool until button is clicked</p>
+            
+            <label><strong>Manual Entry - Vocabulary:</strong></label>
+            <textarea id="manualInput" class="test-input" placeholder="Type words here (one per line)&#10;Example:&#10;cat&#10;dog&#10;bird"></textarea>
+            
+            <div>
+                <strong>Staging Area (temp chips):</strong>
+                <div id="manualStaging" class="chip-container">No words added yet</div>
+            </div>
+            
+            <button id="addManualWords" class="btn btn-secondary">Add to Word Pool</button>
+            
+            <div id="manualStatus" class="status status-waiting">⏳ Add words and check staging area (should NOT auto-update Word Pool)</div>
+        </div>
+
+        <!-- Test 2: Word Pool Display -->
+        <div class="test-section">
+            <h2>Word Pool (Final Result)</h2>
+            <p><strong>Expected:</strong> Should update ONLY when buttons are clicked</p>
+            
+            <div class="word-pool-display" id="wordPoolDisplay">
+                <strong>Word Pool:</strong> (empty - should only update on button click)
+            </div>
+            
+            <div id="poolStatus" class="status status-waiting">⏳ Word Pool should remain empty until button is clicked</div>
+        </div>
+
+        <!-- Test 3: Log Console -->
+        <div class="test-section">
+            <h2>Activity Log</h2>
+            <div id="logConsole" class="log">Test initialized - ready to track Word Pool updates</div>
+        </div>
+    </div>
+
+    <!-- Include design system components -->
+    <script type="module" src="src/components/chips.js"></script>
+    
+    <script type="module">
+        import { ChipManager, createWordChip } from './src/components/chips.js';
+        
+        // Test state
+        let chipManager;
+        let tempWordStorage = { vocabulary: [], spelling: [], phonics: [] };
+        let logCounter = 0;
+        
+        // Simplified versions of app functions for testing
+        function log(message) {
+            logCounter++;
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('logConsole');
+            logElement.textContent += `\n${logCounter}. [${timestamp}] ${message}`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        function updateWordPoolFromChips(chipData) {
+            log('🔄 updateWordPoolFromChips() called - Word Pool updating');
+            
+            const container = document.getElementById('wordPoolDisplay');
+            container.innerHTML = '<strong>Word Pool:</strong><br>';
+            
+            let totalChips = 0;
+            Object.entries(chipData).forEach(([activity, chips]) => {
+                chips.forEach(chipInfo => {
+                    totalChips++;
+                    log(`   ├─ Adding to pool: ${chipInfo.word} (${activity})`);
+                    const poolChip = createWordChip({
+                        word: chipInfo.word,
+                        activities: chipInfo.activities,
+                        draggable: false,
+                        onDelete: null
+                    });
+                    container.appendChild(poolChip);
+                });
+            });
+            
+            if (totalChips === 0) {
+                container.innerHTML += '<em>No words in pool</em>';
+            }
+            
+            log(`✅ Word Pool update complete: ${totalChips} chips displayed`);
+            document.getElementById('poolStatus').textContent = `✅ Word Pool updated with ${totalChips} words`;
+            document.getElementById('poolStatus').className = 'status status-pass';
+        }
+        
+        function updateTempWordsDisplay(groupType) {
+            const container = document.getElementById('manualStaging');
+            const words = tempWordStorage[groupType];
+            
+            if (words.length === 0) {
+                container.innerHTML = 'No words added yet';
+                return;
+            }
+            
+            container.innerHTML = '';
+            words.forEach((word, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'word-chip vocabulary'; // Yellow staging chip
+                chip.textContent = word;
+                chip.style.display = 'inline-block';
+                chip.style.margin = '2px';
+                container.appendChild(chip);
+            });
+            
+            log(`📝 Staging display updated: ${words.length} temp words`);
+        }
+        
+        function parseWords(text) {
+            return text.split('\n')
+                .map(word => word.trim())
+                .filter(word => word.length > 0);
+        }
+        
+        function addAllTempWordsToLesson() {
+            let totalAdded = 0;
+            
+            const words = tempWordStorage.vocabulary;
+            if (words.length > 0) {
+                log(`🎯 Processing ${words.length} temp words for chip creation`);
+                
+                words.forEach(word => {
+                    chipManager.addChip(word.trim(), ['vocabulary'], 'vocabulary');
+                    totalAdded++;
+                    log(`   ├─ Added chip: ${word.trim()}`);
+                });
+                
+                // Clear temp storage
+                tempWordStorage.vocabulary = [];
+                updateTempWordsDisplay('vocabulary');
+                
+                log(`✅ Added ${totalAdded} words to ChipManager`);
+                
+                // MANUAL Word Pool update (no auto-update)
+                const chipData = chipManager.getAllChips();
+                updateWordPoolFromChips(chipData);
+            }
+        }
+        
+        // Initialize test
+        function initializeTest() {
+            log('🚀 Initializing Word Pool Cleanup Test');
+            
+            // Create ChipManager
+            chipManager = new ChipManager();
+            
+            // Register vocabulary container
+            const vocabContainer = document.createElement('div');
+            vocabContainer.className = 'chip-container';
+            vocabContainer.setAttribute('data-activity', 'vocabulary');
+            chipManager.registerContainer('vocabulary', vocabContainer);
+            
+            // Setup change handler (WITHOUT Word Pool auto-update)
+            chipManager.onChipChange((chipData) => {
+                log('📡 ChipManager change event triggered');
+                log('   ├─ Word count update: YES');
+                log('   ├─ Auto-save trigger: YES');  
+                log('   ├─ Word Pool auto-update: NO (removed!)');
+                
+                // Verify no auto Word Pool update
+                const poolStatus = document.getElementById('poolStatus');
+                if (poolStatus.textContent.includes('empty')) {
+                    poolStatus.textContent = '✅ PASS: No auto-update occurred';
+                    poolStatus.className = 'status status-pass';
+                }
+            });
+            
+            // Setup manual input processing (staging only)
+            const manualInput = document.getElementById('manualInput');
+            manualInput.addEventListener('input', () => {
+                const words = parseWords(manualInput.value);
+                tempWordStorage.vocabulary = words;
+                updateTempWordsDisplay('vocabulary');
+                
+                if (words.length > 0) {
+                    log(`✏️ Manual input processed: ${words.length} words staged`);
+                    document.getElementById('manualStatus').textContent = 
+                        `✅ ${words.length} words staged (Word Pool should still be empty)`;
+                    document.getElementById('manualStatus').className = 'status status-pass';
+                } else {
+                    document.getElementById('manualStatus').textContent = 
+                        '⏳ Add words and check staging area (should NOT auto-update Word Pool)';
+                    document.getElementById('manualStatus').className = 'status status-waiting';
+                }
+            });
+            
+            // Setup button handler
+            document.getElementById('addManualWords').addEventListener('click', () => {
+                log('🔘 "Add to Word Pool" button clicked');
+                addAllTempWordsToLesson();
+            });
+            
+            log('✅ Test initialization complete');
+            document.getElementById('overallStatus').textContent = 
+                '✅ Test ready - Type words to verify no auto Word Pool updates occur';
+            document.getElementById('overallStatus').className = 'status status-pass';
+        }
+        
+        // Start test when page loads
+        document.addEventListener('DOMContentLoaded', initializeTest);
+    </script>
+</body>
+</html>

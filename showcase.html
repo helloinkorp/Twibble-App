@@ -395,6 +395,45 @@
                 <p class="text-center text-secondary"><em>Complete component library showcase with live demonstrations from /src/components/ modules</em></p>
             </div>
         </footer>
+
+        <!-- Word Chip System -->
+        <section class="showcase-section">
+            <h2>Word Chip System - Activity Color Coding</h2>
+            <div class="card">
+                <h3>Single Activity Chips (Pastel Colors)</h3>
+                <p class="text-secondary mb-4">Per PRD: Vocabulary=pastel yellow, Spelling=pastel mint, Phonics=pastel purple</p>
+                <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+                    <div class="word-chip vocabulary">vocabulary</div>
+                    <div class="word-chip spelling">spelling</div>
+                    <div class="word-chip phonics">phonics</div>
+                </div>
+                
+                <h3>Multiple Activity Chips (Gray + Colored Dots)</h3>
+                <p class="text-secondary mb-4">Gray background with colored dots indicating multiple activities</p>
+                <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+                    <div class="word-chip multiple">
+                        multiple
+                        <div class="activity-dots">
+                            <div class="activity-dot vocab"></div>
+                            <div class="activity-dot spelling"></div>
+                        </div>
+                    </div>
+                    <div class="word-chip multiple">
+                        all-three
+                        <div class="activity-dots">
+                            <div class="activity-dot vocab"></div>
+                            <div class="activity-dot spelling"></div>
+                            <div class="activity-dot phonics"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Chip Size Validation</h3>
+                <p class="text-secondary mb-4">All chips use consistent small sizing: 9px font, 2px 4px padding, 12px min-height</p>
+                <div id="chip-size-test" style="padding: 10px; background: #f3f4f6; border-radius: 4px;">Loading size test...</div>
+            </div>
+        </section>
+
     </div>
 
     <!-- Component Module Imports -->
@@ -477,11 +516,34 @@
                 e.target.textContent = isShowing ? 'Hide Targets' : 'Touch Targets';
             });
             
+            // Test chip sizing
+            setTimeout(() => {
+                const chip = document.querySelector('.word-chip');
+                if (chip) {
+                    const styles = window.getComputedStyle(chip);
+                    const fontSize = parseInt(styles.fontSize);
+                    const padding = styles.padding;
+                    const minHeight = parseInt(styles.minHeight) || 0;
+                    
+                    const testResult = document.getElementById('chip-size-test');
+                    if (fontSize === 9 && padding.includes('2px 4px') && minHeight === 12) {
+                        testResult.innerHTML = `✅ PASS: font-size: ${fontSize}px, padding: ${padding}, min-height: ${minHeight}px`;
+                        testResult.style.background = '#dcfce7';
+                        testResult.style.color = '#15803d';
+                    } else {
+                        testResult.innerHTML = `❌ FAIL: font-size: ${fontSize}px, padding: ${padding}, min-height: ${minHeight}px`;
+                        testResult.style.background = '#fef2f2';
+                        testResult.style.color = '#dc2626';
+                    }
+                }
+            }, 500);
+
             console.log('✅ Twibble Component Showcase Loaded');
             console.log('📊 Performance:', loadTime + 'ms');
             console.log('🎨 Design System: /src/styles/design-system.css');
             console.log('🧩 Components: All 5 modules imported and rendered');
             console.log('♿ Accessibility: WCAG 2.1 AA compliant');
+            console.log('🔬 Chip System: Pastel color validation added');
         });
     </script>
 </body>

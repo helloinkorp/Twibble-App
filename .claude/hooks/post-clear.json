@@ -1,0 +1,19 @@
+{
+  "name": "post-clear-context-loader",
+  "description": "Automatically load orchestrator context after /clear command",
+  "trigger": "post_command",
+  "command_pattern": "/clear",
+  "auto_execute": true,
+  "actions": [
+    {
+      "type": "command",
+      "command": "/load-context",
+      "description": "Load orchestrator context files"
+    }
+  ],
+  "settings": {
+    "require_confirmation": false,
+    "silent_execution": false,
+    "log_execution": true
+  }
+}

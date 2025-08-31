@@ -1,0 +1,34 @@
+{
+  "delegation_template": {
+    "ID": "[REQUIRED: unique-task-id]",
+    "Instructions": "[REQUIRED: one-sentence directive]",
+    "Context": "[REQUIRED: PRD excerpts + file refs]",
+    "Conditions": "[REQUIRED: tests, lint, security checks]",
+    "Restrictions": [
+      "no secrets in code",
+      "no external network calls",
+      "no re-delegation allowed",
+      "allow_delegation=False"
+    ],
+    "OutputFormat": "[REQUIRED: expected file paths/names]",
+    "Tests": {
+      "commands": "[REQUIRED: test commands]",
+      "pass_criteria": "[REQUIRED: success conditions]"
+    },
+    "EffortBudget": {
+      "tier": "[small|medium|large]",
+      "timeout": "[max 5 minutes]"
+    },
+    "TraceID": "[REQUIRED: trace-{timestamp}-{task}]"
+  },
+  "validation_rules": {
+    "max_concurrent_agents": 8,
+    "max_retries": 5,
+    "confidence_threshold": 0.9,
+    "human_approval_required": [
+      "production_deployment",
+      "architecture_changes",
+      "confidence < 0.9"
+    ]
+  }
+}

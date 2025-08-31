@@ -278,37 +278,34 @@
             background: var(--color-gray-50);
         }
         
-        .word-group-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-1);
-            padding: var(--space-1) var(--space-3);
-            background: #FEF3C7;
-            border: 1px solid #F59E0B;
-            border-radius: 16px;
-            font-family: var(--font-family-body);
-            font-size: var(--font-size-sm);
-            color: var(--color-black);
-            cursor: pointer;
-            transition: all 0.2s ease;
+        /* Temp chip styling - slightly brighter than regular chips for visibility */
+        .word-chip.temp-chip.vocabulary {
+            background: #fef3cd; /* Brighter yellow for temp state */
+            border-color: #f59e0b;
         }
         
-        .word-group-chip:hover {
-            background: #FDE68A;
+        .word-chip.temp-chip.spelling {
+            background: #d1fae5; /* Brighter mint for temp state */
+            border-color: #10b981;
+        }
+        
+        .word-chip.temp-chip.phonics {
+            background: #e9d5ff; /* Brighter purple for temp state */
+            border-color: #a855f7;
         }
         
         .word-group-chip-delete {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 14px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: var(--color-error);
             color: var(--color-white);
-            font-size: 10px;
+            font-size: 8px;
             cursor: pointer;
-            margin-left: var(--space-1);
+            margin-left: 2px;
             opacity: 0;
             transition: opacity 0.2s ease;
         }
@@ -413,25 +410,9 @@
             min-height: 60px;
         }
         
-        .word-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-2);
-            padding: var(--space-2) var(--space-3);
-            background: var(--color-gray-100);
-            border: 1px solid var(--color-gray-300);
-            border-radius: 20px;
-            font-family: var(--font-family-body);
-            font-size: var(--font-size-sm);
-            color: var(--color-black);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-        }
+        /* Removed conflicting word-chip styles - using design-system.css values */
         
-        .word-chip:hover {
-            background: var(--color-gray-200);
-        }
+        /* Removed conflicting hover style - using design-system.css hover effects */
         
         .word-chip-text {
             font-weight: var(--font-weight-medium);
@@ -693,8 +674,8 @@
                         
                         <!-- Single Add to Lesson Button for Manual Entry -->
                         <div style="margin-top: var(--space-6); text-align: center;">
-                            <button type="button" class="btn btn-primary add-all-to-lesson-btn" data-entry-type="manual">
-                                Add All Words to Lesson
+                            <button type="button" class="btn btn-secondary add-all-to-lesson-btn" data-entry-type="manual">
+                                Add to Word Pool
                             </button>
                         </div>
                     </div>
@@ -789,7 +770,7 @@
                         
                         <!-- Single Add to Lesson Button for File Upload -->
                         <div style="margin-top: var(--space-6); text-align: center;">
-                            <button type="button" class="btn btn-primary add-all-to-lesson-btn" data-entry-type="file-upload">
+                            <button type="button" class="btn btn-secondary add-all-to-lesson-btn" data-entry-type="file-upload">
                                 Add File Upload Words to Lesson
                             </button>
                         </div>
@@ -858,7 +839,7 @@
         import { createHeader } from '../components/navigation.js';
         import { createCtaButton, createSecondaryButton } from '../components/buttons.js';
         import { createTextInput, createNumberInput } from '../components/forms.js';
-        import { ChipManager } from '../components/chips.js';
+        import { ChipManager, createWordChip } from '../components/chips.js';
         
         // Initialize ChipManager for lesson creation
         const chipManager = new ChipManager();
@@ -956,17 +937,24 @@
                 console.warn('Some containers failed to register - file upload may not work properly!');
             }
 
-            // Setup change handler to update word pool and auto-save
+            // Setup change handler for auto-save, word count, and continue button
             chipManager.onChipChange((chipData) => {
                 console.log('ChipManager change event triggered:', chipData);
-                updateWordPoolFromChips(chipData);
+                
+                // Update word count, continue button, and trigger auto-save
                 updateWordCountFromChips(chipData);
                 updateContinueButton();
                 triggerAutoSave();
+                
+                // NOTE: Word Pool updates removed from auto-change handler
+                // Word Pool now updates ONLY when buttons are explicitly pressed
             });
 
             // Initialize dynamic activity toggle system
             initializeActivityToggleSystem();
+            
+            // Setup file upload drag-drop between containers
+            setupFileUploadDragDrop();
         }
 
         // Initialize Dynamic Activity Toggle System
@@ -996,6 +984,41 @@
             });
 
             console.log('Dynamic activity toggle system initialized');
+        }
+
+        // Add all temporary words to the lesson (ChipManager)
+        function addAllTempWordsToLesson() {
+            let totalAdded = 0;
+            
+            // Process each group's temporary words
+            ['vocabulary', 'spelling', 'phonics'].forEach(groupType => {
+                const words = tempWordStorage[groupType];
+                if (words.length > 0) {
+                    // Get current activity states for this group
+                    const currentActivities = getActivitiesForGroup(groupType);
+                    const activeActivities = Object.keys(currentActivities).filter(key => currentActivities[key]);
+                    
+                    words.forEach(word => {
+                        // Add chip with current activity states to ChipManager
+                        chipManager.addChip(word.trim(), activeActivities, groupType);
+                        totalAdded++;
+                    });
+                    
+                    // Clear temporary storage and display
+                    tempWordStorage[groupType] = [];
+                    updateTempWordsDisplay(groupType);
+                }
+            });
+            
+            if (totalAdded > 0) {
+                console.log(`Added ${totalAdded} words to lesson`);
+                
+                // Update Word Pool with all current chips
+                const chipData = chipManager.getAllChips();
+                updateWordPoolFromChips(chipData);
+                
+                // Auto-save is triggered by chipManager change handler
+            }
         }
 
         // Handle activity toggle changes with validation and chip updates
@@ -1187,11 +1210,11 @@
                     return;
                 }
                 
-                // Enhanced input handling - Enter key and comma separation
+                // Enhanced input handling - Enter key and comma separation (now stores temporarily)
                 textarea.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
-                        processInputWordsWithChips(textarea, groupType);
+                        processInputWordsForStorage(textarea, groupType);
                     }
                 });
                 
@@ -1199,22 +1222,32 @@
                 textarea.addEventListener('input', (e) => {
                     const value = e.target.value;
                     if (value.includes(',')) {
-                        processInputWordsWithChips(textarea, groupType);
+                        processInputWordsForStorage(textarea, groupType);
                     }
                 });
                 
                 // Paste handling for multiple words
                 textarea.addEventListener('paste', (e) => {
                     setTimeout(() => {
-                        processInputWordsWithChips(textarea, groupType);
+                        processInputWordsForStorage(textarea, groupType);
                     }, 10);
                 });
             });
             
-            // Remove old "Add All to Lesson" button functionality since chips are added directly
+            // Setup "Add to Word Pool" button functionality for manual entry
             const addAllBtn = document.querySelector('.add-all-to-lesson-btn[data-entry-type="manual"]');
             if (addAllBtn) {
-                addAllBtn.style.display = 'none'; // Hide since chips are added directly
+                addAllBtn.addEventListener('click', () => {
+                    addAllTempWordsToLesson();
+                });
+            }
+            
+            // Setup "Add File Upload Words to Lesson" button functionality
+            const fileUploadBtn = document.querySelector('.add-all-to-lesson-btn[data-entry-type="file-upload"]');
+            if (fileUploadBtn) {
+                fileUploadBtn.addEventListener('click', () => {
+                    addAllFileUploadWordsToLesson();
+                });
             }
 
             // Note: Activity toggle listeners are now handled by initializeActivityToggleSystem()
@@ -1228,21 +1261,248 @@
             });
         }
 
-        // Process words from input and add directly as chips using ChipManager
-        function processInputWordsWithChips(textarea, groupType) {
+        // Store for temporary word storage before adding to lesson
+        const tempWordStorage = {
+            vocabulary: [],
+            spelling: [],
+            phonics: []
+        };
+        
+        // Store for file upload staging before adding to lesson
+        const fileUploadStorage = {
+            'file-vocabulary': [],
+            'file-spelling': [],
+            'file-phonics': []
+        };
+
+        // Process words from input and store temporarily (no longer auto-adding to chip manager)
+        function processInputWordsForStorage(textarea, groupType) {
             const words = parseWords(textarea.value);
             if (words.length > 0) {
-                // Get current activity states for this group
-                const currentActivities = getActivitiesForGroup(groupType);
-                const activeActivities = Object.keys(currentActivities).filter(key => currentActivities[key]);
-                
                 words.forEach(word => {
-                    // Add chip with current activity states
-                    chipManager.addChip(word.trim(), activeActivities, groupType);
+                    const cleanWord = word.trim();
+                    // Add to temporary storage if not already present
+                    if (!tempWordStorage[groupType].includes(cleanWord)) {
+                        tempWordStorage[groupType].push(cleanWord);
+                    }
                 });
                 textarea.value = '';
-                // Auto-save triggered by chipManager change handler
+                
+                // Update visual display of temporary words
+                updateTempWordsDisplay(groupType);
             }
+        }
+
+        // Update display of temporary words in group containers
+        function updateTempWordsDisplay(groupType) {
+            const container = document.getElementById(`${groupType}-chip-container`);
+            if (!container) return;
+            
+            // Clear existing temp chips
+            container.innerHTML = '';
+            
+            // Add temp word chips
+            tempWordStorage[groupType].forEach(word => {
+                const chip = createTempWordChip(word, groupType);
+                container.appendChild(chip);
+            });
+            
+            // Remove empty class if we have words
+            if (tempWordStorage[groupType].length > 0) {
+                container.classList.remove('empty');
+            } else {
+                container.classList.add('empty');
+            }
+        }
+
+        // Create temporary word chip (yellow/cream background)
+        function createTempWordChip(word, groupType) {
+            const chip = document.createElement('div');
+            chip.className = 'word-chip temp-chip'; // Use design system class + temp identifier
+            chip.textContent = word;
+            chip.setAttribute('data-word', word);
+            chip.setAttribute('data-group', groupType);
+            
+            // Add activity color class based on group type
+            if (groupType === 'vocabulary') {
+                chip.classList.add('vocabulary');
+            } else if (groupType === 'spelling') {
+                chip.classList.add('spelling');  
+            } else if (groupType === 'phonics') {
+                chip.classList.add('phonics');
+            }
+            
+            // Add delete button
+            const deleteBtn = document.createElement('span');
+            deleteBtn.className = 'delete-btn material-symbols-outlined';
+            deleteBtn.textContent = 'close';
+            deleteBtn.style.fontSize = '10px';
+            deleteBtn.setAttribute('aria-label', `Remove ${word}`);
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeTempWord(word, groupType);
+            });
+            
+            chip.appendChild(deleteBtn);
+            return chip;
+        }
+
+        // Remove word from temporary storage
+        function removeTempWord(word, groupType) {
+            const index = tempWordStorage[groupType].indexOf(word);
+            if (index > -1) {
+                tempWordStorage[groupType].splice(index, 1);
+                updateTempWordsDisplay(groupType);
+            }
+        }
+        
+        // File upload staging functions - similar to manual entry staging
+        
+        // Add all file upload staged words to the lesson (ChipManager)
+        function addAllFileUploadWordsToLesson() {
+            let totalAdded = 0;
+            
+            // Process each file upload group's staged words
+            ['file-vocabulary', 'file-spelling', 'file-phonics'].forEach(groupType => {
+                const words = fileUploadStorage[groupType];
+                if (words.length > 0) {
+                    // Get current activity states for this group
+                    const currentActivities = getActivitiesForGroup(groupType);
+                    const activeActivities = Object.keys(currentActivities).filter(key => currentActivities[key]);
+                    
+                    words.forEach(word => {
+                        // Add chip with current activity states to ChipManager
+                        chipManager.addChip(word.trim(), activeActivities, groupType);
+                        totalAdded++;
+                    });
+                    
+                    // Clear staging storage and display
+                    fileUploadStorage[groupType] = [];
+                    updateFileUploadWordsDisplay(groupType);
+                }
+            });
+            
+            if (totalAdded > 0) {
+                console.log(`Added ${totalAdded} file upload words to lesson`);
+                
+                // Update Word Pool with all current chips
+                const chipData = chipManager.getAllChips();
+                updateWordPoolFromChips(chipData);
+                
+                // Auto-save is triggered by chipManager change handler
+            }
+        }
+        
+        // Update display of staged file upload words in group containers
+        function updateFileUploadWordsDisplay(groupType) {
+            const container = document.getElementById(`${groupType}-chip-container`);
+            if (!container) return;
+            
+            // Clear existing staged chips
+            container.innerHTML = '';
+            
+            // Add staged word chips
+            fileUploadStorage[groupType].forEach(word => {
+                const chip = createFileUploadTempChip(word, groupType);
+                container.appendChild(chip);
+            });
+            
+            // Remove empty class if we have words
+            if (fileUploadStorage[groupType].length > 0) {
+                container.classList.remove('empty');
+            } else {
+                container.classList.add('empty');
+            }
+        }
+        
+        // Create temporary file upload chip (similar styling to manual entry temp chips)
+        function createFileUploadTempChip(word, groupType) {
+            const chip = document.createElement('div');
+            chip.className = 'word-chip temp-chip'; // Use design system class + temp identifier
+            chip.textContent = word;
+            chip.setAttribute('data-word', word);
+            chip.setAttribute('data-group', groupType);
+            
+            // Add activity color class based on group type
+            if (groupType === 'file-vocabulary') {
+                chip.classList.add('vocabulary');
+            } else if (groupType === 'file-spelling') {
+                chip.classList.add('spelling');  
+            } else if (groupType === 'file-phonics') {
+                chip.classList.add('phonics');
+            }
+            
+            // Make chip draggable for moving between file upload grids
+            chip.draggable = true;
+            chip.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', word);
+                e.dataTransfer.setData('source-group', groupType);
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            
+            // Add delete button
+            const deleteBtn = document.createElement('span');
+            deleteBtn.className = 'delete-btn material-symbols-outlined';
+            deleteBtn.textContent = 'close';
+            deleteBtn.style.fontSize = '10px';
+            deleteBtn.setAttribute('aria-label', `Remove ${word}`);
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeFileUploadTempWord(word, groupType);
+            });
+            
+            chip.appendChild(deleteBtn);
+            return chip;
+        }
+        
+        // Remove word from file upload staging storage
+        function removeFileUploadTempWord(word, groupType) {
+            const index = fileUploadStorage[groupType].indexOf(word);
+            if (index > -1) {
+                fileUploadStorage[groupType].splice(index, 1);
+                updateFileUploadWordsDisplay(groupType);
+            }
+        }
+        
+        // Setup drag-drop between file upload containers
+        function setupFileUploadDragDrop() {
+            const fileUploadContainers = [
+                document.getElementById('file-vocabulary-chip-container'),
+                document.getElementById('file-spelling-chip-container'),
+                document.getElementById('file-phonics-chip-container')
+            ];
+            
+            fileUploadContainers.forEach(container => {
+                if (container) {
+                    container.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                    });
+                    
+                    container.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        const word = e.dataTransfer.getData('text/plain');
+                        const sourceGroup = e.dataTransfer.getData('source-group');
+                        const targetGroup = container.getAttribute('data-group');
+                        
+                        if (word && sourceGroup && targetGroup && sourceGroup !== targetGroup) {
+                            // Move word between file upload staging groups
+                            const index = fileUploadStorage[sourceGroup].indexOf(word);
+                            if (index > -1) {
+                                // Remove from source
+                                fileUploadStorage[sourceGroup].splice(index, 1);
+                                // Add to target if not already there
+                                if (!fileUploadStorage[targetGroup].includes(word)) {
+                                    fileUploadStorage[targetGroup].push(word);
+                                }
+                                // Update both displays
+                                updateFileUploadWordsDisplay(sourceGroup);
+                                updateFileUploadWordsDisplay(targetGroup);
+                            }
+                        }
+                    });
+                }
+            });
         }
         
         // Legacy functions removed - now using ChipManager system
@@ -1320,6 +1580,15 @@
                 }
             });
 
+            // Click handler for file drop zone
+            fileDropZone.addEventListener('click', (e) => {
+                // Only trigger if not clicking on the actual file input
+                if (e.target !== fileInput) {
+                    e.preventDefault();
+                    fileInput.click();
+                }
+            });
+
             // File input handler
             fileInput.addEventListener('change', (e) => {
                 if (e.target.files.length > 0) {
@@ -1349,26 +1618,19 @@
                             console.error('fileUploadWordGroups element not found!');
                         }
                         
-                        // File containers are already registered during initialization,
-                        // so we can directly add chips without re-registration
-                        
-                        // Load words to File Upload Vocabulary grid with current activity states
-                        const currentActivities = getActivitiesForGroup('file-vocabulary');
-                        const activeActivities = Object.keys(currentActivities).filter(key => currentActivities[key]);
-                        
-                        console.log('File upload - activities for file-vocabulary:', currentActivities);
-                        console.log('File upload - active activities:', activeActivities);
-                        
-                        // Add each word with proper activities
+                        // FIXED: Store words in file upload staging instead of direct ChipManager
+                        // Add each word to file upload staging (file-vocabulary group)
                         let successCount = 0;
                         words.forEach(word => {
-                            try {
-                                chipManager.addChip(word.trim(), activeActivities, 'file-vocabulary');
+                            const cleanWord = word.trim();
+                            if (!fileUploadStorage['file-vocabulary'].includes(cleanWord)) {
+                                fileUploadStorage['file-vocabulary'].push(cleanWord);
                                 successCount++;
-                            } catch (error) {
-                                console.error(`Error adding chip for word "${word}":`, error);
                             }
                         });
+                        
+                        // Update visual display of staged file upload words
+                        updateFileUploadWordsDisplay('file-vocabulary');
                         
                         // Keep File Import accordion open to show the loaded words
                         const fileSection = document.getElementById('fileImportSection');
@@ -1376,9 +1638,8 @@
                             fileSection.querySelector('.accordion-header').click();
                         }
                         
-                        showFileStatus(`Successfully loaded ${successCount} words to File Upload - Vocabulary from ${file.name}`, 'success');
-                        console.log(`File upload complete: ${successCount}/${words.length} words added successfully`);
-                        // Auto-save triggered by chipManager change handler
+                        showFileStatus(`Successfully loaded ${successCount} words to File Upload - Vocabulary staging from ${file.name}`, 'success');
+                        console.log(`File upload staging complete: ${successCount}/${words.length} words added to staging`);
                     } else {
                         showFileStatus('No valid words found in file', 'warning');
                     }
@@ -1402,21 +1663,28 @@
             }
         }
 
-        // Update word pool display from ChipManager data
+        // Update word pool display from ChipManager data - SIMPLIFIED VERSION
+        // Called only from button clicks, no automatic filtering needed
         function updateWordPoolFromChips(chipData) {
+            console.log('=== updateWordPoolFromChips called from button click ===');
+            console.log('chipData:', chipData);
+            
             const container = document.getElementById('wordChipsContainer');
             container.innerHTML = '';
             
             let totalChips = 0;
             
-            // Combine all chips from all activities
+            // Add all chips to Word Pool (no filtering - called only when intended)
             Object.entries(chipData).forEach(([activity, chips]) => {
                 chips.forEach(chipInfo => {
                     totalChips++;
+                    console.log(`Adding chip to pool: ${chipInfo.word} (${chipInfo.containerId})`);
                     const poolChip = createWordPoolChip(chipInfo.word, activity, chipInfo.activities);
                     container.appendChild(poolChip);
                 });
             });
+            
+            console.log(`Word Pool update complete: ${totalChips} chips added`);
             
             // Show empty state if no chips
             if (totalChips === 0) {
@@ -1430,43 +1698,30 @@
             }
         }
 
-        // Create a word chip for the word pool display
+        // Create a word chip for the word pool display - Use design system createWordChip
         function createWordPoolChip(word, primaryActivity, activities) {
-            const chip = document.createElement('div');
-            chip.className = `word-chip ${activities.length === 1 ? primaryActivity : 'multiple'}`;
-            chip.setAttribute('data-word', word);
+            // Use the design system createWordChip function for consistency
+            const chipConfig = {
+                word: word,
+                activities: activities,
+                onDelete: (chipId, word) => {
+                    // Handle pool chip deletion
+                    console.log(`Deleting word "${word}" from pool`);
+                    // Remove from all chip managers
+                    const allChips = chipManager.getAllChips();
+                    Object.entries(allChips).forEach(([activity, chips]) => {
+                        chips.forEach(chipInfo => {
+                            if (chipInfo.word === word) {
+                                chipManager.deleteChip(chipInfo.element.getAttribute('data-chip-id'));
+                            }
+                        });
+                    });
+                },
+                draggable: false, // Pool chips are display-only
+                id: `pool-chip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+            };
             
-            // Word text
-            const wordText = document.createElement('span');
-            wordText.textContent = word;
-            chip.appendChild(wordText);
-            
-            // Activity dots for multiple activities
-            if (activities.length > 1) {
-                const dotsContainer = document.createElement('div');
-                dotsContainer.className = 'activity-dots';
-                
-                activities.forEach(activity => {
-                    const dot = document.createElement('div');
-                    dot.className = `activity-dot ${activity === 'vocabulary' ? 'vocab' : activity}`;
-                    dotsContainer.appendChild(dot);
-                });
-                
-                chip.appendChild(dotsContainer);
-            }
-            
-            // Delete button
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-btn';
-            deleteBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 12px;">close</span>';
-            deleteBtn.setAttribute('aria-label', `Remove ${word} from lesson`);
-            deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                removeWordFromChipManager(word);
-            });
-            chip.appendChild(deleteBtn);
-            
-            return chip;
+            return createWordChip(chipConfig);
         }
 
         // Remove word from ChipManager

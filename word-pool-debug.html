@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Pool Debug Test</title>
+    <link rel="stylesheet" href="./src/styles/design-system.css">
+    <style>
+        body {
+            background: var(--color-background);
+            font-family: var(--font-family-body);
+            padding: 20px;
+        }
+        
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        
+        .test-input {
+            width: 300px;
+            padding: 8px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        .word-pool-display {
+            min-height: 100px;
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-gray-200);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 Word Pool Debug Test</h1>
+    
+    <div class="debug-section">
+        <h2>Manual Entry Test</h2>
+        <input type="text" id="manualInput" class="test-input" placeholder="Enter words separated by commas">
+        <button id="addManualBtn" class="btn btn-secondary">Add to Word Pool</button>
+        
+        <div class="word-pool-display" id="manualWordPool">
+            <strong>Manual Word Pool:</strong>
+        </div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>File Upload Test</h2>
+        <input type="file" id="fileInput" accept=".txt">
+        <button id="addFileBtn" class="btn btn-secondary">Add File Words to Lesson</button>
+        
+        <div class="word-pool-display" id="fileWordPool">
+            <strong>File Word Pool:</strong>
+        </div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Combined Word Pool (Final Result)</h2>
+        <div class="word-pool-display" id="combinedWordPool">
+            <strong>Combined Pool:</strong>
+        </div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Debug Log</h2>
+        <div id="debugLog" style="background: #f3f4f6; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+        </div>
+    </div>
+    
+    <script type="module">
+        import { ChipManager, createWordChip } from './src/components/chips.js';
+        
+        // Create chip manager instance
+        const chipManager = new ChipManager();
+        let fileWordsAddedToLesson = false;
+        
+        // Debug logging
+        function logDebug(message) {
+            const debugLog = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.innerHTML += `[${timestamp}] ${message}<br>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(message);
+        }
+        
+        // Setup manual entry test
+        document.getElementById('addManualBtn').addEventListener('click', () => {
+            const input = document.getElementById('manualInput');
+            const words = input.value.split(',').map(w => w.trim()).filter(w => w);
+            
+            logDebug(`Adding ${words.length} manual words to ChipManager`);
+            
+            words.forEach(word => {
+                const chipId = chipManager.addChip(word, ['vocabulary'], 'vocabulary');
+                logDebug(`Added "${word}" with ID: ${chipId}`);
+            });
+            
+            // Update manual word pool display
+            updateManualWordPool();
+            input.value = '';
+        });
+        
+        // Setup file upload test
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.type === 'text/plain') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const words = e.target.result.split(/[,\s\n]+/).map(w => w.trim()).filter(w => w);
+                    
+                    logDebug(`File uploaded: ${words.length} words found`);
+                    
+                    words.forEach(word => {
+                        const chipId = chipManager.addChip(word, ['vocabulary'], 'file-vocabulary');
+                        logDebug(`Added file word "${word}" with ID: ${chipId}`);
+                    });
+                    
+                    updateFileWordPool();
+                };
+                reader.readAsText(file);
+            }
+        });
+        
+        // Setup file words to lesson button
+        document.getElementById('addFileBtn').addEventListener('click', () => {
+            fileWordsAddedToLesson = true;
+            logDebug('File words added to lesson - updating combined pool');
+            updateCombinedWordPool();
+        });
+        
+        // Update manual word pool display
+        function updateManualWordPool() {
+            const container = document.getElementById('manualWordPool');
+            container.innerHTML = '<strong>Manual Word Pool:</strong><br>';
+            
+            const allChips = chipManager.getAllChips();
+            let manualCount = 0;
+            
+            Object.entries(allChips).forEach(([activity, chips]) => {
+                chips.forEach(chipInfo => {
+                    const isManual = !chipInfo.containerId.startsWith('file-');
+                    if (isManual) {
+                        const chipElement = createWordChip({
+                            word: chipInfo.word,
+                            activities: chipInfo.activities,
+                            draggable: false
+                        });
+                        container.appendChild(chipElement);
+                        manualCount++;
+                    }
+                });
+            });
+            
+            logDebug(`Manual pool updated: ${manualCount} chips displayed`);
+        }
+        
+        // Update file word pool display
+        function updateFileWordPool() {
+            const container = document.getElementById('fileWordPool');
+            container.innerHTML = '<strong>File Word Pool:</strong><br>';
+            
+            const allChips = chipManager.getAllChips();
+            let fileCount = 0;
+            
+            Object.entries(allChips).forEach(([activity, chips]) => {
+                chips.forEach(chipInfo => {
+                    const isFile = chipInfo.containerId.startsWith('file-');
+                    if (isFile) {
+                        const chipElement = createWordChip({
+                            word: chipInfo.word,
+                            activities: chipInfo.activities,
+                            draggable: false
+                        });
+                        container.appendChild(chipElement);
+                        fileCount++;
+                    }
+                });
+            });
+            
+            logDebug(`File pool updated: ${fileCount} chips displayed`);
+        }
+        
+        // Update combined word pool (like the real app)
+        function updateCombinedWordPool() {
+            const container = document.getElementById('combinedWordPool');
+            container.innerHTML = '<strong>Combined Pool:</strong><br>';
+            
+            const allChips = chipManager.getAllChips();
+            let totalCount = 0;
+            
+            Object.entries(allChips).forEach(([activity, chips]) => {
+                chips.forEach(chipInfo => {
+                    // Apply same logic as real app
+                    const isFileUploadChip = chipInfo.containerId && chipInfo.containerId.startsWith('file-');
+                    
+                    if (isFileUploadChip && !fileWordsAddedToLesson) {
+                        return; // Skip file upload chips until button pressed
+                    }
+                    
+                    const chipElement = createWordChip({
+                        word: chipInfo.word,
+                        activities: chipInfo.activities,
+                        draggable: false
+                    });
+                    container.appendChild(chipElement);
+                    totalCount++;
+                });
+            });
+            
+            logDebug(`Combined pool updated: ${totalCount} chips displayed`);
+        }
+        
+        // Set up change handler to mirror real app behavior
+        chipManager.onChipChange((chipData) => {
+            logDebug('ChipManager change event triggered');
+            updateCombinedWordPool();
+        });
+        
+        logDebug('Word Pool Debug Test initialized');
+    </script>
+</body>
+</html>

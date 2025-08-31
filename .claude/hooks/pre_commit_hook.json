@@ -1,0 +1,31 @@
+{
+  "hook_name": "pre_commit_orchestrator_validation",
+  "trigger": "pre_commit",
+  "mandatory_checks": [
+    {
+      "name": "test_suite",
+      "command": "npm test || pytest || cargo test",
+      "fail_action": "block_commit"
+    },
+    {
+      "name": "lint_check", 
+      "command": "npm run lint || flake8 || cargo clippy",
+      "fail_action": "block_commit"
+    },
+    {
+      "name": "security_scan",
+      "command": "npm audit || safety check || cargo audit",
+      "fail_action": "block_commit"
+    },
+    {
+      "name": "ledger_sync",
+      "validation": "tasks.txt_checksum == progress_ledger.md_tasks_checksum",
+      "fail_action": "block_commit"
+    },
+    {
+      "name": "trace_id_present",
+      "check": "commit_message contains TraceID",
+      "fail_action": "block_commit"
+    }
+  ]
+}

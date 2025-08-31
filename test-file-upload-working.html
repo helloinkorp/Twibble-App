@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Working Test</title>
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <style>
+        body { 
+            padding: 20px; 
+            font-family: var(--font-family-body, Arial, sans-serif); 
+            background: var(--color-background, #fff);
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .file-drop-zone {
+            border: 2px dashed var(--color-gray-300);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background: var(--color-gray-50);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .file-drop-zone.dragover {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+        .file-drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .drop-icon {
+            font-size: 48px;
+            color: var(--color-gray-400);
+            margin-bottom: 10px;
+        }
+        .word-groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .word-group {
+            background: var(--color-card-bg-soft);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--color-gray-200);
+        }
+        .chip-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 60px;
+            padding: 12px;
+            border-radius: 4px;
+            background: var(--color-gray-50);
+            margin-top: 12px;
+        }
+        .chip-container.empty:before {
+            content: "No words added yet";
+            color: var(--color-gray-500);
+            font-style: italic;
+        }
+        .status-message {
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .status-success { 
+            background: #d4edda; 
+            border: 1px solid #c3e6cb; 
+            color: #155724; 
+        }
+        .status-error { 
+            background: #f8d7da; 
+            border: 1px solid #f5c6cb; 
+            color: #721c24; 
+        }
+        .status-warning { 
+            background: #fff3cd; 
+            border: 1px solid #ffeaa7; 
+            color: #856404; 
+        }
+        .console {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>File Upload Working Test</h1>
+        <p>This test validates that the file upload functionality is now working correctly.</p>
+
+        <!-- File Upload Section -->
+        <div class="file-drop-zone" id="fileDropZone">
+            <input type="file" accept=".txt" id="fileInput">
+            <div class="drop-icon">📁</div>
+            <p><strong>Drag and drop a TXT file here</strong></p>
+            <p>or click to browse files</p>
+        </div>
+        
+        <div id="fileStatus" style="display: none;"></div>
+
+        <!-- Word Groups (File Upload) -->
+        <div class="word-groups" id="fileUploadWordGroups" style="display: none;">
+            <!-- File Upload Vocabulary Group -->
+            <div class="word-group" data-group="file-vocabulary">
+                <div>
+                    <strong>File Upload - Vocabulary</strong>
+                </div>
+                <div>
+                    <label><input type="checkbox" id="file-vocab-toggle" checked> Vocabulary</label>
+                    <label><input type="checkbox" id="file-vocab-spelling-toggle"> Spelling</label>
+                    <label><input type="checkbox" id="file-vocab-phonics-toggle"> Phonics</label>
+                </div>
+                <div class="chip-container empty" data-group="file-vocabulary" id="file-vocabulary-chip-container"></div>
+            </div>
+
+            <!-- File Upload Spelling Group -->
+            <div class="word-group" data-group="file-spelling">
+                <div>
+                    <strong>File Upload - Spelling</strong>
+                </div>
+                <div>
+                    <label><input type="checkbox" id="file-spelling-vocab-toggle"> Vocabulary</label>
+                    <label><input type="checkbox" id="file-spelling-toggle" checked> Spelling</label>
+                    <label><input type="checkbox" id="file-spelling-phonics-toggle"> Phonics</label>
+                </div>
+                <div class="chip-container empty" data-group="file-spelling" id="file-spelling-chip-container"></div>
+            </div>
+
+            <!-- File Upload Phonics Group -->
+            <div class="word-group" data-group="file-phonics">
+                <div>
+                    <strong>File Upload - Phonics</strong>
+                </div>
+                <div>
+                    <label><input type="checkbox" id="file-phonics-vocab-toggle"> Vocabulary</label>
+                    <label><input type="checkbox" id="file-phonics-spelling-toggle"> Spelling</label>
+                    <label><input type="checkbox" id="file-phonics-toggle" checked> Phonics</label>
+                </div>
+                <div class="chip-container empty" data-group="file-phonics" id="file-phonics-chip-container"></div>
+            </div>
+        </div>
+
+        <div class="console" id="console"></div>
+    </div>
+
+    <script type="module">
+        import { ChipManager } from './src/components/chips.js';
+
+        // Initialize ChipManager
+        const chipManager = new ChipManager();
+        
+        // Console logging
+        const consoleEl = document.getElementById('console');
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = { error: '#ff4444', warn: '#ffaa00', success: '#44ff44', info: '#00ffff' };
+            const color = colors[type] || colors.info;
+            
+            consoleEl.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+            console.log(`[${type.toUpperCase()}]`, message);
+        }
+
+        // Initialize containers
+        function initializeContainers() {
+            log('Initializing ChipManager containers...');
+            
+            const containers = [
+                'file-vocabulary-chip-container',
+                'file-spelling-chip-container', 
+                'file-phonics-chip-container'
+            ];
+
+            containers.forEach(containerId => {
+                const element = document.getElementById(containerId);
+                const groupName = containerId.replace('-chip-container', '');
+                
+                if (element) {
+                    chipManager.registerContainer(groupName, element);
+                    log(`✓ Registered container: ${groupName}`);
+                } else {
+                    log(`✗ Container not found: ${containerId}`, 'error');
+                }
+            });
+        }
+
+        // Get activities for group
+        function getActivitiesForGroup(groupType) {
+            const activities = { vocabulary: false, spelling: false, phonics: false };
+            
+            if (groupType === 'file-vocabulary') {
+                activities.vocabulary = document.getElementById('file-vocab-toggle')?.checked || false;
+                activities.spelling = document.getElementById('file-vocab-spelling-toggle')?.checked || false;
+                activities.phonics = document.getElementById('file-vocab-phonics-toggle')?.checked || false;
+            } else if (groupType === 'file-spelling') {
+                activities.vocabulary = document.getElementById('file-spelling-vocab-toggle')?.checked || false;
+                activities.spelling = document.getElementById('file-spelling-toggle')?.checked || false;
+                activities.phonics = document.getElementById('file-spelling-phonics-toggle')?.checked || false;
+            } else if (groupType === 'file-phonics') {
+                activities.vocabulary = document.getElementById('file-phonics-vocab-toggle')?.checked || false;
+                activities.spelling = document.getElementById('file-phonics-spelling-toggle')?.checked || false;
+                activities.phonics = document.getElementById('file-phonics-toggle')?.checked || false;
+            }
+            
+            return activities;
+        }
+
+        // Parse words from text
+        function parseWords(text) {
+            if (!text.trim()) return [];
+            
+            return text.split(/[\s,\n]+/)
+                .map(word => word.trim().replace(/[^\w\s-']/g, ''))
+                .filter(word => word.length > 0 && /[a-zA-Z]/.test(word))
+                .map(word => word.toLowerCase());
+        }
+
+        // Show file status
+        function showFileStatus(message, type) {
+            const fileStatus = document.getElementById('fileStatus');
+            fileStatus.textContent = message;
+            fileStatus.className = `status-message status-${type}`;
+            fileStatus.style.display = 'block';
+            
+            log(`Status: ${message}`, type);
+            
+            setTimeout(() => {
+                fileStatus.style.display = 'none';
+            }, 5000);
+        }
+
+        // Handle file upload
+        function handleFileUpload(file) {
+            log(`Processing file: ${file.name}`);
+            
+            if (!file.name.toLowerCase().endsWith('.txt')) {
+                showFileStatus('Error: Only TXT files are supported', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                const words = parseWords(content);
+                
+                log(`File read successfully. Content length: ${content.length} chars`);
+                log(`Parsed ${words.length} words: ${words.slice(0, 5).join(', ')}${words.length > 5 ? '...' : ''}`);
+                
+                if (words.length > 0) {
+                    // CRITICAL: Show File Upload word groups BEFORE adding chips
+                    const fileUploadWordGroups = document.getElementById('fileUploadWordGroups');
+                    fileUploadWordGroups.style.display = 'grid';
+                    log('Made file upload word groups visible');
+                    
+                    // Ensure containers are registered
+                    initializeContainers();
+                    
+                    // Load words to File Upload Vocabulary grid
+                    const currentActivities = getActivitiesForGroup('file-vocabulary');
+                    const activeActivities = Object.keys(currentActivities).filter(key => currentActivities[key]);
+                    
+                    log(`Current activities for file-vocabulary:`, currentActivities);
+                    log(`Active activities:`, activeActivities);
+                    
+                    // Add each word
+                    let successCount = 0;
+                    words.forEach(word => {
+                        try {
+                            const chipId = chipManager.addChip(word.trim(), activeActivities, 'file-vocabulary');
+                            if (chipId) {
+                                successCount++;
+                            }
+                        } catch (error) {
+                            log(`Error adding chip for word "${word}": ${error.message}`, 'error');
+                        }
+                    });
+                    
+                    if (successCount > 0) {
+                        showFileStatus(`Successfully loaded ${successCount} words from ${file.name}`, 'success');
+                        log(`File upload complete: ${successCount}/${words.length} words added successfully`, 'success');
+                    } else {
+                        showFileStatus('Failed to add any words from file', 'error');
+                        log('File upload failed: No words were added', 'error');
+                    }
+                } else {
+                    showFileStatus('No valid words found in file', 'warning');
+                }
+            };
+            
+            reader.onerror = () => {
+                showFileStatus('Error reading file', 'error');
+                log('FileReader error occurred', 'error');
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // Event handlers
+        const fileDropZone = document.getElementById('fileDropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        // Drag and drop handlers
+        fileDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.add('dragover');
+        });
+
+        fileDropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.remove('dragover');
+        });
+
+        fileDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        // File input handler
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        // Initialize
+        log('File Upload Working Test initialized');
+        log('Drag and drop a .txt file or click to browse');
+        
+        // Pre-initialize containers
+        initializeContainers();
+    </script>
+</body>
+</html>

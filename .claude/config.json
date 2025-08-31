@@ -1,0 +1,48 @@
+{
+  "auto_approve_commands": [
+    "/clear",
+    "/load-context",
+    "/init",
+    "/compact",
+    "/help",
+    "ls",
+    "pwd",
+    "cat",
+    "echo",
+    "date",
+    "mkdir",
+    "touch",
+    "git status",
+    "git log",
+    "git diff",
+    "git branch",
+    "npm run lint",
+    "npm run test"
+  ],
+  "auto_approve_paths": [
+    "C:\\Users\\USER\\Desktop\\Twibble App\\**",
+    "C:/Users/USER/Desktop/Twibble App/**"
+  ],
+  "auto_approve_tools": [
+    "Read",
+    "Write", 
+    "Edit",
+    "MultiEdit",
+    "Glob",
+    "Grep",
+    "LS",
+    "Bash"
+  ],
+  "orchestrator_settings": {
+    "max_concurrent_agents": 8,
+    "auto_load_context": true,
+    "validation_gates": true,
+    "trace_id_generation": true
+  },
+  "project_preferences": {
+    "framework": "vanilla",
+    "storage": "localStorage",
+    "design_system": "Design_system.md",
+    "mobile_first": true
+  }
+}

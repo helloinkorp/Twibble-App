@@ -295,7 +295,18 @@ class ChipManager {
     if (!toContainer) return;
 
     // Update chip activities (replace with target activity)
-    chipData.activities = [toActivity];
+    // Map container ID to activity name
+    const activityMapping = {
+      'vocabulary': 'vocabulary',
+      'spelling': 'spelling', 
+      'phonics': 'phonics',
+      'file-vocabulary': 'vocabulary',
+      'file-spelling': 'spelling',
+      'file-phonics': 'phonics'
+    };
+    
+    const targetActivity = activityMapping[toActivity] || 'vocabulary';
+    chipData.activities = [targetActivity];
     chipData.containerId = toActivity;
     
     // Update visual appearance

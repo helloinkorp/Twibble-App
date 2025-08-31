@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Debug Test</title>
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <style>
+        body { padding: 20px; font-family: Arial, sans-serif; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+        .warning { color: orange; }
+        .file-drop-zone {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            text-align: center;
+            background: #f9f9f9;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        .file-drop-zone.dragover {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
+        .file-drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .chip-container {
+            min-height: 60px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            background: #f8f9fa;
+        }
+        .chip {
+            display: inline-block;
+            padding: 4px 12px;
+            margin: 2px;
+            background: #e9ecef;
+            border: 1px solid #adb5bd;
+            border-radius: 16px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>File Upload Debug Test</h1>
+    
+    <div class="debug-section">
+        <h3>Step 1: File Upload Test</h3>
+        <div class="file-drop-zone" id="fileDropZone">
+            <input type="file" accept=".txt" id="fileInput">
+            <p>Drag and drop a TXT file here or click to browse files</p>
+        </div>
+        <div id="fileStatus" style="display: none;"></div>
+    </div>
+
+    <div class="debug-section">
+        <h3>Step 2: ChipManager Test</h3>
+        <button id="testChipManager">Test ChipManager</button>
+        <div class="chip-container" id="file-vocabulary-chip-container"></div>
+    </div>
+
+    <div class="debug-section">
+        <h3>Step 3: File Processing Test</h3>
+        <button id="testFileProcessing">Test File Processing</button>
+        <div id="processingResults"></div>
+    </div>
+
+    <div class="debug-section">
+        <h3>Debug Console</h3>
+        <div id="debugConsole" style="background: #333; color: #0f0; padding: 10px; font-family: monospace; min-height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <script type="module">
+        import { ChipManager } from './src/components/chips.js';
+        
+        // Debug console
+        const debugConsole = document.getElementById('debugConsole');
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#f00' : type === 'warn' ? '#fa0' : '#0f0';
+            debugConsole.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+        
+        // Initialize ChipManager
+        log('Initializing ChipManager...');
+        const chipManager = new ChipManager();
+        
+        // Register the file-vocabulary container
+        const container = document.getElementById('file-vocabulary-chip-container');
+        if (container) {
+            chipManager.registerContainer('file-vocabulary', container);
+            log('Registered file-vocabulary container successfully');
+        } else {
+            log('ERROR: file-vocabulary-chip-container not found!', 'error');
+        }
+
+        // Test ChipManager functionality
+        document.getElementById('testChipManager').addEventListener('click', () => {
+            log('Testing ChipManager.addChip...');
+            try {
+                chipManager.addChip('test-word', ['vocabulary'], 'file-vocabulary');
+                log('ChipManager.addChip succeeded');
+            } catch (error) {
+                log(`ERROR in ChipManager.addChip: ${error.message}`, 'error');
+            }
+        });
+
+        // File parsing function
+        function parseWords(text) {
+            if (!text.trim()) return [];
+            
+            return text.split(/[\s,\n]+/)
+                .map(word => word.trim().replace(/[^\w\s-']/g, ''))
+                .filter(word => word.length > 0 && /[a-zA-Z]/.test(word))
+                .map(word => word.toLowerCase());
+        }
+
+        // File upload handlers
+        const fileDropZone = document.getElementById('fileDropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileStatus = document.getElementById('fileStatus');
+
+        function showFileStatus(message, type) {
+            fileStatus.textContent = message;
+            fileStatus.className = `text-${type}`;
+            fileStatus.style.display = 'block';
+            log(`File Status: ${message}`, type);
+            
+            setTimeout(() => {
+                fileStatus.style.display = 'none';
+            }, 5000);
+        }
+
+        function handleFileUpload(file) {
+            log(`Processing file: ${file.name}`);
+            
+            if (!file.name.toLowerCase().endsWith('.txt')) {
+                showFileStatus('Error: Only TXT files are supported', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                log('FileReader loaded successfully');
+                const content = e.target.result;
+                log(`File content length: ${content.length} characters`);
+                
+                const words = parseWords(content);
+                log(`Parsed ${words.length} words: ${words.slice(0, 10).join(', ')}${words.length > 10 ? '...' : ''}`);
+                
+                if (words.length > 0) {
+                    try {
+                        // Add each word using ChipManager
+                        words.forEach((word, index) => {
+                            chipManager.addChip(word.trim(), ['vocabulary'], 'file-vocabulary');
+                            if (index < 5) log(`Added chip: ${word}`);
+                        });
+                        
+                        showFileStatus(`Successfully loaded ${words.length} words from ${file.name}`, 'success');
+                    } catch (error) {
+                        log(`ERROR adding chips: ${error.message}`, 'error');
+                        showFileStatus(`Error processing words: ${error.message}`, 'error');
+                    }
+                } else {
+                    showFileStatus('No valid words found in file', 'warning');
+                }
+            };
+            
+            reader.onerror = () => {
+                log('FileReader error occurred', 'error');
+                showFileStatus('Error reading file', 'error');
+            };
+            
+            log('Starting file read...');
+            reader.readAsText(file);
+        }
+
+        // Drag and drop handlers
+        fileDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.add('dragover');
+            log('Dragover detected');
+        });
+
+        fileDropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.remove('dragover');
+        });
+
+        fileDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.remove('dragover');
+            log('File drop detected');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        // File input handler
+        fileInput.addEventListener('change', (e) => {
+            log('File input change detected');
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        // Test file processing without upload
+        document.getElementById('testFileProcessing').addEventListener('click', async () => {
+            log('Testing file processing with test_words.txt...');
+            try {
+                const response = await fetch('./test_words.txt');
+                const content = await response.text();
+                const words = parseWords(content);
+                
+                log(`Test file processed: ${words.length} words`);
+                document.getElementById('processingResults').innerHTML = `
+                    <strong>Test Results:</strong><br>
+                    Words found: ${words.length}<br>
+                    Sample: ${words.slice(0, 10).join(', ')}
+                `;
+                
+                // Try adding to ChipManager
+                words.slice(0, 5).forEach(word => {
+                    chipManager.addChip(word, ['vocabulary'], 'file-vocabulary');
+                });
+                
+            } catch (error) {
+                log(`ERROR testing file processing: ${error.message}`, 'error');
+            }
+        });
+
+        log('Debug test page initialized');
+    </script>
+</body>
+</html>
