@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flippable Card Extraction Test</title>
+    <link rel="stylesheet" href="src/styles/design-system.css">
+</head>
+<body>
+    <div class="container p-8">
+        <h1>Flippable Card Component Test</h1>
+        <p class="text-secondary mb-6">Testing the extracted flippable card component</p>
+        
+        <div class="mb-8">
+            <h2 class="mb-4">Test 1: Basic Flippable Card</h2>
+            <div id="test1-container"></div>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="mb-4">Test 2: Pre-flipped Card</h2>
+            <div id="test2-container"></div>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="mb-4">Test 3: Interactive Showcase (Full Integration)</h2>
+            <div id="showcase-container"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Test the extracted flippable card component
+        import { createFlippableCard } from './src/components/flippable-card.js';
+        import { renderInteractiveShowcase } from './src/components/interactive.js';
+
+        // Test 1: Basic flippable card
+        const test1Container = document.getElementById('test1-container');
+        const card1 = createFlippableCard({
+            front: 'Serendipity',
+            back: 'The occurrence of happy or beneficial events by chance',
+            onFlip: (flipped) => console.log('Test 1 - Card flipped:', flipped)
+        });
+        test1Container.appendChild(card1);
+
+        // Test 2: Pre-flipped card
+        const test2Container = document.getElementById('test2-container');
+        const card2 = createFlippableCard({
+            front: 'Ephemeral',
+            back: 'Lasting for a very short time',
+            flipped: true,
+            onFlip: (flipped) => console.log('Test 2 - Card flipped:', flipped)
+        });
+        test2Container.appendChild(card2);
+
+        // Test 3: Full interactive showcase
+        const showcaseContainer = document.getElementById('showcase-container');
+        renderInteractiveShowcase(showcaseContainer);
+    </script>
+</body>
+</html>

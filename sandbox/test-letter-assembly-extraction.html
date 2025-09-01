@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Letter Assembly Extraction Test</title>
+  <link rel="stylesheet" href="./src/styles/design-system.css">
+  <style>
+    body { padding: 20px; font-family: system-ui; }
+    .test-section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+    .success { color: green; font-weight: bold; }
+    .error { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Letter Assembly Extraction Test</h1>
+  
+  <div class="test-section">
+    <h2>Test 1: Direct Import from letter-assembly.js</h2>
+    <p>Testing if createLetterAssembly can be imported directly from the new file...</p>
+    <div id="direct-test"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>Test 2: Import via interactive.js</h2>
+    <p>Testing if createLetterAssembly still works when imported via interactive.js...</p>
+    <div id="indirect-test"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>Test 3: Interactive Showcase</h2>
+    <p>Testing if the full interactive showcase still works with letter assembly...</p>
+    <div class="interactive-showcase"></div>
+  </div>
+
+  <script type="module">
+    // Test 1: Direct import
+    try {
+      const { createLetterAssembly } = await import('./src/components/letter-assembly.js');
+      
+      const directTest = createLetterAssembly({
+        targetWord: 'dog',
+        letters: ['d', 'o', 'g', 'c', 'a', 't'],
+        onComplete: (success, word) => {
+          if (success) {
+            document.getElementById('direct-test').innerHTML += `<p class="success">✅ Direct import SUCCESS: Spelled "${word}" correctly!</p>`;
+          }
+        }
+      });
+      
+      document.getElementById('direct-test').appendChild(directTest);
+      document.getElementById('direct-test').innerHTML = '<p class="success">✅ Direct import: Component created successfully</p>' + document.getElementById('direct-test').innerHTML;
+      
+    } catch (error) {
+      document.getElementById('direct-test').innerHTML = `<p class="error">❌ Direct import failed: ${error.message}</p>`;
+    }
+
+    // Test 2: Import via interactive.js
+    try {
+      const { createLetterAssembly } = await import('./src/components/interactive.js');
+      
+      const indirectTest = createLetterAssembly({
+        targetWord: 'cat',
+        letters: ['c', 'a', 't', 'd', 'o', 'g'],
+        onComplete: (success, word) => {
+          if (success) {
+            document.getElementById('indirect-test').innerHTML += `<p class="success">✅ Via interactive.js SUCCESS: Spelled "${word}" correctly!</p>`;
+          }
+        }
+      });
+      
+      document.getElementById('indirect-test').appendChild(indirectTest);
+      document.getElementById('indirect-test').innerHTML = '<p class="success">✅ Via interactive.js: Component created successfully</p>' + document.getElementById('indirect-test').innerHTML;
+      
+    } catch (error) {
+      document.getElementById('indirect-test').innerHTML = `<p class="error">❌ Via interactive.js failed: ${error.message}</p>`;
+    }
+
+    // Test 3: Full showcase
+    try {
+      const { renderInteractiveShowcase } = await import('./src/components/interactive.js');
+      renderInteractiveShowcase(document.querySelector('.interactive-showcase'));
+      console.log('✅ Interactive showcase rendered successfully');
+    } catch (error) {
+      console.error('❌ Interactive showcase failed:', error);
+      document.querySelector('.interactive-showcase').innerHTML = `<p class="error">❌ Showcase failed: ${error.message}</p>`;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,565 @@
+/*
+ * Create Lesson Page Styles
+ * Extracted from create-lesson.html inline styles
+ * Uses design system tokens and follows existing pattern
+ */
+
+/* ===================================================================
+   MATERIAL SYMBOLS FONT CONFIGURATION
+   ================================================================ */
+
+/* Ensure Material Symbols font loads properly */
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ===================================================================
+   PAGE LAYOUT AND STRUCTURE
+   ================================================================ */
+
+/* Create Lesson specific styles using design tokens */
+.page-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-background);
+}
+
+.main-content {
+    flex: 1;
+    padding: var(--space-6) var(--space-4);
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-8);
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.page-title {
+    font-family: var(--font-family-headers);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-black);
+    margin: 0;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: var(--space-3);
+}
+
+/* ===================================================================
+   ACCORDION COMPONENT STYLES
+   ================================================================ */
+
+/* Accordion Styles */
+.accordion {
+    margin-bottom: var(--space-6);
+}
+
+.accordion-item {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-gray-200);
+    border-radius: 8px;
+    margin-bottom: var(--space-4);
+    box-shadow: var(--shadow-sm);
+}
+
+.accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font-family-headers);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-black);
+    transition: background-color 0.2s ease;
+}
+
+.accordion-header:hover {
+    background-color: var(--color-gray-50);
+}
+
+.accordion-header:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.accordion-icon {
+    font-size: 24px;
+    color: var(--color-gray-500);
+    transition: transform 0.2s ease;
+}
+
+.accordion-content {
+    display: none;
+    padding: 0 var(--space-5) var(--space-5);
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.accordion-item.active .accordion-content {
+    display: block;
+}
+
+.accordion-item.active .accordion-icon {
+    transform: rotate(180deg);
+}
+
+/* ===================================================================
+   WORD GROUP COMPONENT STYLES
+   ================================================================ */
+
+/* Word Group Styles */
+.word-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+    margin-bottom: var(--space-6);
+}
+
+.word-group {
+    background: var(--color-card-bg-soft);
+    padding: var(--space-5);
+    border-radius: 8px;
+    border: 1px solid var(--color-gray-200);
+}
+
+.word-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+}
+
+.group-title {
+    font-family: var(--font-family-headers);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-black);
+    margin: 0;
+}
+
+.group-title-input {
+    font-family: var(--font-family-headers);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-black);
+    background: transparent;
+    border: 1px solid transparent;
+    padding: var(--space-1) var(--space-2);
+    border-radius: 4px;
+    margin: 0;
+}
+
+.group-title-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background: var(--color-white);
+}
+
+/* ===================================================================
+   ACTIVITY TOGGLE COMPONENT STYLES
+   ================================================================ */
+
+/* Enhanced Activity Toggle Styling */
+.activity-toggles {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.activity-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.activity-toggle {
+    appearance: none;
+    width: 40px;
+    height: 20px;
+    background: var(--color-gray-300);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.activity-toggle:checked {
+    background: var(--color-black);
+}
+
+.activity-toggle::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-white);
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s ease;
+}
+
+.activity-toggle:checked::before {
+    transform: translateX(20px);
+}
+
+.activity-toggle:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.toggle-label {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-700);
+    font-weight: var(--font-weight-medium);
+}
+
+.toggle-label.active {
+    color: var(--color-black);
+}
+
+/* ===================================================================
+   WORD INPUT COMPONENT STYLES
+   ================================================================ */
+
+.word-input-container {
+    margin-bottom: var(--space-4);
+}
+
+.word-input {
+    width: 100%;
+    min-height: 80px;
+    padding: var(--space-3);
+    border: 1px solid var(--color-gray-300);
+    border-radius: 4px;
+    font-family: var(--font-family-inputs);
+    font-size: var(--font-size-base);
+    resize: vertical;
+    background: var(--color-white);
+}
+
+.word-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+}
+
+/* ===================================================================
+   WORD CHIP COMPONENT STYLES
+   ================================================================ */
+
+/* Word group chips (before moving to pool) */
+.word-group-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    min-height: 40px;
+    padding: var(--space-2);
+    border-radius: 4px;
+    background: var(--color-gray-50);
+}
+
+/* Temp chip styling - slightly brighter than regular chips for visibility */
+.word-chip.temp-chip.vocabulary {
+    background: #fef3cd; /* Brighter yellow for temp state */
+    border-color: #f59e0b;
+}
+
+.word-chip.temp-chip.spelling {
+    background: #d1fae5; /* Brighter mint for temp state */
+    border-color: #10b981;
+}
+
+.word-chip.temp-chip.phonics {
+    background: #e9d5ff; /* Brighter purple for temp state */
+    border-color: #a855f7;
+}
+
+.word-group-chip-delete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-error);
+    color: var(--color-white);
+    font-size: 8px;
+    cursor: pointer;
+    margin-left: 2px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.word-group-chip:hover .word-group-chip-delete {
+    opacity: 1;
+}
+
+/* File Upload word groups initially hidden until file is uploaded */
+#fileUploadWordGroups {
+    display: none;
+}
+
+#fileUploadWordGroups.visible {
+    display: grid;
+}
+
+/* ===================================================================
+   FILE UPLOAD COMPONENT STYLES
+   ================================================================ */
+
+/* File Upload Styles */
+.file-drop-zone {
+    border: 2px dashed var(--color-gray-300);
+    border-radius: 8px;
+    padding: var(--space-8);
+    text-align: center;
+    background: var(--color-gray-50);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-drop-zone.dragover {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.file-drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.drop-icon {
+    font-size: 48px;
+    color: var(--color-gray-400);
+    margin-bottom: var(--space-2);
+}
+
+.drop-text {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-base);
+    color: var(--color-gray-600);
+    margin-bottom: var(--space-2);
+}
+
+.drop-subtext {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+}
+
+/* ===================================================================
+   WORD POOL COMPONENT STYLES
+   ================================================================ */
+
+/* Word Pool Styles */
+.word-pool {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-gray-200);
+    border-radius: 8px;
+    padding: var(--space-6);
+    box-shadow: var(--shadow-sm);
+    margin-top: var(--space-8);
+}
+
+.word-pool-header {
+    display: flex;
+    align-items: center;
+    justify-content: between;
+    margin-bottom: var(--space-4);
+}
+
+.word-pool-title {
+    font-family: var(--font-family-headers);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-black);
+    margin: 0;
+}
+
+.word-count {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-600);
+    margin-left: auto;
+}
+
+.word-chips-container {
+    display: flex;
+    align-items: flex-start; /* Prevents chips from stretching */
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    min-height: 60px;
+}
+
+/* Removed conflicting word-chip styles - using design-system.css values */
+
+/* Removed conflicting hover style - using design-system.css hover effects */
+
+.word-chip-text {
+    font-weight: var(--font-weight-medium);
+}
+
+.activity-dots {
+    display: flex;
+    gap: var(--space-1);
+}
+
+.delete-chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-error);
+    color: var(--color-white);
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: var(--space-1);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.word-chip:hover .delete-chip {
+    opacity: 1;
+}
+
+.delete-chip:hover {
+    background: #dc2626;
+}
+
+/* ===================================================================
+   EMPTY STATE COMPONENT STYLES
+   ================================================================ */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    color: var(--color-gray-500);
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: var(--space-4);
+}
+
+.empty-text {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-base);
+    text-align: center;
+}
+
+/* ===================================================================
+   SCHEDULING AND CONTINUE SECTION STYLES
+   ================================================================ */
+
+/* Scheduling Section (Placeholder) */
+.scheduling-preview {
+    background: var(--color-card-bg-soft);
+    border: 1px solid var(--color-gray-200);
+    border-radius: 8px;
+    padding: var(--space-6);
+    margin-top: var(--space-6);
+}
+
+.continue-section {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+}
+
+/* ===================================================================
+   RESPONSIVE DESIGN
+   ================================================================ */
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-content {
+        padding: var(--space-4) var(--space-3);
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .nav-buttons {
+        justify-content: space-between;
+    }
+    
+    .word-groups {
+        grid-template-columns: 1fr;
+    }
+    
+    .continue-section {
+        flex-direction: column;
+    }
+}
+
+/* ===================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ================================================================ */
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+    .accordion-icon,
+    .activity-toggle,
+    .activity-toggle::before,
+    .word-chip,
+    .delete-chip {
+        transition: none;
+    }
+}
+
+/* Focus Styles */
+.btn:focus,
+.accordion-header:focus,
+.word-chip:focus,
+.file-drop-zone:focus-within {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
