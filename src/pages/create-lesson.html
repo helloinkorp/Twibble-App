@@ -408,6 +408,7 @@
             flex-wrap: wrap;
             gap: var(--space-3);
             min-height: 60px;
+            align-items: flex-start; /* This is the fix */
         }
         
         /* Removed conflicting word-chip styles - using design-system.css values */
@@ -1707,9 +1708,13 @@
         // Create a word chip for the word pool display - Use design system createWordChip
         function createWordPoolChip(word, primaryActivity, activities) {
             // Use the design system createWordChip function for consistency
+            // Force simple display style (not interactive) to get proper activity colors
             const chipConfig = {
                 word: word,
-                activities: activities,
+                activities: activities || [primaryActivity], // Ensure activities array exists
+                completed: undefined,    // CRITICAL: Force simple display style
+                difficulty: undefined,   // CRITICAL: Force simple display style  
+                onClick: null,           // CRITICAL: Force simple display style
                 onDelete: (chipId, word) => {
                     // Handle pool chip deletion
                     console.log(`Deleting word "${word}" from pool`);

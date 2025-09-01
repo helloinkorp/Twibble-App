@@ -783,8 +783,9 @@ select {
   cursor: grab;
   transition: all var(--transition-fast);
   user-select: none;
-  min-height: 12px;
+  min-height: auto;
   position: relative;
+  line-height: 1;
 }
 
 .word-chip:active {

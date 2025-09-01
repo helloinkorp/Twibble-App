@@ -25,8 +25,8 @@ function createWordChip(config = {}) {
   const {
     word = '',
     activities = [],
-    completed = false,
-    difficulty = 'medium',
+    completed,        // FIXED: Remove default value so undefined stays undefined
+    difficulty,       // FIXED: Remove default value so undefined stays undefined
     onDelete = null,
     onClick = null,
     draggable = true,
@@ -70,9 +70,7 @@ function createWordChip(config = {}) {
 
   // Create chip content
   const wordText = document.createElement('span');
-  if (isInteractiveStyle) {
-    wordText.className = 'font-medium';
-  }
+  // Removed font-medium class - word-chip already handles font-weight
   wordText.textContent = word;
   chip.appendChild(wordText);
 
