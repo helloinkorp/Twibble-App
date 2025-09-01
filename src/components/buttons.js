@@ -28,10 +28,14 @@ function createButton(config = {}) {
   const {
     text = 'Button',
     variant = 'secondary', // Secondary-first philosophy
-    size = '',
+    size = 'md',
     disabled = false,
-    onClick = () => {},
+    onClick = null,
+    onKeyDown = null,
     ariaLabel = text,
+    ariaDescribedBy = '',
+    className = '',
+    id = null,
     type = 'button'
   } = config;
 
@@ -39,14 +43,30 @@ function createButton(config = {}) {
   button.type = type;
   button.textContent = text;
   button.disabled = disabled;
+  
+  // Set ID if provided
+  if (id) {
+    button.id = id;
+  }
+  
+  // Accessibility attributes
   button.setAttribute('aria-label', ariaLabel);
+  if (ariaDescribedBy) {
+    button.setAttribute('aria-describedby', ariaDescribedBy);
+  }
   
-  // Base button class with variant
-  const sizeClass = size ? `btn-${size}` : '';
-  button.className = `btn btn-${variant} ${sizeClass}`.trim();
+  // Base button class with variant and size
+  const sizeClass = size && size !== 'md' ? `btn-${size}` : '';
+  button.className = `btn btn-${variant} ${sizeClass} ${className}`.trim();
   
-  // Add click handler
-  button.addEventListener('click', onClick);
+  // Event handlers
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  
+  if (onKeyDown) {
+    button.addEventListener('keydown', onKeyDown);
+  }
   
   // Ensure WCAG compliance
   if (disabled) {
@@ -106,20 +126,39 @@ function createDestructiveButton(config = {}) {
 
 /**
  * Button Group - Creates a group of related buttons
- * @param {Array} buttons - Array of button configurations
- * @param {string} alignment - Group alignment (left, center, right)
+ * @param {Object} config - Button group configuration
+ * @param {Array} config.buttons - Array of button configurations
+ * @param {string} config.alignment - Group alignment (left, center, right)
+ * @param {string} config.className - Additional CSS classes
+ * @param {string} config.gap - Gap size between buttons (sm, md, lg)
+ * @param {string} config.direction - Flex direction (row, column)
  * @returns {HTMLElement} Button group container
  */
-function createButtonGroup(buttons = [], alignment = 'left') {
-  const group = document.createElement('div');
-  group.className = `flex gap-3 items-center`;
+function createButtonGroup(config = {}) {
+  const {
+    buttons = [],
+    alignment = 'left',
+    className = '',
+    gap = 'md',
+    direction = 'row'
+  } = config;
   
+  const group = document.createElement('div');
+  
+  // Base classes with gap sizes
+  const gapClass = gap === 'sm' ? 'gap-2' : gap === 'lg' ? 'gap-4' : 'gap-3';
+  const flexDirection = direction === 'column' ? 'flex-col' : 'flex-row';
+  
+  group.className = `flex ${flexDirection} ${gapClass} items-center ${className}`.trim();
+  
+  // Alignment classes
   if (alignment === 'center') {
     group.classList.add('justify-center');
   } else if (alignment === 'right') {
     group.classList.add('justify-end');
   }
   
+  // Create buttons from configurations
   buttons.forEach(buttonConfig => {
     const button = createButton(buttonConfig);
     group.appendChild(button);

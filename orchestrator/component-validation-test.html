@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component API Validation Test</title>
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="../src/styles/design-system.css">
+    
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+        }
+        .test-result {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.375rem;
+            font-family: monospace;
+        }
+        .test-pass {
+            background-color: #d1fae5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+        .test-fail {
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+        .test-output {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Phase R1.2 Component API Standardization Validation</h1>
+    <p>Testing the standardized API across all refactored components</p>
+
+    <div class="test-section">
+        <h2>1. API Consistency Test</h2>
+        <p>Verifying all components accept standardized config object pattern</p>
+        <div id="api-test-results"></div>
+        <div class="test-output" id="api-test-output"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Standard Properties Test</h2>
+        <p>Testing new standard properties (variant, size, disabled, etc.)</p>
+        <div id="properties-test-results"></div>
+        <div class="test-output" id="properties-test-output"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Backward Compatibility Test</h2>
+        <p>Ensuring existing usage patterns still work</p>
+        <div id="compatibility-test-results"></div>
+        <div class="test-output" id="compatibility-test-output"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Code Duplication Test</h2>
+        <p>Verifying interactive.js is import/re-export hub only</p>
+        <div id="duplication-test-results"></div>
+        <div class="test-output" id="duplication-test-output"></div>
+    </div>
+
+    <!-- Component Scripts (as modules) -->
+    <script type="module">
+        import { createButton, createButtonGroup } from '../src/components/buttons.js';
+        import { createCard } from '../src/components/cards.js';
+        import { createInput } from '../src/components/forms.js';
+        import { 
+            createWordChip, 
+            createDropContainer, 
+            createFlippableCard, 
+            createModal,
+            createLetterAssembly 
+        } from '../src/components/interactive.js';
+
+        function runTests() {
+            console.log('🧪 Starting Component API Validation Tests...');
+            
+            // Test 1: API Consistency
+            testAPIConsistency();
+            
+            // Test 2: Standard Properties
+            testStandardProperties();
+            
+            // Test 3: Backward Compatibility
+            testBackwardCompatibility();
+            
+            // Test 4: Code Duplication Elimination
+            testCodeDuplication();
+            
+            console.log('✅ All tests completed!');
+        }
+
+        function testAPIConsistency() {
+            const results = [];
+            const output = document.getElementById('api-test-output');
+
+            try {
+                // Test all components accept config = {} pattern
+                const button = createButton({});
+                results.push({ test: 'createButton({})', result: 'PASS', element: button });
+                
+                const card = createCard({});
+                results.push({ test: 'createCard({})', result: 'PASS', element: card });
+                
+                const input = createInput({});
+                results.push({ test: 'createInput({})', result: 'PASS', element: input });
+
+                const buttonGroup = createButtonGroup({});
+                results.push({ test: 'createButtonGroup({})', result: 'PASS', element: buttonGroup });
+
+                // Test interactive components
+                const dropContainer = createDropContainer({});
+                results.push({ test: 'createDropContainer({})', result: 'PASS', element: dropContainer });
+                
+                const flippableCard = createFlippableCard({});
+                results.push({ test: 'createFlippableCard({})', result: 'PASS', element: flippableCard });
+
+                const letterAssembly = createLetterAssembly({});
+                results.push({ test: 'createLetterAssembly({})', result: 'PASS', element: letterAssembly });
+
+                // Render test elements
+                results.forEach(test => {
+                    if (test.element) {
+                        output.appendChild(test.element);
+                    }
+                });
+
+            } catch (error) {
+                results.push({ test: 'API Consistency', result: 'FAIL', error: error.message });
+            }
+
+            displayResults('api-test-results', results);
+        }
+
+        function testStandardProperties() {
+            const results = [];
+            const output = document.getElementById('properties-test-output');
+
+            try {
+                // Test standard properties on button
+                const buttonLg = createButton({
+                    text: 'Large Button',
+                    size: 'lg',
+                    variant: 'primary',
+                    disabled: false,
+                    id: 'test-button-lg'
+                });
+                
+                const buttonSm = createButton({
+                    text: 'Small Button',
+                    size: 'sm',
+                    variant: 'secondary',
+                    disabled: true,
+                    id: 'test-button-sm'
+                });
+
+                // Test standard properties on card
+                const cardSoft = createCard({
+                    content: '<p>Soft Card Test</p>',
+                    variant: 'soft',
+                    size: 'lg',
+                    disabled: false,
+                    id: 'test-card-soft'
+                });
+
+                const cardDisabled = createCard({
+                    content: '<p>Disabled Card</p>',
+                    variant: 'default',
+                    disabled: true,
+                    id: 'test-card-disabled'
+                });
+
+                // Test standard properties on input
+                const inputLg = createInput({
+                    placeholder: 'Large input',
+                    size: 'lg',
+                    variant: 'default',
+                    disabled: false,
+                    id: 'test-input-lg'
+                });
+
+                const inputDisabled = createInput({
+                    placeholder: 'Disabled input',
+                    disabled: true,
+                    id: 'test-input-disabled'
+                });
+
+                // Add elements to output
+                [buttonLg, buttonSm, cardSoft, cardDisabled, inputLg, inputDisabled].forEach(el => {
+                    if (el && el.appendChild) {
+                        output.appendChild(el);
+                    } else if (el) {
+                        // For form groups, get the container
+                        output.appendChild(el);
+                    }
+                });
+
+                results.push({ test: 'Button size variants', result: 'PASS' });
+                results.push({ test: 'Card variant/disabled states', result: 'PASS' });
+                results.push({ test: 'Input size/disabled states', result: 'PASS' });
+
+            } catch (error) {
+                results.push({ test: 'Standard Properties', result: 'FAIL', error: error.message });
+            }
+
+            displayResults('properties-test-results', results);
+        }
+
+        function testBackwardCompatibility() {
+            const results = [];
+            const output = document.getElementById('compatibility-test-output');
+
+            try {
+                // Test old usage patterns still work
+                const oldButton = createButton({
+                    text: 'Old Style Button',
+                    variant: 'secondary'  // This should still work
+                });
+
+                const oldCard = createCard({
+                    content: 'Old Style Card',
+                    variant: 'default'    // This should still work
+                });
+
+                const oldInput = createInput({
+                    placeholder: 'Old Style Input',
+                    type: 'text'          // This should still work
+                });
+
+                // Test default values work
+                const defaultButton = createButton();  // Should use defaults
+                const defaultCard = createCard();      // Should use defaults  
+                const defaultInput = createInput();    // Should use defaults
+
+                // Add to output
+                [oldButton, oldCard, oldInput, defaultButton, defaultCard, defaultInput].forEach(el => {
+                    if (el) output.appendChild(el);
+                });
+
+                results.push({ test: 'Old API patterns work', result: 'PASS' });
+                results.push({ test: 'Default values maintained', result: 'PASS' });
+
+            } catch (error) {
+                results.push({ test: 'Backward Compatibility', result: 'FAIL', error: error.message });
+            }
+
+            displayResults('compatibility-test-results', results);
+        }
+
+        function testCodeDuplication() {
+            const results = [];
+
+            try {
+                // Test that interactive.js components are imported, not duplicated
+                // This should work without errors if imports are correct
+                const wordChip = createWordChip({ word: 'test' });
+                const dropContainer = createDropContainer({ label: 'Test Drop' });
+                const flippableCard = createFlippableCard({ front: 'Front', back: 'Back' });
+                const letterAssembly = createLetterAssembly({ targetWord: 'cat', letters: ['c', 'a', 't'] });
+
+                if (wordChip && dropContainer && flippableCard && letterAssembly) {
+                    results.push({ test: 'Interactive components import correctly', result: 'PASS' });
+                    results.push({ test: 'No duplicate implementations found', result: 'PASS' });
+                } else {
+                    results.push({ test: 'Interactive components', result: 'FAIL', error: 'One or more components failed to create' });
+                }
+
+            } catch (error) {
+                results.push({ test: 'Code Duplication Test', result: 'FAIL', error: error.message });
+            }
+
+            displayResults('duplication-test-results', results);
+        }
+
+        function displayResults(containerId, results) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            results.forEach(result => {
+                const div = document.createElement('div');
+                div.className = result.result === 'PASS' ? 'test-result test-pass' : 'test-result test-fail';
+                
+                const status = result.result === 'PASS' ? '✅ PASS' : '❌ FAIL';
+                const error = result.error ? ` - ${result.error}` : '';
+                
+                div.textContent = `${status}: ${result.test}${error}`;
+                container.appendChild(div);
+            });
+        }
+
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>

@@ -26,23 +26,35 @@ if (!document.querySelector('link[href*="design-system.css"]')) {
 function createCard(config = {}) {
   const {
     variant = 'default',
+    size = 'md',
     content = '',
     onClick = null,
+    onKeyDown = null,
     ariaLabel = '',
+    ariaDescribedBy = '',
     focusable = false,
-    className = ''
+    disabled = false,
+    className = '',
+    id = null
   } = config;
 
   const card = document.createElement('div');
   
-  // Set card class based on variant
+  // Set ID if provided
+  if (id) {
+    card.id = id;
+  }
+  
+  // Set card class based on variant and size
+  const sizeClass = size && size !== 'md' ? `card-${size}` : '';
+  
   switch (variant) {
     case 'soft':
-      card.className = `card-soft ${className}`.trim();
+      card.className = `card-soft ${sizeClass} ${className}`.trim();
       break;
     case 'hover':
-      card.className = `card-hover ${className}`.trim();
-      if (onClick) {
+      card.className = `card-hover ${sizeClass} ${className}`.trim();
+      if (onClick && !disabled) {
         card.addEventListener('click', onClick);
         card.setAttribute('role', 'button');
         card.setAttribute('tabindex', '0');
@@ -58,7 +70,7 @@ function createCard(config = {}) {
       }
       break;
     default:
-      card.className = `card ${className}`.trim();
+      card.className = `card ${sizeClass} ${className}`.trim();
   }
   
   // Set content
@@ -68,13 +80,29 @@ function createCard(config = {}) {
     card.appendChild(content);
   }
   
-  // Accessibility
+  // Accessibility attributes
   if (ariaLabel) {
     card.setAttribute('aria-label', ariaLabel);
   }
   
+  if (ariaDescribedBy) {
+    card.setAttribute('aria-describedby', ariaDescribedBy);
+  }
+  
+  // Focusable and disabled states
   if (focusable && variant !== 'hover') {
     card.setAttribute('tabindex', '0');
+  }
+  
+  if (disabled) {
+    card.setAttribute('aria-disabled', 'true');
+    card.style.opacity = '0.6';
+    card.style.pointerEvents = 'none';
+  }
+  
+  // Custom keydown handler
+  if (onKeyDown && !disabled) {
+    card.addEventListener('keydown', onKeyDown);
   }
   
   return card;

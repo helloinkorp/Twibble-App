@@ -30,14 +30,20 @@ if (!document.querySelector('link[href*="design-system.css"]')) {
 function createInput(config = {}) {
   const {
     type = 'text',
+    variant = 'default',
+    size = 'md',
     placeholder = '',
     label = '',
     helpText = '',
     required = false,
+    disabled = false,
     value = '',
     onChange = () => {},
     onValidate = null,
+    onKeyDown = null,
     errorMessage = '',
+    ariaLabel = '',
+    ariaDescribedBy = '',
     id = `input-${Math.random().toString(36).substr(2, 9)}`,
     className = ''
   } = config;
@@ -67,16 +73,37 @@ function createInput(config = {}) {
   input.placeholder = placeholder;
   input.value = value;
   input.required = required;
+  input.disabled = disabled;
+  
+  // Apply variant and size classes
+  const sizeClass = size !== 'md' ? `input-${size}` : '';
+  const variantClass = variant !== 'default' ? `input-${variant}` : '';
+  input.className = `form-input ${sizeClass} ${variantClass}`.trim();
   
   // Set ARIA attributes
   if (required) {
     input.setAttribute('aria-required', 'true');
   }
   
+  if (disabled) {
+    input.setAttribute('aria-disabled', 'true');
+  }
+  
+  if (ariaLabel) {
+    input.setAttribute('aria-label', ariaLabel);
+  }
+  
   // Help text association
+  let describedByIds = [];
   if (helpText) {
     const helpId = `${id}-help`;
-    input.setAttribute('aria-describedby', helpId);
+    describedByIds.push(helpId);
+  }
+  if (ariaDescribedBy) {
+    describedByIds.push(ariaDescribedBy);
+  }
+  if (describedByIds.length > 0) {
+    input.setAttribute('aria-describedby', describedByIds.join(' '));
   }
   
   // Event handlers
@@ -101,6 +128,11 @@ function createInput(config = {}) {
       }
     }
   });
+  
+  // Custom keydown handler
+  if (onKeyDown) {
+    input.addEventListener('keydown', onKeyDown);
+  }
   
   formGroup.appendChild(input);
   
