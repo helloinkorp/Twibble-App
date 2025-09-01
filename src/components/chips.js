@@ -389,16 +389,7 @@ class ChipManager {
 
 // Export for ES6 modules
 export {
-  createWordChip,
   createChipContainer,
   ChipManager
 };
 
-// Global namespace for non-module usage
-if (typeof window !== 'undefined') {
-  window.ChipComponents = {
-    createWordChip,
-    createChipContainer,
-    ChipManager
-  };
-}

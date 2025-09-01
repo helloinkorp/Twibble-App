@@ -837,10 +837,15 @@
     <!-- JavaScript Module -->
     <script type="module">
         // Use consolidated navigation system - createHeader is now in NavigationUtils
-        import '../js/navigation.js';
+        import { NavigationManager, NavigationUtils, initializeNavigation } from '../js/navigation.js';
         import { createCtaButton, createSecondaryButton } from '../components/buttons.js';
         import { createTextInput, createNumberInput } from '../components/forms.js';
-        import { ChipManager, createWordChip } from '../components/chips.js';
+        import { ChipManager } from '../components/chips.js';
+        import { createWordChip } from '../utils/word-chip.js';
+        
+        // Initialize navigation and get manager instance
+        initializeNavigation();
+        const navigationManager = new NavigationManager();
         
         // Initialize ChipManager for lesson creation
         const chipManager = new ChipManager();
@@ -892,8 +897,8 @@
             // Initialize file import
             initializeFileImport();
             
-            // Initialize navigation
-            initializeNavigation();
+            // Initialize button event handlers
+            initializeButtons();
             
             // Initialize auto-save
             initializeAutoSave();
@@ -1128,19 +1133,19 @@
                 }
             }
             
-            const header = window.NavigationUtils.createHeader({
+            const header = NavigationUtils.createHeader({
                 showHome: true,
                 user: userSettings,
                 onHome: () => {
-                    if (window.navigationManager) {
-                        window.navigationManager.goHome();
+                    if (navigationManager) {
+                        navigationManager.goHome();
                     } else {
                         window.location.href = 'index.html';
                     }
                 },
                 onProfile: () => {
-                    if (window.navigationManager) {
-                        window.navigationManager.goHome();
+                    if (navigationManager) {
+                        navigationManager.goHome();
                     } else {
                         window.location.href = 'index.html';
                     }
@@ -1753,15 +1758,15 @@
         }
 
         // Navigation functionality
-        function initializeNavigation() {
+        function initializeButtons() {
             const backBtn = document.getElementById('backBtn');
             const saveDraftBtn = document.getElementById('saveDraftBtn');
             const continueBtn = document.getElementById('continueBtn');
             
             if (backBtn) {
                 backBtn.addEventListener('click', () => {
-                    if (window.navigationManager) {
-                        window.navigationManager.goBack();
+                    if (navigationManager) {
+                        navigationManager.goBack();
                     } else {
                         window.location.href = 'teacher-dashboard.html';
                     }
@@ -1954,6 +1959,5 @@
     </script>
     
     <!-- Navigation System -->
-    <script src="../js/navigation.js"></script>
 </body>
 </html>

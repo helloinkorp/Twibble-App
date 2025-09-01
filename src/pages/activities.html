@@ -508,7 +508,11 @@
     <!-- JavaScript Module -->
     <script type="module">
         // Use consolidated navigation system - createHeader is now in NavigationUtils
-        import '../js/navigation.js';
+        import { NavigationManager, NavigationUtils, initializeNavigation } from '../js/navigation.js';
+        
+        // Initialize navigation and get manager instance
+        initializeNavigation();
+        const navigationManager = new NavigationManager();
         import { createCtaButton, createSecondaryButton } from '../components/buttons.js';
         import { createFlippableCard, createWordChip, createLetterAssembly } from '../components/interactive.js';
         
@@ -608,7 +612,7 @@
                 }
             }
             
-            const header = window.NavigationUtils.createHeader({
+            const header = NavigationUtils.createHeader({
                 showHome: true,
                 user: userSettings,
                 onHome: () => {
@@ -1256,16 +1260,16 @@
         }
 
         function redirectToHome() {
-            if (window.navigationManager) {
-                window.navigationManager.goHome();
+            if (navigationManager) {
+                navigationManager.goHome();
             } else {
                 window.location.href = 'index.html';
             }
         }
 
         function returnToStudentDashboard() {
-            if (window.navigationManager) {
-                window.navigationManager.goBack();
+            if (navigationManager) {
+                navigationManager.goBack();
             } else {
                 window.location.href = `student-dashboard.html?lesson=${currentState.lessonId}`;
             }
@@ -1301,6 +1305,5 @@
     </script>
     
     <!-- Navigation System -->
-    <script src="../js/navigation.js"></script>
 </body>
 </html>

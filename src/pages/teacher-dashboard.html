@@ -537,7 +537,11 @@
     <!-- JavaScript Module -->
     <script type="module">
         // Use consolidated navigation system - createHeader is now in NavigationUtils
-        import '../js/navigation.js';
+        import { NavigationManager, NavigationUtils, initializeNavigation } from '../js/navigation.js';
+        
+        // Initialize navigation and get manager instance
+        initializeNavigation();
+        const navigationManager = new NavigationManager();
         
         // Teacher Dashboard Manager
         class TeacherDashboard {
@@ -592,20 +596,20 @@
             setupHeader() {
                 const headerContainer = document.getElementById('page-header');
                 
-                const header = window.NavigationUtils.createHeader({
+                const header = NavigationUtils.createHeader({
                     showHome: true,
                     user: this.userSettings,
                     onHome: () => {
-                        if (window.navigationManager) {
-                            window.navigationManager.goHome();
+                        if (navigationManager) {
+                            navigationManager.goHome();
                         } else {
                             window.location.href = 'index.html';
                         }
                     },
                     onProfile: () => {
                         // Profile functionality - redirect to role selection for now
-                        if (window.navigationManager) {
-                            window.navigationManager.goHome();
+                        if (navigationManager) {
+                            navigationManager.goHome();
                         } else {
                             window.location.href = 'index.html';
                         }
@@ -801,8 +805,8 @@
 
             createNewLesson() {
                 // Navigate to lesson creation page
-                if (window.navigationManager) {
-                    window.navigationManager.navigate('create-lesson.html');
+                if (navigationManager) {
+                    navigationManager.navigate('create-lesson.html');
                 } else {
                     window.location.href = 'create-lesson.html';
                 }
@@ -913,6 +917,5 @@
     </script>
     
     <!-- Navigation System -->
-    <script src="../js/navigation.js"></script>
 </body>
 </html>

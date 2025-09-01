@@ -219,9 +219,3 @@ export {
   updateChipAppearance
 };
 
-// Global namespace for non-module usage (chips.js compatibility)
-if (typeof window !== 'undefined') {
-  window.ChipComponents = window.ChipComponents || {};
-  window.ChipComponents.createWordChip = createWordChip;
-  window.ChipComponents.updateChipAppearance = updateChipAppearance;
-}

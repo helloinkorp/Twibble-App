@@ -362,7 +362,11 @@
     <!-- JavaScript Module -->
     <script type="module">
         // Use consolidated navigation system - createHeader is now in NavigationUtils
-        import '../js/navigation.js';
+        import { NavigationManager, NavigationUtils, initializeNavigation } from '../js/navigation.js';
+        
+        // Initialize navigation and get manager instance
+        initializeNavigation();
+        const navigationManager = new NavigationManager();
         
         // Role Selection Page Manager
         class RoleSelectionManager {
@@ -465,7 +469,7 @@
             setupHeader() {
                 const headerContainer = document.getElementById('page-header');
                 
-                const header = window.NavigationUtils.createHeader({
+                const header = NavigationUtils.createHeader({
                     showHome: true, // Show home button with icon only
                     user: this.userSettings,
                     onHome: () => {
@@ -624,8 +628,8 @@
             selectRole(role) {
                 try {
                     // Use navigation manager if available
-                    if (window.navigationManager) {
-                        window.navigationManager.setRoleAndNavigate(role);
+                    if (navigationManager) {
+                        navigationManager.setRoleAndNavigate(role);
                     } else {
                         // Fallback to direct navigation
                         localStorage.setItem('currentRole', role);
@@ -683,8 +687,8 @@
                 if (confirmed) {
                     try {
                         // Use navigation manager if available
-                        if (window.navigationManager) {
-                            window.navigationManager.resetOnboarding();
+                        if (navigationManager) {
+                            navigationManager.resetOnboarding();
                         } else {
                             // Fallback to direct navigation
                             localStorage.removeItem('userSettings');
@@ -724,6 +728,5 @@
     </script>
     
     <!-- Navigation System -->
-    <script src="../js/navigation.js"></script>
 </body>
 </html>

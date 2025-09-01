@@ -412,8 +412,12 @@
     <!-- JavaScript Module -->
     <script type="module">
         // Use consolidated navigation system - createHeader is now in NavigationUtils
-        import '../js/navigation.js';
+        import { NavigationManager, NavigationUtils, initializeNavigation } from '../js/navigation.js';
         import { createDayCard } from '../components/cards.js';
+        
+        // Initialize navigation and get manager instance
+        initializeNavigation();
+        const navigationManager = new NavigationManager();
         
         // Student Dashboard Manager
         class StudentDashboardManager {
@@ -591,20 +595,20 @@
             setupHeader() {
                 const headerContainer = document.getElementById('page-header');
                 
-                const header = window.NavigationUtils.createHeader({
+                const header = NavigationUtils.createHeader({
                     showHome: true,
                     user: this.userSettings,
                     onHome: () => {
-                        if (window.navigationManager) {
-                            window.navigationManager.goHome();
+                        if (navigationManager) {
+                            navigationManager.goHome();
                         } else {
                             window.location.href = 'index.html';
                         }
                     },
                     onProfile: () => {
                         // Navigate to profile or show profile modal
-                        if (window.navigationManager) {
-                            window.navigationManager.goHome();
+                        if (navigationManager) {
+                            navigationManager.goHome();
                         } else {
                             window.location.href = 'index.html';
                         }
@@ -741,8 +745,8 @@
 
             navigateToDay(lessonId, day) {
                 // Navigate to activities page for specific lesson and day
-                if (window.navigationManager) {
-                    window.navigationManager.navigateToActivities(lessonId, day);
+                if (navigationManager) {
+                    navigationManager.navigateToActivities(lessonId, day);
                 } else {
                     const url = `activities.html?lesson=${lessonId}&day=${day}`;
                     window.location.href = url;
@@ -786,6 +790,5 @@
     </script>
     
     <!-- Navigation System -->
-    <script src="../js/navigation.js"></script>
 </body>
 </html>
